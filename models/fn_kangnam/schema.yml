@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_sales_kangnam_base
+    description: "Bảng staging đã lọc dữ liệu thô (nhom_dv <> SAN PHAM)"
+    columns:
+      - name: ticket_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_facebook_pages
+    description: "Mapping Ticket ID -> Page Name"
+    columns:
+      - name: ticket_id
+        tests:
+          - unique
+          - not_null
+
+  - name: int_sales_kangnam_clean
+    description: "Bảng intermediate đã join Page Name và chuẩn hóa Email"
+
+  - name: sales_kangnam_mart
+    description: "Bảng Mart cuối cùng tổng hợp Lead, Booking, Hẹn Lịch, Đến Cửa, Thành Công, Doanh Số"
+    config:
+      materialized: table
