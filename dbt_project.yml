@@ -34,8 +34,8 @@ models:
     # Config indicated by + and applies to all files under models/example/
     fn_kangnam:
       stg:
-        +materialized: view  # Staging luôn là view cho nhẹ
+        +materialized: ephemeral # Tàng hình hoàn toàn, không tạo view/table trong DB
       int:
-        +materialized: view  # Intermediate logic phức tạp cũng nên là view
+        +materialized: ephemeral # Tàng hình hoàn toàn
       mart:
-        +materialized: table # Mart cuối cùng dùng làm báo cáo nên là table cho nhanh
+        +materialized: table # Chỉ tạo bảng kết quả cuối cùng này thôi
