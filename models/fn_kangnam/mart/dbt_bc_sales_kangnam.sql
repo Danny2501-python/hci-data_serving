@@ -1,7 +1,7 @@
 {{ config(materialized='table') }}
 
 with base as (
-    select * from {{ ref('int_sales_kangnam_clean') }}
+    select * from {{ ref('cte_stag_tongquan_khachhang_sm') }}
 ),
 
 lead_total as (

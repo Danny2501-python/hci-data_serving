@@ -1,8 +1,8 @@
 with base as (
-    select * from {{ ref('stg_sales_kangnam_base') }}
+    select * from {{ ref('temp_stag_tongquan_khachhang_sm') }}
 ),
 pages as (
-    select * from {{ ref('stg_facebook_pages') }}
+    select * from {{ ref('cte_page') }}
 )
 
 select
