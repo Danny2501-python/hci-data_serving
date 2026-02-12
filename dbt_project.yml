@@ -34,8 +34,8 @@ models:
     # Config indicated by + and applies to all files under models/example/
     fn_kangnam:
       stg:
-        +materialized: ephemeral # Tàng hình hoàn toàn, không tạo view/table trong DB
+        +materialized: ephemeral
       int:
-        +materialized: ephemeral # Tàng hình hoàn toàn
+        +materialized: ephemeral
       mart:
-        +materialized: table # Chỉ tạo bảng kết quả cuối cùng này thôi
+        +materialized: table
