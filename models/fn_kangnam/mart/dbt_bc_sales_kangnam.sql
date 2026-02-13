@@ -37,7 +37,7 @@ lead_total as (
 
 booking as (
     select 
-        b.page,
+        --b.page,
         'ad' as ad_id,
         'BK' as bang,
         cast(b.ticket_id as text) as ticket_id,
