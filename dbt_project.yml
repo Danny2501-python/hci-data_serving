@@ -39,3 +39,10 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    bc_sales_paris:
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
