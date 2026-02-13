@@ -28,7 +28,10 @@ jobs:
             --exclude='*.pyc' \
             ./ /mnt/nfs_share/dbt/data_serving/
           
-          # Set quyền rộng rãi để bất kỳ user nào trong Pod cũng ghi được (quan trọng cho dbt tạo logs/target)
+          # Xóa logs và target cũ trên NFS nếu có để tránh conflict quyền và rác
+          rm -rf /mnt/nfs_share/dbt/data_serving/logs /mnt/nfs_share/dbt/data_serving/target
+
+          # Set quyền rộng rãi cho thư mục cha để bất kỳ user nào chạy dbt cũng tự tạo lại được logs/target
           chmod -R 777 /mnt/nfs_share/dbt/data_serving
           
           echo "✅ DBT Data Serving deployed successfully!"
