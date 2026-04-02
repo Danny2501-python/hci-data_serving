@@ -31,15 +31,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   data_serving:
-    # Config indicated by + and applies to all files under models/example/
-    bc_sales_kangnam:
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
-    bc_sales_paris:
+    func_report_marketing_ad_cost_kn:
       stg:
         +materialized: ephemeral
       int:

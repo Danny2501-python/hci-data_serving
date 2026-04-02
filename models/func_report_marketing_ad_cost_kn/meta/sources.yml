@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: ads_raw_data
+    schema: public
+    tables:
+      - name: core_facebook_ad_ad_insight
+      - name: core_facebook_ad_ad
+      - name: core_facebook_ad_creative
+      - name: core_facebook_ad_set
+      - name: core_facebook_ad_campaign
+      - name: core_facebook_ad_account
+      - name: m_inbox_kangnam
+      - name: cp_google_kangnam
+      - name: cs_services_api
+      - name: cs_ticket_api
+
+  - name: master_data
+    schema: public
+    tables:
+      - name: ty_gia_techcombank
+      - name: location_kangnam_adnet
+      - name: stag_tongquan_khachhang_sm
+      - name: stag_payment_transfer
+      - name: ggs_region_map
+      - name: campaign_name_split
+      - name: res_country_state
+      - name: res_country
+      - name: product_category
+      - name: stag_employees
+      - name: stag_sources
+      - name: view_stag_products
+
+  - name: erp
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: m_res_company
