@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: kangnam
+    # Bỏ dòng database vì tất cả bảng gốc hiện đã nằm trong database 'staging_sci'
+    schema: public
+    tables:
+      # Facebook
+      - name: core_facebook_ad_ad_insight
+      - name: core_facebook_ad_ad
+      - name: core_facebook_ad_creative
+      - name: core_facebook_ad_set
+      - name: core_facebook_ad_campaign
+      - name: core_facebook_ad_account
+      # Mapping / config
+      - name: ty_gia_techcombank
+      - name: location_kangnam_adnet
+      - name: campaign_name_split
+      - name: ggs_region_map
+      - name: product_category
+      # CRM
+      - name: stag_tongquan_khachhang_sm
+      - name: crm_lead
+      - name: res_country_state
+      - name: res_country
+      - name: m_res_company
+      # Revenue
+      - name: stag_payment_transfer
+      - name: view_stag_products
+      - name: stag_sources
+      # Inbox
+      - name: m_inbox_kangnam
+      # Google
+      - name: cp_google_kangnam
+      # Caresoft
+      - name: cs_services_api
+      - name: cs_ticket_api

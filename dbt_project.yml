@@ -9,8 +9,6 @@ version: '1.0.0'
 profile: 'data_serving'
 
 # These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -18,17 +16,16 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
-clean-targets:         # directories to be removed by `dbt clean`
+clean-targets:
   - "target"
   - "dbt_packages"
 
+# Project variables
+vars:
+  # Adjust start_date for backfill
+  start_date: '2025-08-01'
 
-# Configuring models
-# Full documentation: https://docs.getdbt.com/docs/configuring-models
-
-# In this example config, we tell dbt to build all models in the example/
-# directory as views. These settings can be overridden in the individual model
-# files using the `{{ config(...) }}` macro.
+# Model configurations
 models:
   data_serving:
     func_report_marketing_ad_cost_kn:
@@ -37,4 +34,4 @@ models:
       int:
         +materialized: ephemeral
       mart:
-        +materialized: table
+        +materialized: table

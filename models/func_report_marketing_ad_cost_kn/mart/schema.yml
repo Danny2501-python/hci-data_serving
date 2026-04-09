@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: mart_report_marketing_ad_cost_kn
+    description: >
+      Marketing analytics report for Kangnam.
+      Refactored from func_report_marketing_ad_cost_kn.
+    columns:
+      - name: vk
+        description: "Viet Kieu classification"
+      - name: ten_dv
+        description: "Service/Product name"
+      - name: Nguon
+        description: "Source: FB, GG, IB, CP..."
+      - name: Nhom_nguon
+        description: "Source category"
+      - name: kenh
+        description: "Channel: FB, Web, Other"
+      - name: date
+        description: "Date of record"
+      - name: nhom_dv
+        description: "Service group"
+      - name: chi_nhanh
+        description: "Normalized branch name"
+      - name: local_k
+        description: "Raw location"
+      - name: quoc_gia
+        description: "Country"
+      - name: Metric
+        description: "Value: Cost, Revenue, Lead count..."
+      - name: type_data
+        description: "Record type: DC, TC, Lead, DS, etc."
+      - name: page
+        description: "Facebook Page name"
+      - name: page_id
+        description: "Facebook Page ID"
+      - name: region
+        description: "Sales Region"
+      - name: tinh_noi
+        description: "Normalized Province"
+      - name: campaign
+        description: "Campaign name"
+      - name: account_fb
+        description: "Facebook Ad Account name"
