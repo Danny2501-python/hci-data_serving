@@ -18,7 +18,7 @@ WITH x AS (
         END                                                  AS local_k,
         rc.name                                              AS quoc_gia,
         cl.ticket_id
-    FROM {{ source('kangnam', 'stag_tongquan_khachhang_sm') }} stks
+    FROM {{ ref('stg_crm_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
       ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL
     LEFT JOIN {{ source('kangnam', 'res_country_state') }} rcs
