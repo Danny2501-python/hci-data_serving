@@ -19,7 +19,6 @@ sources:
       - name: ggs_region_map
       - name: product_category
       # CRM
-      - name: stag_tongquan_khachhang_sm
       - name: crm_lead
       - name: crm_line
       - name: res_country_state
