@@ -18,7 +18,7 @@ WITH fb AS (
         CASE WHEN cns.nhom_dv IS NULL THEN cns2.nhom_dv
              ELSE cns.nhom_dv
         END                                                        AS nhom_dv_sys
-    FROM {{ ref('stg_frmack_fb_insight') }} s
+    FROM {{ ref('stg_frmack_fb_insight_v3') }} s
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
         WHERE UPPER(campain_name_split) = s.nhom_dv LIMIT 1

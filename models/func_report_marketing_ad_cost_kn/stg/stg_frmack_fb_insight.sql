@@ -21,6 +21,10 @@ SELECT
     END                                                          AS type_data,
     split_part(cac.fb_effective_object_story_id::text, '_', 1)   AS page_id,
     cfaa2.name                                                   AS account_fb,
+    'act_' || cfaa2.ad_account_id                                AS ad_account_id,
+    cfac2.fb_ad_campaign_id,
+    cfas.fb_ad_set_id,
+    cfaai.fb_ad_ad_id,
     lka."chi nhánh"                                              AS chi_nhanh_no_camp
 FROM {{ source('kangnam', 'core_facebook_ad_ad_insight') }}  cfaai
 LEFT JOIN {{ source('kangnam', 'core_facebook_ad_ad') }}      cfaa

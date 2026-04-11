@@ -12,6 +12,7 @@ sources:
       - name: core_facebook_ad_set
       - name: core_facebook_ad_campaign
       - name: core_facebook_ad_account
+      - name: cs_facebook_insight
       # Mapping / config
       - name: ty_gia_techcombank
       - name: location_kangnam_adnet
