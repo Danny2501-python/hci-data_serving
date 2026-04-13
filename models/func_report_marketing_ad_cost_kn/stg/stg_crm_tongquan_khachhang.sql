@@ -1,10 +1,3 @@
-{{
-  config(
-    materialized = 'table',
-    alias = 'stag_tongquan_khachhang_sm_v2'
-  )
-}}
-
 WITH ecl AS (
     SELECT * FROM {{ source('kangnam', 'crm_lead') }} WHERE brand_etl = 1
 ),
