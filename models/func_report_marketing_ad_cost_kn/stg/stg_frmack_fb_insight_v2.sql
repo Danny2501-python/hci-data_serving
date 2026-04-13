@@ -3,6 +3,13 @@
 -- Simplified Facebook ad cost using the denormalized cs_facebook_insight table.
 -- Currency is pre-converted and metadata is already flattened.
 -- =============================================================================
+{{
+  config(
+    materialized = 'table',
+    alias = 'stg_fb_insight_new'
+  )
+}}
+
 SELECT
     f.spend                                                      AS chi_phi,
     f.date                                                       AS ngay_chi_phi,
