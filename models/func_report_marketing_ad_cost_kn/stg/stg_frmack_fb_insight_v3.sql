@@ -6,6 +6,13 @@
 --   2. Take records from v2 (new source) ONLY if their key DOES NOT exist in v1.
 -- Keys: ad_account_id, fb_ad_ad_id, ngay_chi_phi, vung
 -- =============================================================================
+{{
+  config(
+    materialized = 'table',
+    alias = 'stg_fb_insight_full'
+  )
+}}
+
 WITH v1 AS (
     SELECT * FROM {{ ref('stg_frmack_fb_insight') }}
 ),
@@ -27,12 +34,14 @@ v2_supplement AS (
 )
 SELECT 
     chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
-    type_data, page_id, account_fb, chi_nhanh_no_camp
+    type_data, page_id, account_fb, chi_nhanh_no_camp,
+    'old' as source
 FROM v1
 
 UNION ALL
 
 SELECT 
     chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
-    type_data, page_id, account_fb, chi_nhanh_no_camp
+    type_data, page_id, account_fb, chi_nhanh_no_camp,
+    'new' as source
 FROM v2_supplement

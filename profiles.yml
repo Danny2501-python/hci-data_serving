@@ -1,7 +1,7 @@
 data_serving:
   outputs:
     dev:
-      dbname: staging_sci
+      dbname: new_product
       host: 10.10.10.214
       pass: QtdlxxrisA@!sfsgo#2024
       port: 5432
