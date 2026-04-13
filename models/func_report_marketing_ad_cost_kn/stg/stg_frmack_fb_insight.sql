@@ -7,7 +7,7 @@
 -- =============================================================================
 SELECT
     CASE WHEN cfaai.fb_account_currency = 'USD'
-         THEN cfaai.spend * tgt.bidrateck
+         THEN cfaai.spend * tgt.bidrateck::double precision
          ELSE cfaai.spend
     END                                                          AS chi_phi,
     cfaai.date                                                   AS ngay_chi_phi,
