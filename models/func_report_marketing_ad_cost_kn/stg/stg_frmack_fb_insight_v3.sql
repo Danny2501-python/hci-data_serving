@@ -6,13 +6,6 @@
 --   2. Take records from v2 (new source) ONLY if their key DOES NOT exist in v1.
 -- Keys: ad_account_id, fb_ad_ad_id, ngay_chi_phi, vung
 -- =============================================================================
-{{
-  config(
-    materialized = 'table',
-    alias = 'stg_fb_insight_full'
-  )
-}}
-
 WITH v1 AS (
     SELECT * FROM {{ ref('stg_frmack_fb_insight') }}
 ),
