@@ -29,9 +29,18 @@ vars:
 models:
   data_serving:
     func_report_marketing_ad_cost_kn:
+      +tags: ["report_kn"]
       stg:
         +materialized: ephemeral
       int:
         +materialized: ephemeral
       mart:
-        +materialized: table
+        +materialized: table
+    func_report_marketing_ad_cost_pr:
+      +tags: ["report_pr"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table

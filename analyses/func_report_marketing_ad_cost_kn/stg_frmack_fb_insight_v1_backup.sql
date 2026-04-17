@@ -1,7 +1,3 @@
--- =============================================================================
--- BACKUP: stg_frmack_fb_insight  (Original Pass 1.1 Logic)
--- Preserved logic for calculating chi_phi from core facebook tables.
--- =============================================================================
 {{
   config(
     materialized = 'table',

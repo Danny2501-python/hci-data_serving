@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: mart_report_marketing_ad_cost_pr
+    description: >
+      Báo cáo marketing tổng hợp cho thương hiệu Paris (brand_etl = 3).
+      Bảng kết quả: report_marketing_ad_cost_pr_v2.
+    columns:
+      - name: nguon
+        description: Tên nguồn (MD - Facebook / MD - Display / Chi phí thương hiệu / ...)
+      - name: nhom_nguon
+        description: Nhóm nguồn (MD, ...)
+      - name: kenh
+        description: Kênh (FB / Web / marketing / Khác)
+      - name: ngay
+        description: Ngày ghi nhận dữ liệu
+      - name: nhom_dv
+        description: Nhóm dịch vụ (Implant / Niềng răng khay trong / ...)
+      - name: chi_nhanh
+        description: Chi nhánh (HÀ NỘI / HỒ CHÍ MINH / ...)
+      - name: Metric
+        description: Giá trị đo lường (chi phí, số lượng, doanh số – dạng text)
+      - name: type_data
+        description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / ib / target_lead / target_cost)

@@ -14,7 +14,7 @@
 }}
 
 WITH v1 AS (
-    SELECT * FROM {{ ref('stg_frmack_fb_insight') }}
+    SELECT * FROM {{ ref('stg_frmack_fb_insight_v1') }}
 ),
 v2 AS (
     SELECT * FROM {{ ref('stg_frmack_fb_insight_v2') }}

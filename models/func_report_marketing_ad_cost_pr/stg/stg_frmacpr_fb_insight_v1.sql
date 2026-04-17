@@ -1,0 +1,1 @@
+SELECT * FROM {{ source('paris', 'stg_fb_insight_old_pr') }}

@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: paris
+    # Tất cả bảng nguồn nằm trong database staging_sci / schema public
+    schema: public
+    tables:
+      # Facebook
+      - name: core_facebook_ad_ad_insight
+      - name: core_facebook_ad_ad
+      - name: core_facebook_ad_set
+      - name: core_facebook_ad_campaign
+      - name: core_facebook_ad_account
+      - name: cs_facebook_insight
+      - name: stg_fb_insight_old_pr
+      # Inbox Facebook
+      - name: inbox_paris_fb
+      # Google
+      - name: google_ad_paris
+      # CRM
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_stage
+      - name: m_res_company
+      # Revenue
+      - name: stag_payment_transfer
+      - name: view_stag_products
+      - name: stag_sources
+      # Mapping / config
+      - name: ty_gia_techcombank
+      - name: local_paris_adnet
+      - name: m_nhom_dv_adnet_paris
+      # Targets
+      - name: view_ggs_paris_sm_target_daily
