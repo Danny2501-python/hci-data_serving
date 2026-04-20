@@ -14,9 +14,9 @@ SELECT
     nguon,
     nhom_nguon,
     kenh,
-    ngay::timestamp AS ngay,
+    ngay::timestamp AS "date",
     nhom_dv,
     chi_nhanh,
-    metric  AS "Metric",
+    metric  AS "dt",
     type_data
 FROM {{ ref('int_frmacpr_union') }}
