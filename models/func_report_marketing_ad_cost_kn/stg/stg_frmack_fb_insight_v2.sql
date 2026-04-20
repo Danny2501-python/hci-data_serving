@@ -38,3 +38,4 @@ LEFT JOIN LATERAL (
 ) lka ON TRUE
 WHERE f.brand_etl = 1
   AND f.date::date > '{{ var("start_date", "2025-08-01") }}'::date
+  AND f.facebook_page_id not in ('805410602664141','839493609256431','948044848396128')
