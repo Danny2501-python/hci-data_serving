@@ -14,25 +14,26 @@ WITH a AS (
 )
 
 SELECT
-    'MD - Display'::text                                            AS nguon,
+    'MD - GoogleAds'::text                                            AS nguon,
     'MD'::text                                                      AS nhom_nguon,
-    'Web'::text                                                     AS channel,
+    'Google'::text                                                     AS channel,
     ngay_chi_phi                                                    AS ngay,
     CASE
         WHEN UPPER(nhom_dv_raw) LIKE '%KHAY TRONG%'
-          OR (UPPER(nhom_dv_raw) LIKE '%NIỀNG RĂNG%'
-              AND extra_info LIKE '%TRONG SUỐT%')
+          OR (UPPER(nhom_dv_raw) LIKE '%NIỀNG RĂNG%' AND extra_info LIKE '%TRONG SUỐT%')
           OR UPPER(nhom_dv_raw) LIKE '%NIỀNG TRONG SUỐT%'         THEN 'Niềng răng khay trong'
-        WHEN UPPER(nhom_dv_raw) LIKE '%NIỀNG RĂNG%'               THEN 'Niềng răng mắc cài'
+        WHEN UPPER(nhom_dv_raw) LIKE '%NIỀNG RĂNG%'
+          OR UPPER(nhom_dv_raw) LIKE '%NIENGRANG%'              THEN 'Niềng răng mắc cài'
         WHEN UPPER(nhom_dv_raw) = 'IMPLANT'
           OR UPPER(nhom_dv_raw) = '20/6'                           THEN 'Implant'
-        WHEN UPPER(nhom_dv_raw) = 'THƯƠNG HIỆU'                   THEN 'THUONG HIEU'
+        WHEN UPPER(nhom_dv_raw) IN ('THƯƠNG HIỆU','THƯƠNG HIÊU','THUONGHIEU')                   THEN 'THUONG HIEU'
         WHEN UPPER(nhom_dv_raw) LIKE '%RĂNG SỨ%'                  THEN 'Răng sứ'
         WHEN UPPER(nhom_dv_raw) LIKE 'PHẪU THUẬT HÀM MẶT'        THEN 'PTHM'
         ELSE UPPER(nhom_dv_raw)
     END                                                             AS nhom_dv,
     CASE UPPER(chi_nhanh_raw)
         WHEN 'BD'   THEN 'BÌNH DƯƠNG'
+        WHEN 'NA'   THEN 'NGHỆ AN'
         WHEN 'QN'   THEN 'QUẢNG NINH'
         WHEN 'BV'   THEN 'HỒ CHÍ MINH'
         WHEN 'HN'   THEN 'HÀ NỘI'
