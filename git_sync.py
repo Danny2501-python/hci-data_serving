@@ -20,14 +20,21 @@ import sys
 from datetime import datetime
 
 
-def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
-    """Chạy lệnh git và in ra stdout/stderr."""
+def run(cmd: list[str], check: bool = True, stream: bool = False) -> subprocess.CompletedProcess:
+    """Chạy lệnh git và in ra stdout/stderr.
+    stream=True: không capture output, cho phép GCM hiển thị dialog xác thực.
+    """
     print(f"  $ {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.stdout.strip():
-        print(f"    {result.stdout.strip()}")
-    if result.stderr.strip():
-        print(f"    {result.stderr.strip()}")
+    if stream:
+        result = subprocess.run(cmd)
+        result.stdout = ""
+        result.stderr = ""
+    else:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.stdout.strip():
+            print(f"    {result.stdout.strip()}")
+        if result.stderr.strip():
+            print(f"    {result.stderr.strip()}")
     if check and result.returncode != 0:
         raise RuntimeError(f"Lệnh thất bại (exit {result.returncode}): {' '.join(cmd)}")
     return result
@@ -77,9 +84,9 @@ def main():
     print(f"\n[6] Commit: '{commit_message}'")
     run(["git", "commit", "-m", commit_message])
 
-    # 8. git push
+    # 8. git push — stream=True để GCM có thể hiện auth dialog nếu cần
     print(f"\n[7] Push lên origin/{current_branch}...")
-    run(["git", "push", "origin", current_branch])
+    run(["git", "push", "origin", current_branch], stream=True)
 
     print(f"\n✅ Hoàn thành! Đã sync và push lên origin/{current_branch}")
     print("=" * 55)
