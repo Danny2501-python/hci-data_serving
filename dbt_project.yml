@@ -44,3 +44,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_deposit:
+      +tags: ["report_dps"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
