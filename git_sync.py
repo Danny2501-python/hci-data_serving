@@ -84,9 +84,17 @@ def main():
     print(f"\n[6] Commit: '{commit_message}'")
     run(["git", "commit", "-m", commit_message])
 
-    # 8. git push — stream=True để GCM có thể hiện auth dialog nếu cần
+    # 8. git push — retry tối đa 3 lần nếu lỗi auth
     print(f"\n[7] Push lên origin/{current_branch}...")
-    run(["git", "push", "origin", current_branch], stream=True)
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        result = run(["git", "push", "origin", current_branch], check=False, stream=True)
+        if result.returncode == 0:
+            break
+        if attempt < max_retries:
+            print(f"\n  ⚠️  Push thất bại (lần {attempt}/{max_retries}), thử lại...")
+        else:
+            raise RuntimeError(f"Push thất bại sau {max_retries} lần thử.")
 
     print(f"\n✅ Hoàn thành! Đã sync và push lên origin/{current_branch}")
     print("=" * 55)
