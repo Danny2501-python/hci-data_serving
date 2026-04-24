@@ -42,7 +42,8 @@ s."Doanh Thu Kì Vọng",
         ap.communication as nd_tt,
         ap.id::text as id_tt,
         ap."name" ma_phieu ,
-        rc.name "Chi nhánh"
+        rc.name "Chi nhánh",
+           rc.brand_etl
 from {{ref('stag_dps_mapping')}} s
 join {{ref('dps_capd')}} capd on capd.crm_line_id  = s."Line_id" and capd.brand_etl = s.brand_etl_cl2
 join {{ref('dps_ap')}} ap on ap.id = capd.account_payment_id and ap.brand_etl = capd.brand_etl
@@ -92,7 +93,8 @@ select
         'Điều chuyển dịch vụ' nd_tt,
         spt.id as id_tt,
         spt.ma_phieu ,
-        mrc.name "Chi nhánh"
+        mrc.name "Chi nhánh",
+        mrc.brand_etl
 from (select * from {{ref('dps_payment')}} where ma_phieu like 'PDC%') spt 
 join {{ref('stag_dps_mapping')}} s on spt.clineid = s."Line_id" 
 and spt.crm_id = s.id_lead and spt.brand_etl = s.brand_etl_cl2
