@@ -51,7 +51,7 @@ SELECT
 FROM {{ source('pre_tns', 'sh_medical_health_center_service') }} smhcs
     LEFT JOIN {{ source('pre_tns', 'sh_medical_health_center_service_category') }} smhcsc ON smhcs.service_category = smhcsc.id AND smhcs.brand_etl = smhcsc.brand_etl
     LEFT JOIN {{ source('pre_tns', 'product_category') }} pc ON smhcsc.product_cat_id = pc.id AND smhcs.brand_etl = pc.brand_etl
-    LEFT JOIN {{ source('pre_tns', 'product_product') }} pp ON smhcs.product_id = pp.id AND smhcs.brand_etl = pp.brand_etl
+    RIGHT JOIN {{ source('pre_tns', 'product_product') }} pp ON smhcs.product_id = pp.id AND smhcs.brand_etl = pp.brand_etl
     LEFT JOIN {{ source('pre_tns', 'product_template') }} pt ON pp.product_tmpl_id = pt.id AND pp.brand_etl = pt.brand_etl
     LEFT JOIN {{ source('pre_tns', 'uom_uom') }} uu ON pt.uom_id = uu.id AND uu.brand_etl = pt.brand_etl
     LEFT JOIN pimp ON (CASE WHEN pp.brand_etl < 2 THEN pp.id END) = pimp.product_id 
