@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: stag_products_test_dbt
+    description: >
+      Bảng dịch vụ Kangnam cần cập nhật vào model 
+      Table: stag_products_test_dbt
+    columns:
+      - name: smhcsid
+        description: Mã dịch vụ trong bảng sh_medical_health_center_service
+      - name: product_id
+        description: Mã dịch vụ trong bảng product_product
+      - name: his_service_type
+        description: Loại hình dịch vụ trong bảng sh_medical_health_center_service có biến đổi 
+      - name: surgery_type
+        description: Loại phẫu thuật trong bảng sh_medical_health_center_service
+      - name: product_category
+        description: Danh mục sản phẩm trong bảng sh_medical_health_center_service có biến đổi 
+      - name: product_category_paris
+        description: Danh mục sản phẩm trong bảng import_product_service_analyst
+      - name: product_category_new
+        description: Danh mục sản phẩm trong bảng import_product_service_analyst
+      - name: default_code
+        description: Mã sản phẩm trong bảng product_product
+      - name: product
+        description: Tên sản phẩm trong bảng product_template
+      - name: list_price
+        description: Bảng giá niêm yết trong bảng product_template
+      - name: group_id
+        description: Nhóm trong bảng import_product_service_analyst
+      - name: kpi_point
+        description: Điểm KPI trong bảng sh_medical_health_center_service
+      - name: kpi_point_num
+        description: Số điểm KPI trong bảng sh_medical_health_center_service
+      - name: product_id_kn
+        description: Mã sản phẩm trong bảng import_product_service_analyst
+      - name: product_ctg_id
+        description: Danh mục sản phẩm trong bảng sh_medical_health_center_service_category
+      - name: is_main_service
+        description: Dịch vụ chính trong bảng import_product_service_analyst
+      - name: uom_id
+        description: Đơn vị trong bảng product_template
+      - name: uom
+        description: Đơn vị trong bảng uom_uom
+      - name: is_no_kpi
+        description: Dịch vụ không tính KPI trong bảng import_no_kpi_service
+      - name: kdtc_product_ctg_id
+        description: Danh mục nhóm dịch vụ biến đổi từ tên nhóm dịch vụ và default_code
+      - name: create_date
+        description: Ngày tạo dịch vụ trong bảng product_product
+      - name: write_date
+        description: Ngày cập nhật dịch vụtrong bảng product_product
+      - name: is_vip
+        description: VIP trong bảng import_product_service_analyst
+      - name: kpi_first_time
+        description: KPI lần đầu trong bảng sh_medical_health_center_service
+      - name: gr_bh_id
+        description: ""
+      - name: qty_service
+        description: Số lượng dịch vụ trong bảng import_product_service_analyst
+      - name: pr_product_id
+        description: ""
+      - name: hh_product_id
+        description: ""
+      - name: sci_product_id
+        description: ""

@@ -44,3 +44,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    pretransformation_table_set:
+      +tags: ["staging_tables"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table

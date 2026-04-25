@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: pre_tns
+    # Tất cả bảng nguồn nằm trong database staging_sci / schema public
+    schema: public
+    tables:
+      # stag_products
+      - name: stag_products
+      - name: sh_medical_health_center_service
+      - name: sh_medical_health_center_service_category
+      - name: product_category
+      - name: product_product
+      - name: product_template
+      - name: uom_uom
+      - name: import_product_service_analyst
+      - name: import_no_kpi_service
