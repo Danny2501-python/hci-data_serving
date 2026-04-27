@@ -15,3 +15,16 @@ sources:
       - name: uom_uom
       - name: import_product_service_analyst
       - name: import_no_kpi_service
+      # stag_employee
+      - name: hr_employee
+      - name: m_res_company
+      - name: res_brand
+      - name: res_users
+      - name: res_partner
+      - name: hr_department_sector
+      - name: hr_team
+      - name: hr_job
+      - name: hr_group_job
+      - name: stag_phongbanphanquyen_id
+      - name: hr_department
+      - name: import_stag_employee_doctor

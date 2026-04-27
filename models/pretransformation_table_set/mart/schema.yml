@@ -64,3 +64,92 @@ models:
         description: ""
       - name: sci_product_id
         description: ""
+  - name: stag_employees_test_dbt
+    description: >
+      Bảng nhân viên HCI cần cập nhật vào model 
+      Table: stag_employees_test_dbt
+    columns:
+      - name: id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: user_id
+        description: Mã user trong bảng res_users
+      - name: employee_code
+        description: Mã nhân viên trong bảng hr_employee
+      - name: employee
+        description: Tên nhân viên trong bảng hr_employee
+      - name: gender
+        description: Giới tính trong bảng hr_employee
+      - name: job_id
+        description: Mã chức vụ trong bảng hr_job
+      - name: job
+        description: Tên chức vụ trong bảng hr_job
+      - name: group_job_id
+        description: Mã nhóm chức vụ trong bảng hr_group_job
+      - name: group_job
+        description: Tên nhóm chức vụ trong bảng hr_group_job
+      - name: department
+        description: Tên phòng ban trong bảng hr_department
+      - name: team_id
+        description: Mã team trong bảng hr_team
+      - name: team
+        description: Tên team trong bảng hr_team
+      - name: sector_id
+        description: Mã sector trong bảng hr_department_sector
+      - name: sector
+        description: Tên sector trong bảng hr_department_sector
+      - name: department_id
+        description: Mã phòng ban trong bảng hr_department
+      - name: old_department_id
+        description: Mã phòng ban cũ trong bảng hr_department
+      - name: company_id
+        description: Mã công ty trong bảng m_res_company
+      - name: staff_level
+        description: Cấp bậc nhân viên trong bảng hr_employee
+      - name: area
+        description: Khu vực trong bảng hr_employee
+      - name: birthday
+        description: Ngày sinh trong bảng hr_employee
+      - name: place_of_birth
+        description: Nơi sinh trong bảng hr_employee
+      - name: identification_id
+        description: Số căn cước công dân trong bảng hr_employee
+      - name: barcode
+        description: Mã vạch trong bảng hr_employee
+      - name: mobile_phone
+        description: Số điện thoại trong bảng hr_employee
+      - name: work_email
+        description: Email công việc trong bảng hr_employee
+      - name: create_date
+        description: Ngày tạo nhân viên trong bảng hr_employee
+      - name: write_date
+        description: Ngày cập nhật nhân viên trong bảng hr_employee
+      - name: active
+        description: Trạng thái hoạt động trong bảng hr_employee
+      - name: resign_date
+        description: Ngày nghỉ việc trong bảng hr_employee
+      - name: reason_resign
+        description: Lý do nghỉ việc trong bảng hr_employee
+      - name: company
+        description: Tên công ty trong bảng m_res_company
+      - name: brand_id
+        description: Mã thương hiệu trong bảng res_brand
+      - name: brand
+        description: Tên thương hiệu trong bảng res_brand
+      - name: kn_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: kn_user_id
+        description: Mã user trong bảng res_users
+      - name: pr_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: pr_user_id
+        description: Mã user trong bảng res_users
+      - name: hh_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: hh_user_id
+        description: Mã user trong bảng res_users
+      - name: phongbanphanquyen
+        description: Phòng ban phân quyền trong bảng hr_employee
+      - name: job_lv2
+        description: Chức vụ cấp 2 trong bảng hr_employee
+      - name: row_num
+        description: Số thứ tự nhân viên trong bảng hr_employee 
