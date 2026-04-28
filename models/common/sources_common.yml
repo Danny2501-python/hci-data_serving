@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: crm_base
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: res_brand
+      - name: m_res_company
+      - name: stag_products
+      - name: stag_payment_transfer
+      - name: account_payment
+      - name: stag_employees
+      - name: crm_stage
+      - name: crm_type
+      - name: stag_sources

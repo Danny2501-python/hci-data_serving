@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: dvda
+    schema: public
+    tables:
+      # CRM base
+      - name: crm_lead
+      - name: crm_sync_brand
+      - name: crm_line
+      - name: crm_sync_crm_line
+      - name: crm_line_product
+      # Staging views
+      - name: stag_payment_transfer
+      - name: view_stag_products
+      - name: stag_sources
+      # Config / mapping
+      - name: res_company_trans_field
+      - name: res_country_state
+      - name: m_res_company
+      - name: ggs_region_map
+      - name: campaign_name_split
+      - name: location_kangnam_adnet
+      - name: ty_gia_techcombank
+      # Facebook
+      - name: stg_dvda_fb_insight_v1
+      - name: cs_facebook_insight
+      - name: core_facebook_ad_ad_insight
+      - name: core_facebook_ad_ad
+      - name: core_facebook_ad_set
+      - name: core_facebook_ad_campaign
+      - name: core_facebook_ad_account
+      # Inbox
+      - name: m_inbox_kangnam
