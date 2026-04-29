@@ -62,3 +62,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_hqcd_page:
+      +tags: ["report_hqcd_page"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
