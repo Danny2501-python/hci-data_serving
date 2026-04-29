@@ -5,12 +5,15 @@
 -- =============================================================================
 WITH base AS (
     SELECT
-        ss2.org_source                                              AS nguon,
+        CASE
+            WHEN (ss2.org_source ilike '%display%' OR ss2.org_source ilike '%search%') AND ctsda.utm_source ilike '%Google_Search%' THEN 'MD - GoogleAds'
+            ELSE ss2.org_source
+        END                                                         AS nguon,
         ss2.org_category_code                                       AS nhom_nguon,
         CASE
             WHEN ss2.org_source LIKE '%Facebook%' THEN 'FB'
             WHEN ss2.org_source LIKE '%Seo%'      THEN 'Web'
-            WHEN ss2.org_source LIKE '%Display%'  THEN 'Web'
+            WHEN (ss2.org_source ilike '%display%' OR ss2.org_source ilike '%search%') AND ctsda.utm_source ilike '%Google_Search%' THEN 'Google'
             WHEN ss2.org_source LIKE '%Hotline%'  THEN 'Web'
             ELSE 'Khác'
         END                                                         AS kenh,
@@ -32,8 +35,15 @@ WITH base AS (
             WHEN ll.overseas_vietnamese = 'marketing' THEN 'Việt Kiều '
             ELSE mrc.name
         END                                                         AS chi_nhanh,
-        ecs.name                                                    AS stage_name
+        ecs.name                                                    AS stage_name,
+        substring(cta.requester FROM '"phone_no":\s*"(\d+)"') AS phone_no_ticket
     FROM {{ ref('stg_frmacpr_leads_lines') }}               ll
+    LEFT JOIN {{ source('paris', 'cs_ticket_api')}}                cta
+        ON cta.ticket_id = ll.ticket_id AND cta.brand_id = ll.brand_etl
+    LEFT JOIN {{ source('paris', 'cs_ticket_source_api')}}         ctsa
+        ON cta.ticket_id = ctsa.ticket_id
+    LEFT JOIN {{ source('paris', 'cs_ticket_source_detail_api')}}  ctsda
+        ON ctsa.ticket_source_detail_id = ctsda.id 
     LEFT JOIN {{ source('paris', 'crm_stage') }}            ecs
            ON ecs.id = ll.stage_id AND ecs.brand_etl = 3
     LEFT JOIN {{ source('paris', 'stag_sources') }}         ss1
@@ -59,8 +69,15 @@ WHERE create_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
   AND type = 'lead'
   AND stage_name IN ('Tiềm năng', 'Tham khảo', 'Đặt lịch')
 
+-- Deal Caresoft nguồn google ads
 UNION ALL
+SELECT 
+    sfdc.nguon, sfdc.nhom_nguon,    sfdc.kenh,
+    sfdc.ngay,  sfdc.nhom_dv,       sfdc.chi_nhanh,
+    sfdc.metric,sfdc.type_data
+FROM {{ ref('stg_frmacpr_deal_cs')}} sfdc
 
+UNION ALL
 -- BK (Pass 10)
 SELECT nguon, nhom_nguon, kenh,
     create_date::date   AS ngay,

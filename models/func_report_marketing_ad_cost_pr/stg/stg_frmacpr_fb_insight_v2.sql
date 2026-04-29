@@ -47,10 +47,11 @@ SELECT
         WHEN (UPPER(nhom_dv_p2) = 'NRKT' OR UPPER(nhom_dv_p3) = 'NRKT') THEN 'Niềng răng khay trong'
         WHEN UPPER(nhom_dv_p2) = 'SALE TONG'                     THEN 'NHA KHOA KHÁC'
         WHEN UPPER(nhom_dv_p2) = 'PTHM'                          THEN 'PTHM'
-        WHEN UPPER(nhom_dv_p2) LIKE '%RANG SU%'                  THEN 'Răng sứ'
+        WHEN UPPER(nhom_dv_p2) LIKE '%RANG SU%'                  
+          OR UPPER(nhom_dv_p2) LIKE '%RANGSU%'                   THEN 'Răng sứ'
         WHEN UPPER(nhom_dv_p2) LIKE '%IMPLANT%'
           OR UPPER(nhom_dv_p2) LIKE '%IMPLAMT%'                  THEN 'Implant'
-        WHEN UPPER(nhom_dv_p2) LIKE '%NIENG RANG%'
+        WHEN (UPPER(nhom_dv_p2) LIKE '%NIENG%' OR UPPER(nhom_dv_p2) LIKE '%NR%')
          AND UPPER(nhom_dv_p3) <> 'NRKT'                        THEN 'Niềng răng mắc cài'
         WHEN UPPER(nhom_dv_p2) LIKE '%BRAND%'                    THEN 'THUONG HIEU'
         ELSE UPPER(nhom_dv_p2)
