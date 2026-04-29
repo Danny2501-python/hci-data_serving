@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: raw_data
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: m_res_company
+      - name: res_users
+      - name: stag_sources
+      - name: stag_payment_transfer
+      - name: stag_products
+      - name: ggs_kdtc_product_ctg_rate
+      - name: ggs_kdtc_service_type_revenue
+      - name: view_stag_products
+      - name: crm_lead_tag_rel
+      - name: stag_crm_booking_arrival_company
+      - name: view_stag_employees_user
+      - name: crm_line_product
+      - name: sh_medical_appointment_register_walkin #deposit
+      - name: sh_walkin_service_rel
+      - name: sh_medical_health_center_service
+      - name: sale_order_line
+      - name: res_partner
+      - name: crm_information_consultant
+      - name: res_brand
+      - name: crm_account_payment_detail
+      - name: account_payment
+      

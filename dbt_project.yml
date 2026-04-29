@@ -28,6 +28,8 @@ vars:
 # Model configurations
 models:
   data_serving:
+    common:
+      +materialized: ephemeral
     func_report_marketing_ad_cost_kn:
       +tags: ["report_kn"]
       stg:
@@ -44,11 +46,36 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+<<<<<<< HEAD
     pretransformation_table_set:
       +tags: ["staging_tables"]
+=======
+    report_deposit:
+      +tags: ["report_dps"]
+>>>>>>> main
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+<<<<<<< HEAD
+        +materialized: table
+=======
+        +materialized: table
+    report_marketing_kn_dvda:
+      +tags: ["report_kn_dvda"]
       stg:
         +materialized: ephemeral
       int:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_hqcd_page:
+      +tags: ["report_hqcd_page"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+>>>>>>> main
