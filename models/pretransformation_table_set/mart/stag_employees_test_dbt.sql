@@ -13,13 +13,17 @@ SELECT
   he.id::int as id
   , he.user_id::int as user_id
   , he.employee_code
-  , he.name employee
+  , he.name 
   , he.gender 
-  , he.job_id::int as job_id, hj.name job
-  , he.group_job::int group_job_id, hgj.name group_job
+  , he.job_id::int as job_id
+  , hj.name job
+  , he.group_job::int group_job_id
+  , hgj.name group_job
   , hd.name department
-  , he.team_id::int as team_id, ht.name team
-  , he.sector_id::int as sector_id, hds.name sector
+  , he.team_id::int as team_id
+  , ht.name team
+  , he.sector_id::int as sector_id
+  , hds.name sector
   , COALESCE(hdc.id, he.department_id)::int as department_id
   , he.department_id::int old_department_id
   , he.company_id::int    --- , he.department_id phongbanphanquyen
@@ -94,4 +98,86 @@ LEFT JOIN {{ref('import_stag_employee_doctor')}} hedoc ON he.id = hedoc.id
 WHERE rc.brand_etl = 7 AND rb.brand_etl = 7 
 	AND he.brand_etl = 7
 )
-SELECT * FROM hr_employee WHERE row_num = 1
+SELECT 
+  he.id::int,
+  he.user_id::int,
+  he.employee_code,
+  he.name employee,
+  he.gender,
+  he.job_id::int as job_id, 
+  he.job::text as job,
+  he.group_job_id::int as group_job_id, 
+  he.group_job::text as group_job ,
+  he.department::text as department,
+  he.team_id::int as team_id, he.team::text as team,
+  he.sector_id::int as sector_id, he.sector::text as sector,
+  he.department_id::int as department_id, 
+  he.old_department_id::int as old_department_id,
+  he.company_id::int as company_id, 
+  he.staff_level as staff_level, 
+  he.area as area,
+  he.birthday::date as birthday, 
+  he.place_of_birth::text as place_of_birth,
+  he.identification_id::text as identification_id, 
+  he.barcode::text as barcode,
+  he.mobile_phone::text as mobile_phone, 
+  he.work_email::text as work_email,
+  he.create_date::timestamp as create_date, 
+  he.write_date::timestamp as write_date,
+  he.active as active, 
+  he.resign_date::date as resign_date, 
+  he.reason_resign::text as reason_resign, 
+  he.company::text as company,
+  he.brand_id::int as brand_id, 
+  he.brand::text as brand,
+  he.kn_id::int as kn_id, he.kn_user_id::int as kn_user_id,
+  he.pr_id::int as pr_id, he.pr_user_id::int as pr_user_id,
+  he.hh_id::int as hh_id, he.hh_user_id::int as hh_user_id,
+  he.phongbanphanquyen::int as phongbanphanquyen, 
+  he.job_lv2 as job_lv2
+FROM hr_employee he 
+WHERE he.row_num = 1
+UNION ALL
+SELECT 
+  isen.id::int,
+  isen.user_id::int,
+  isen.employee_code::text,
+  isen.employee::text,
+  isen.gender::text,
+  isen.job_id::int as job_id, 
+  isen.job::text as job,
+  isen.group_job_id::int as group_job_id, 
+  isen.group_job::text as group_job,
+  isen.department::text as department,
+  isen.team_id::int as team_id, 
+  isen.team::text as team,
+  isen.sector_id::int as sector_id, 
+  isen.sector::text as sector,
+  isen.department_id::int as department_id, 
+  isen.old_department_id::int as old_department_id,
+  isen.company_id::int as company_id, 
+  isen.staff_level::text as staff_level, 
+  isen.area::text as area,
+  isen.birthday::date as birthday, 
+  isen.place_of_birth::text as place_of_birth,
+  isen.identification_id::text as identification_id, 
+  isen.barcode::text as barcode,
+  isen.mobile_phone::text as mobile_phone, 
+  isen.work_email::text as work_email,
+  isen.create_date::timestamp as create_date, 
+  isen.write_date::timestamp as write_date,
+  isen.active as active, 
+  isen.resign_date::date as resign_date, 
+  isen.reason_resign::text as reason_resign, 
+  isen.company::text as company,
+  isen.brand_id::int as brand_id, 
+  NULL::text as brand, 
+  isen.kn_id::int as kn_id, 
+  isen.kn_user_id::int as kn_user_id,
+  isen.pr_id::int as pr_id, 
+  isen.pr_user_id::int as pr_user_id,
+  isen.hh_id::int as hh_id, 
+  isen.hh_user_id::int as hh_user_id,
+  isen.phongbanphanquyen::int as phongbanphanquyen, 
+  isen.job_lv2::text as job_lv2
+FROM {{source('pre_tns','import_stag_employee_null')}} isen

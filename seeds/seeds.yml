@@ -1,0 +1,46 @@
+version: 2
+
+seeds:
+  - name: import_stag_employee_null
+    config:
+      column_types:
+        id: integer
+        employee_code: varchar
+        employee: varchar
+        gender: varchar
+        job: varchar
+        department: varchar
+        company: varchar
+        staff_level: varchar
+        area: varchar
+        birthday: date
+        place_of_birth: varchar
+        identification_id: varchar
+        barcode: varchar
+        mobile_phone: varchar
+        work_email: varchar
+        create_date: timestamp
+        write_date: timestamp
+        active: boolean
+        resign_date: date
+        reason_resign: varchar
+        job_lv2: varchar
+        group_job_id: integer
+        group_job: varchar
+        team_id: integer
+        team: varchar
+        sector_id: integer
+        sector: varchar
+        user_id: integer
+        job_id: integer
+        department_id: integer
+        company_id: integer
+        brand_id: integer
+        old_department_id: integer
+        phongbanphanquyen: integer
+        kn_id: integer
+        kn_user_id: integer
+        pr_id: integer
+        pr_user_id: integer
+        hh_id: integer
+        hh_user_id: integer
