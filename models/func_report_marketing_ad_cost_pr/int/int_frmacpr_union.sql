@@ -12,7 +12,7 @@ UNION ALL
 
 -- FB costs (Conversion + Brand)
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data
-FROM {{ ref('stg_frmacpr_fb_insight_v2') }}
+FROM {{ ref('stg_frmacpr_fb_insight_v3') }}
 
 UNION ALL
 
