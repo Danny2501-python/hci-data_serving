@@ -1,8 +1,8 @@
 WITH ecl AS (
-    SELECT * FROM {{ source('kangnam', 'crm_lead') }} WHERE brand_etl = 1
+    SELECT * FROM {{ source('crm_base', 'crm_lead') }} WHERE brand_etl = 1
 ),
 cline AS (
-    SELECT * FROM {{ source('kangnam', 'crm_line') }} WHERE brand_etl = 1
+    SELECT * FROM {{ source('crm_base', 'crm_line') }} WHERE brand_etl = 1
 ),
 a AS (
     SELECT   
@@ -65,20 +65,20 @@ a AS (
         CONCAT(ecl.id, ecl2.id, spt.id) AS fk,
         CAST(NULL AS FLOAT) AS tien_ap
     FROM ecl 
-    LEFT JOIN {{ source('kangnam', 'res_brand') }} erb3 ON erb3.id = ecl.brand_id AND erb3.brand_etl = 1 
-    LEFT JOIN {{ source('kangnam', 'm_res_company') }} mrc3 ON mrc3.id = ecl.company_id AND mrc3.brand_etl = 1
+    LEFT JOIN {{ source('crm_base', 'res_brand') }} erb3 ON erb3.id = ecl.brand_id AND erb3.brand_etl = 1 
+    LEFT JOIN {{ source('crm_base', 'm_res_company') }} mrc3 ON mrc3.id = ecl.company_id AND mrc3.brand_etl = 1
     LEFT JOIN cline ecl2 ON ecl2.crm_id = ecl.id
-    LEFT JOIN {{ source('kangnam', 'stag_products') }} sp ON sp.product_id = ecl2.product_id  
-    LEFT JOIN (SELECT * FROM {{ source('kangnam', 'stag_payment_transfer') }} spt WHERE spt.brand_etl IN (0,1)) spt 
+    LEFT JOIN {{ source('crm_base', 'stag_products') }} sp ON sp.product_id = ecl2.product_id  
+    LEFT JOIN (SELECT * FROM {{ source('crm_base', 'stag_payment_transfer') }} spt WHERE spt.brand_etl IN (0,1)) spt 
         ON spt.clineid = ecl2.id AND spt.crm_id = ecl.id 
-    LEFT JOIN (SELECT * FROM {{ source('kangnam', 'account_payment') }} eap WHERE eap.brand_etl IN (0,1)) eap 
+    LEFT JOIN (SELECT * FROM {{ source('crm_base', 'account_payment') }} eap WHERE eap.brand_etl IN (0,1)) eap 
         ON eap."name" = spt.ma_phieu  
-    LEFT JOIN {{ source('kangnam', 'm_res_company') }} mrc ON mrc.id = spt.company_id AND mrc.brand_etl = 1
-    LEFT JOIN {{ source('kangnam', 'res_brand') }} erb ON erb.id = mrc.brand_id AND erb.brand_etl = 1 
-    LEFT JOIN {{ source('kangnam', 'stag_employees') }} se ON se.kn_user_id = ecl.create_by
-    LEFT JOIN {{ source('kangnam', 'crm_stage') }} ecs2 ON ecs2.id = ecl.stage_id AND ecs2.brand_etl = 1
-    LEFT JOIN {{ source('kangnam', 'crm_type') }} ect ON ect.id = ecl.type_crm_id AND ect.brand_etl = 1
-    LEFT JOIN {{ source('kangnam', 'stag_sources') }} ss ON ss.old_id = ecl.source_id
+    LEFT JOIN {{ source('crm_base', 'm_res_company') }} mrc ON mrc.id = spt.company_id AND mrc.brand_etl = 1
+    LEFT JOIN {{ source('crm_base', 'res_brand') }} erb ON erb.id = mrc.brand_id AND erb.brand_etl = 1 
+    LEFT JOIN {{ source('crm_base', 'stag_employees') }} se ON se.kn_user_id = ecl.create_by
+    LEFT JOIN {{ source('crm_base', 'crm_stage') }} ecs2 ON ecs2.id = ecl.stage_id AND ecs2.brand_etl = 1
+    LEFT JOIN {{ source('crm_base', 'crm_type') }} ect ON ect.id = ecl.type_crm_id AND ect.brand_etl = 1
+    LEFT JOIN {{ source('crm_base', 'stag_sources') }} ss ON ss.old_id = ecl.source_id
     WHERE DATE(ecl.create_on) >= '2024-01-01'
         AND ecl.active = true 
         AND ecl.create_by <> 0

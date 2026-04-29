@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: hqcd
+    schema: public
+    tables:
+      # Service / Page mapping
+      - name: cs_services_api
+      # Product category
+      - name: view_stag_products
+      - name: ggs_kdtc_product_ctg
+      # Cost report
+      - name: report_marketing_ad_cost_kn_v2
+      # Deal
+      - name: cs_deal_detail_api_v2
+      - name: cs_custom_fields
+      # Inbox / Ticket
+      - name: cs_ticket_api
+      # Payment / DS / Lead
+      - name: stag_payment_transfer
+      - name: stag_sources
+      - name: stag_products
+      - name: m_res_company
+      - name: res_users
+      # CRM raw tables (dùng để build stg MV models)
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_sync_brand
+      - name: crm_sync_crm_line
+      # Rate / Cost tables (dùng trong mv_lead_mb)
+      - name: ggs_kdtc_product_ctg_rate
+      - name: ggs_kdtc_service_type_revenue
