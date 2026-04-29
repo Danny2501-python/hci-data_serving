@@ -1,0 +1,12 @@
+data_serving:
+  outputs:
+    dev:
+      dbname: new_product
+      host: 10.10.10.214
+      pass: QtdlxxrisA@!sfsgo#2024
+      port: 5432
+      schema: public
+      threads: 1
+      type: postgres
+      user: admin
+  target: dev
