@@ -24,6 +24,7 @@ clean-targets:
 vars:
   # Adjust start_date for backfill
   start_date: '2025-08-01'
+  all_brand_etl: "(1,3,4,7)"
 
 # Model configurations
 models:
@@ -46,21 +47,13 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-<<<<<<< HEAD
     pretransformation_table_set:
       +tags: ["staging_tables"]
-=======
-    report_deposit:
-      +tags: ["report_dps"]
->>>>>>> main
       stg:
         +materialized: ephemeral
       int:
         +materialized: ephemeral
       mart:
-<<<<<<< HEAD
-        +materialized: table
-=======
         +materialized: table
     report_marketing_kn_dvda:
       +tags: ["report_kn_dvda"]
@@ -78,4 +71,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
->>>>>>> main
+    report_deposit:
+      +tags: ["report_dps"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table

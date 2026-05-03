@@ -153,3 +153,67 @@ models:
         description: Chức vụ cấp 2 trong bảng hr_employee
       - name: row_num
         description: Số thứ tự nhân viên trong bảng hr_employee 
+
+  - name: stag_payment_transfer_test_dbt
+    description: >
+      Bảng tổng hợp các giao dịch chuyển tiền ra vào chi nhánh, điều chuyển giữa các chi nhánh
+      Table: stag_payment_transfer_test_dbt
+    columns:
+      - name: id
+        description: Mã giao dịch chuyển tiền trong bảng stag_payment_all_payment_transfer
+      - name: product_type
+        description: Loại sản phẩm trong bảng stag_payment_all_payment_transfer
+      - name: ma_phieu
+        description: Mã phiếu trong bảng stag_payment_all_payment_transfer
+      - name: crm_id
+        description: Mã CRM trong bảng stag_payment_all_payment_transfer
+      - name: payment_date
+        description: Ngày thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: payment_method
+        description: Phương thức thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: communication
+        description: Truyền thông trong bảng stag_payment_all_payment_transfer
+      - name: clineid
+        description: Mã crm line tương ứng trong bảng crm line
+      - name: product_id
+        description: Mã sản phẩm tương ứng trong bảng product product
+      - name: quantity
+        description: Số lượng
+      - name: uom_price
+        description: Giá đơn vị
+      - name: number_used
+        description: Số lần sử dụng
+      - name: total
+        description: Tổng trong bảng stag_payment_all_payment_transfer
+      - name: total_received
+        description: Tổng nhận trong bảng stag_payment_all_payment_transfer
+      - name: total_received_cline
+        description: Tổng nhận khách hàng trong bảng stag_payment_all_payment_transfer
+      - name: payment
+        description: Thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: payment_type
+        description: Loại thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: stage_product
+        description: Giai đoạn sản phẩm trong bảng stag_payment_all_payment_transfer
+      - name: consultants_1
+        description: Tư vấn viên 1 trong bảng stag_payment_all_payment_transfer
+      - name: consulting_role_1
+        description: Vai trò tư vấn 1 trong bảng stag_payment_all_payment_transfer
+      - name: consultants_2
+        description: Tư vấn viên 2 trong bảng stag_payment_all_payment_transfer
+      - name: consulting_role_2
+        description: Vai trò tư vấn 2 trong bảng stag_payment_all_payment_transfer
+      - name: ho_tro
+        description: Hỗ trợ trong bảng stag_payment_all_payment_transfer
+      - name: price_list_id
+        description: Mã danh sách giá trong bảng stag_payment_all_payment_transfer
+      - name: orgcompany_id
+        description: Mã tổ chức công ty trong bảng stag_payment_all_payment_transfer
+      - name: company_id
+        description: Mã công ty trong bảng stag_payment_all_payment_transfer
+      - name: write_date
+        description: Ngày cập nhật trong bảng stag_payment_all_payment_transfer
+      - name: brand_id
+        description: Mã thương hiệu trong bảng stag_payment_all_payment_transfer
+      - name: brand_etl
+        description: Thương hiệu ETL trong bảng stag_payment_all_payment_transfer

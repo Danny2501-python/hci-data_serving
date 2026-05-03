@@ -29,3 +29,17 @@ sources:
       - name: hr_department
       - name: import_stag_employee_doctor
       - name: import_stag_employee_null
+      # stag_payment_transfer
+      - name: account_payment
+      - name: crm_transfer_payment
+      - name: crm_account_payment_detail
+      - name: crm_account_payment_product_detail
+      - name: crm_line
+      - name: crm_line_product
+      - name: crm_transfer_payment_line
+      - name: stag_payment_transfer
+      # stag_crm_line_info
+      - name: crm_sync_brand
+      - name: crm_sync_crm_line
+      - name: cline_old
+      - name: view_stag_products
