@@ -1,21 +1,24 @@
+{{ config(alias='mart_report_portal_usage') }}
+
 with pgsuvip as (
-    select * from {{ ref('stg_portal_guide_statistic_user_views_in_portal') }}
+
+    select * from {{ ref('stg_rpu_user_views') }}
 ),
 
 pgcpr as (
-    select * from {{ ref('stg_portal_guide_core_portal_report') }}
+    select * from {{ ref('stg_rpu_portal_report') }}
 ),
 
 pgcrt as (
-    select * from {{ ref('stg_portal_guide_core_report_type') }}
+    select * from {{ ref('stg_rpu_report_type') }}
 ),
 
 pgce as (
-    select * from {{ ref('int_portal_usage__employees') }}
+    select * from {{ ref('int_rpu_employees') }}
 ),
 
 sss as (
-    select * from {{ ref('int_portal_usage__reports') }}
+    select * from {{ ref('int_rpu_reports') }}
 )
 
 select

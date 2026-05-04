@@ -1,9 +1,9 @@
 with pgce as (
-    select * from {{ ref('stg_portal_guide_core_employee') }}
+    select * from {{ ref('stg_rpu_core_employee') }}
 ),
 
 se_source as (
-    select * from {{ ref('stg_crm_base_employees') }}
+    select * from {{ ref('stg_rpu_employees') }}
 ),
 
 employee_matched as (

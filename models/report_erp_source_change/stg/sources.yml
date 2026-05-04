@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: resc_crm_base
+    schema: public
+    tables:
+      - name: stag_mail_message_erp
+      - name: view_ks_crm_lead_trans_field
+      - name: stag_employees
+      - name: crm_lead
+      - name: stag_sources
+      - name: m_res_company
+      - name: res_brand
+      - name: stag_payment_transfer
+      - name: stag_products

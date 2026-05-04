@@ -1,9 +1,9 @@
 with pgcpr as (
-    select * from {{ ref('stg_portal_guide_core_portal_report') }}
+    select * from {{ ref('stg_rpu_portal_report') }}
 ),
 
 pgcrf_source as (
-    select * from {{ ref('stg_portal_guide_core_report_folder') }}
+    select * from {{ ref('stg_rpu_report_folder') }}
 ),
 
 folder_hierarchy as (
