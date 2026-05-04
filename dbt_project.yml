@@ -70,3 +70,12 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_portal_usage:
+      +tags: ["report_portal_usage"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+

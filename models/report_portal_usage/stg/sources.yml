@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: portal
+    schema: public  # Assuming public based on the SQL
+    tables:
+      - name: portal_guide_core_employee
+      - name: portal_guide_statistic_user_views_in_portal
+      - name: portal_guide_core_portal_report
+      - name: portal_guide_core_report_type
+      - name: portal_guide_core_report_folder
