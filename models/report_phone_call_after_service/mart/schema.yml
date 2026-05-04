@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: report_rpcas_phone_call_final
+    description: "Báo cáo tổng hợp cuộc gọi sau dịch vụ"
+    columns:
+      - name: id_phonecall
+        description: "ID cuộc gọi"
+      - name: ten_kh
+        description: "Tên khách hàng"
+      - name: sdt
+        description: "Số điện thoại"
+      - name: ma_kh
+        description: "Mã khách hàng"
+      - name: ngay_goi
+        description: "Ngày gọi"
+      - name: ngay_hl
+        description: "Ngày hẹn"
+      - name: trang_thai
+        description: "Trạng thái"
+      - name: brand_id
+        description: "ID thương hiệu"
+      - name: company_id
+        description: "ID công ty"
+      - name: chi_nhanh
+        description: "Chi nhánh"
+      - name: thuong_hieu
+        description: "Thương hiệu"
+      - name: id_book
+        description: "ID booking"
+      - name: booking
+        description: "Booking"
+      - name: so
+        description: "Số đơn"
+      - name: order_id
+        description: "ID đơn hàng"
+      - name: id_pk
+        description: "ID phiếu khám"
+      - name: pk
+        description: "Phiếu khám"
+      - name: don_vi_cham_soc
+        description: "Đơn vị chăm sóc"
+      - name: loai
+        description: "Loại cuộc gọi"
+      - name: product_id
+        description: "ID sản phẩm"
+      - name: product
+        description: "Sản phẩm"
+      - name: product_category
+        description: "Danh mục sản phẩm"
+      - name: his_service_type
+        description: "Loại hình dịch vụ"
+      - name: mo_ta
+        description: "Mô tả"
+      - name: ghi_chu
+        description: "Ghi chú"
+      - name: ticket_id
+        description: "ID ticket"
+      - name: id_cs_call
+        description: "ID cuộc gọi CS"
+      - name: call_id
+        description: "ID cuộc gọi"
+      - name: caller
+        description: "Người gọi"
+      - name: time_bat_dau
+        description: "Thời gian bắt đầu"
+      - name: time_ket_thuc
+        description: "Thời gian kết thúc"
+      - name: ngay_goi_thuc_te
+        description: "Ngày gọi thực tế"
+      - name: ngay_goi_thuc_te_fulltime
+        description: "Ngày gọi thực tế fulltime"
+      - name: time_goi
+        description: "Thời gian gọi"
+      - name: giay_goi
+        description: "Số giây gọi"
+      - name: check_db
+        description: "Kiểm tra DB"
+      - name: loai_ket_noi
+        description: "Loại kết nối"
+      - name: call_status
+        description: "Trạng thái cuộc gọi"
+      - name: id_ng_goi
+        description: "ID người gọi"
+      - name: ng_goi
+        description: "Người gọi"
+      - name: dung_sai_lich
+        description: "Đúng sai lịch"
+      - name: id_calendar
+        description: "ID lịch"
+      - name: henlich_calendar
+        description: "Ngày hẹn calendar"
+      - name: type_crm_id
+        description: "ID loại CRM"
+      - name: id_ng_goi_erp
+        description: "ID người gọi ERP"
+      - name: ten_ng_goi_erp
+        description: "Tên người gọi ERP"
+      - name: id_pb_ng_goi_erp
+        description: "ID phòng ban người gọi ERP"
+      - name: pb_ng_goi_erp
+        description: "Phòng ban người gọi ERP"
+      - name: employee_code
+        description: "Mã nhân viên"
+      - name: id_line_ps
+        description: "ID line PS"
+      - name: booking_ps
+        description: "Booking PS"
+      - name: id_crm_lead_ps
+        description: "ID CRM lead PS"
+      - name: ngay_tao_line_ps
+        description: "Ngày tạo line PS"
+      - name: payment_ps
+        description: "Thanh toán PS"
+      - name: ngay_tt_ps
+        description: "Ngày thanh toán PS"
+      - name: id_phieu_ps
+        description: "ID phiếu PS"
+      - name: ma_phieu_ps
+        description: "Mã phiếu PS"
+      - name: dv_ps
+        description: "Dịch vụ PS"

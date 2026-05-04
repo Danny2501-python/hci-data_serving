@@ -1,3 +1,10 @@
+{{
+  config(
+    materialized = 'table',
+    alias        = 'report_rpcas_phone_call_final'
+  )
+}}
+
 select
 	cpc.id 																					as id_phonecall,
 	rp."name" 																				as ten_kh,
