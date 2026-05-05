@@ -10,7 +10,7 @@ sources:
       - name: crm_lead
       - name: crm_line
       - name: crm_stage
-      - name: view_stag_sources
+      - name: stag_sources
       - name: view_stag_products
       - name: stag_payment_transfer
       - name: sh_medical_health_center_service

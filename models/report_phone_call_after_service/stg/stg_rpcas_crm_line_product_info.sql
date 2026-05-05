@@ -22,7 +22,7 @@ select
     spt.id                                              as id
 from {{ source('phone_call_after_service','crm_lead')}} cl 
     left join {{ source('phone_call_after_service','crm_stage')}} cs on cs.id = cl.stage_id and cs.brand_etl = cl.brand_etl
-    left join {{ source('phone_call_after_service','view_stag_sources')}} us on us.old_id = cl.source_id and us.brand_etl = cl.brand_etl
+    left join {{ source('phone_call_after_service','stag_sources')}} us on us.old_id = cl.source_id and us.brand_etl = cl.brand_etl
     left join {{ source('phone_call_after_service','crm_line_product')}} clp on clp.booking_id = cl.id and clp.brand_etl = cl.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu on cl.create_by = vseu.user_id and vseu.brand_etl = cl.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu2 on vseu2.user_id = clp.consultants_1 and vseu2.brand_etl = clp.brand_etl
@@ -32,5 +32,5 @@ from {{ source('phone_call_after_service','crm_lead')}} cl
         and spt.clineid = clp.id 
         and spt.brand_etl = cl.brand_etl 
         and spt.brand_etl = clp.brand_etl
-where clp.stage_line_product <<>> 'cancel' and cl.type_crm_id = 2 
+where clp.stage_line_product <> 'cancel' and cl.type_crm_id = 2 
 

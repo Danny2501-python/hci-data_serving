@@ -46,7 +46,7 @@ select
 		else false
 	end 																					as check_db,
 	case
-		when extract(EPOCH from cca.talk_time::interval) >>= 15 then 'Kết nối'
+		when extract(EPOCH from cca.talk_time::interval) >= 15 then 'Kết nối'
 		else 'Không kết nối'
 	end 																					as loai_ket_noi,
 	cca.call_status,
@@ -60,7 +60,7 @@ select
 	ce.start_datetime + '7hours' 															as henlich_calendar,
 	cpc.type_crm_id,
 	he.id 																					as id_ng_goi_erp,
-	he."name" 																				as ten_ng_goi_erp,
+	he.employee 																			as ten_ng_goi_erp,
 	he.department_id																		as id_pb_ng_goi_erp,
 	he.department																			as pb_ng_goi_erp,
 	he.employee_code ,
@@ -117,4 +117,5 @@ where cpc.type_pc in
     'ReCheck6','ReCheck7','ReCheck8','ReCheck11',
 	'ReCheck9', --tái khám 
     'ReCheck10') -- liệu trình 
-and date(cpc.call_date + '7hours') >>= '20250801' 
+and date(cpc.call_date + '7hours') >= '2023-08-01' 
+and cpc.active = true
