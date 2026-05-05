@@ -108,7 +108,7 @@ left join {{ ref('stg_rpcas_data_tk')}} dt on
 	and date(cpc.booking_date + '7hours') = dt.ngay_tk
 left join {{ source('phone_call_after_service','calendar_event')}} ce on
 	ce.phonecall = cpc.id
-left join {{ ref('stg_rpcas_ps')}} ps on
+left join {{ ref('int_rpcas_ps')}} ps on
 	ps.ngay_tao = date(cpc.booking_date + '7hours')
 	-- ngày tạo line = ngày đến tk, tbcc, liệu trình 			
 	and ps.ma_kh = cpc.code_customer -- cùng mã khách hàng 

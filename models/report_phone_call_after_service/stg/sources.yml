@@ -10,7 +10,7 @@ sources:
       - name: crm_lead
       - name: crm_line
       - name: crm_stage
-      - name: view_stag_source
+      - name: view_stag_sources
       - name: view_stag_products
       - name: stag_payment_transfer
       - name: sh_medical_health_center_service
@@ -25,6 +25,8 @@ sources:
       - name: sh_walkin_service_rel
       - name: calendar_event
       - name: sale_order
+      - name: m_res_company
+      - name: crm_line_product
       # Caresoft 
       - name: cs_call_api
       - name: cs_agents_api
