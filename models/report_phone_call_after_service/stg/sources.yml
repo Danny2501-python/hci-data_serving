@@ -24,6 +24,7 @@ sources:
       - name: crm_phone_call_history
       - name: sh_walkin_service_rel
       - name: calendar_event
+      - name: sale_order
       # Caresoft 
       - name: cs_call_api
       - name: cs_agents_api

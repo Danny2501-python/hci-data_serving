@@ -26,7 +26,7 @@ from {{ source('phone_call_after_service','crm_lead')}} cl
     left join {{ source('phone_call_after_service','crm_line_product')}} clp on clp.booking_id = cl.id and clp.brand_etl = cl.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu on cl.create_by = vseu.user_id and vseu.brand_etl = cl.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu2 on vseu2.user_id = clp.consultants_1 and vseu2.brand_etl = clp.brand_etl
-    left join {{ source('phone_call_after_service','stag_products')}} sp2 on sp2.product_id = clp.product_id and sp2.brand_etl = clp.brand_etl
+    left join {{ source('phone_call_after_service','view_stag_products')}} sp2 on sp2.product_id = clp.product_id and sp2.brand_etl = clp.brand_etl
     left join {{ source('phone_call_after_service','stag_payment_transfer')}} spt 
         on spt.crm_id = cl.id 
         and spt.clineid = clp.id 
