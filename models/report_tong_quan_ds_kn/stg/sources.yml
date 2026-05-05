@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: tqds_crm_base
+    schema: public
+    tables:
+      - name: m_res_company
+      - name: ggs_target_company
+      - name: target_kangnam_chitieu
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_line_product
+      - name: res_brand
+      - name: utm_campaign
+      - name: crm_stage
+      - name: crm_type
+      - name: stag_employees
+      - name: view_stag_products
+      - name: stag_sources
+      - name: stag_payment_transfer

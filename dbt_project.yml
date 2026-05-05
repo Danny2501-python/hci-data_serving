@@ -86,13 +86,20 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-    report_rpcas_phone_call:
-      +tags: ["report_rpcas_phone_call"]
+    report_phone_call_after_service:
+      +tags: ["report_phone_call_after_service"]
       stg:
         +materialized: ephemeral
       int:
         +materialized: ephemeral
       mart:
         +materialized: table
-
+    report_tong_quan_ds_kn:
+      +tags: ["report_tong_quan_ds_kn"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
 
