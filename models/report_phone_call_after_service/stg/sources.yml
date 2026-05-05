@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: phone_call_after_service
+    # Tất cả bảng nguồn nằm trong database new_product / schema public
+    schema: public
+    tables:
+      # CRM
+      - name: view_stag_employees_user
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_stage
+      - name: stag_sources
+      - name: view_stag_products
+      - name: stag_payment_transfer
+      - name: sh_medical_health_center_service
+      - name: sh_medical_evaluation
+      - name: sh_medical_appointment_register_walkin
+      - name: sh_medical_patient
+      - name: res_partner
+      - name: sh_evaluation_services_type_rel
+      - name: sh_medical_evaluation_services
+      - name: crm_phone_call
+      - name: crm_phone_call_history
+      - name: sh_walkin_service_rel
+      - name: calendar_event
+      - name: sale_order
+      - name: m_res_company
+      - name: crm_line_product
+      # Caresoft 
+      - name: cs_call_api
+      - name: cs_agents_api
+      

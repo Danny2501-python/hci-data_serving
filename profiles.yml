@@ -10,3 +10,15 @@ data_serving:
       type: postgres
       user: admin
   target: dev
+# data_serving:
+#   outputs:
+#     dev:
+#       dbname: dev_staging_sci
+#       host: 10.10.10.224
+#       pass: QtdlxxrisA@!sfsgo#2024
+#       port: 5432
+#       schema: public
+#       threads: 1
+#       type: postgres
+#       user: admin
+#   target: dev

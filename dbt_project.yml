@@ -86,5 +86,13 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_rpcas_phone_call:
+      +tags: ["report_rpcas_phone_call"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
 
 
