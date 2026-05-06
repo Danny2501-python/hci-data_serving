@@ -45,7 +45,7 @@ SELECT
     CASE
         WHEN type_data_check = 'Cost_fb_th'                                 THEN 'THUONG HIEU'
         WHEN (UPPER(nhom_dv_p2) = 'NRKT' OR UPPER(nhom_dv_p3) = 'NRKT')     THEN 'Niềng răng khay trong'
-        WHEN UPPER(nhom_dv_p2) IN ('SALE TONG','DAN','BENH LY')             THEN 'NHA KHOA KHÁC'
+        WHEN UPPER(nhom_dv_p2) IN ('SALE TONG','DAN','BENH LY')             THEN 'NKK'
         WHEN UPPER(nhom_dv_p2) = 'PTHM'                                     THEN 'PTHM'
         WHEN UPPER(nhom_dv_p2) LIKE '%RANG SU%'                  
           OR UPPER(nhom_dv_p2) LIKE '%RANGSU%'                              THEN 'Răng sứ'
