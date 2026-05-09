@@ -21,3 +21,4 @@ sources:
       - name: crm_stage
       - name: crm_type
       - name: stag_sources
+      - name: stag_crm_booking_arrival_company

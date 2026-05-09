@@ -17,5 +17,6 @@ select
       ecl.active,
       ecl.company_id,
       ecl.stage_id,
-      ecl.state_id
+      ecl.state_id, 
+      ecl.brand_etl
   from {{ source('crm_base','crm_lead') }} ecl
