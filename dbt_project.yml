@@ -102,4 +102,12 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_tong_quan_ds_pr:
+      +tags: ["report_tong_quan_ds_pr"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
 
