@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: dvda
+  - name: rmkd
     schema: public
     tables:
       # CRM base

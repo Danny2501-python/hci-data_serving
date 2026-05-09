@@ -14,14 +14,14 @@ SELECT
     'act_' || cfaa2.ad_account_id                                                     AS ad_account_id,
     cfaai.fb_ad_ad_id                                                                 AS ad_id,
     'Cost_fb_cd'                                                                      AS type_data
-FROM {{ source('dvda', 'core_facebook_ad_ad_insight') }} cfaai
-LEFT JOIN {{ source('dvda', 'core_facebook_ad_ad') }}       cfaa  ON cfaa.fb_ad_ad_id       = cfaai.fb_ad_ad_id
-LEFT JOIN {{ source('dvda', 'core_facebook_ad_set') }}      cfas  ON cfas.fb_ad_set_id      = cfaa.fb_ad_set_id
-LEFT JOIN {{ source('dvda', 'core_facebook_ad_campaign') }} cfac  ON cfac.fb_ad_campaign_id = cfas.fb_ad_campaign_id
-LEFT JOIN {{ source('dvda', 'core_facebook_ad_account') }}  cfaa2 ON cfaa2.ad_account_id   = cfac.fb_ad_account_id
+FROM {{ source('rmkd', 'core_facebook_ad_ad_insight') }} cfaai
+LEFT JOIN {{ source('rmkd', 'core_facebook_ad_ad') }}       cfaa  ON cfaa.fb_ad_ad_id       = cfaai.fb_ad_ad_id
+LEFT JOIN {{ source('rmkd', 'core_facebook_ad_set') }}      cfas  ON cfas.fb_ad_set_id      = cfaa.fb_ad_set_id
+LEFT JOIN {{ source('rmkd', 'core_facebook_ad_campaign') }} cfac  ON cfac.fb_ad_campaign_id = cfas.fb_ad_campaign_id
+LEFT JOIN {{ source('rmkd', 'core_facebook_ad_account') }}  cfaa2 ON cfaa2.ad_account_id   = cfac.fb_ad_account_id
 LEFT JOIN LATERAL (
     SELECT bidrateck
-    FROM {{ source('dvda', 'ty_gia_techcombank') }} t
+    FROM {{ source('rmkd', 'ty_gia_techcombank') }} t
     WHERE t."label" = 'USD (50,100)' AND cfaai."date" >= t."date"
     ORDER BY t.date DESC LIMIT 1
 ) tgt ON TRUE

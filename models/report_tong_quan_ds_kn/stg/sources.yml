@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: tqds_crm_base
+  - name: rtqdk_source
     schema: public
     tables:
       - name: m_res_company
