@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: rtqdp_source
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: target_kangnam_chitieu
+      - name: target_paris_chitieu
+      - name: stag_payment_transfer
+      - name: m_res_company
+      - name: res_brand
+      - name: utm_source
+      - name: utm_campaign
+      - name: stag_products
+      - name: stag_sources
+      - name: hr_department
+      - name: crm_stage
+      - name: crm_type
+      - name: res_users
+      - name: res_partner
+      - name: stag_employees
