@@ -23,7 +23,7 @@ sources:
       - name: location_kangnam_adnet
       - name: ty_gia_techcombank
       # Facebook
-      - name: stg_dvda_fb_insight_v1
+      - name: stg_rmkd_fb_insight_v1
       - name: cs_facebook_insight
       - name: core_facebook_ad_ad_insight
       - name: core_facebook_ad_ad

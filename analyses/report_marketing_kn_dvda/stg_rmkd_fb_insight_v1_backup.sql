@@ -1,9 +1,3 @@
--- =============================================================================
--- stg_dvda_fb_insight_v1_backup
--- Backup of legacy Facebook insight logic for DVDA.
--- This logic was used to build the initial public.stg_dvda_fb_insight_v1 table.
--- =============================================================================
-
 SELECT
     (CASE WHEN cfaai.fb_account_currency = 'USD'
           THEN cfaai.spend * tgt.bidrateck::double precision
