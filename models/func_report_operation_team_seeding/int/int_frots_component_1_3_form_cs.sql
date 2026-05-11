@@ -23,17 +23,17 @@ SELECT
     'Form'                          AS bảng,
     ticket_id::TEXT                 AS ticket_id,
     b.customer                      AS ten_kh,
-    b.nhanvien_seeding              AS nhân_viên,
+    b.nhanvien_seeding              AS "nhân viên",
     CASE
         WHEN b.brand_id = 1 THEN 'Kangnam'
         WHEN b.brand_id = 3 THEN 'Paris'
         WHEN b.brand_id = 4 THEN 'Hồng Hà'
         ELSE b.brand_id::TEXT
-    END                             AS thương_hiệu,
-    NULL::TEXT                      AS chi_nhánh,
+    END                             AS "thương hiệu",
+    NULL::TEXT                      AS "chi nhánh",
     b.brand_id                      AS thuonghieuphanquyen,
-    NULL::TEXT                      AS dịch_vụ,
-    NULL::TEXT                      AS nhóm_dịch_vụ,
+    NULL::TEXT                      AS "dịch vụ",
+    NULL::TEXT                      AS "nhóm dịch vụ",
     NULL::NUMERIC                   AS prepayment_amount,
     NULL::TEXT                      AS payment_type,
     'Seeding (Form)'                AS source,
