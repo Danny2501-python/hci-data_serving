@@ -20,3 +20,4 @@ sources:
       - name: stag_payment_transfer
       - name: seeding_user
       - name: seeding_res_company
+      - name: cs_deal_detail_api_v2
