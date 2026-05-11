@@ -10,13 +10,14 @@ sources:
       - name: cs_custom_fields
       - name: crm_lead
       - name: crm_line
+      - name: crm_account_payment_detail
+      - name: account_payment
       - name: m_res_company
       - name: res_brand
       - name: stag_sources
       - name: view_stag_products
       - name: view_stag_employees_user
-      - name: account_payment
-      - name: crm_account_payment_detail
       - name: stag_payment_transfer
       - name: seeding_user
       - name: seeding_res_company
+      - name: cs_deal_detail_api_v2
