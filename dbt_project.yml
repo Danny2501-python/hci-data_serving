@@ -118,4 +118,8 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_marketing_kn_dvda_tq:
+      +tags: ["report_rmkdt"]
+      mart:
+        +materialized: table
 
