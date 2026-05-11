@@ -122,4 +122,12 @@ models:
       +tags: ["report_rmkdt"]
       mart:
         +materialized: table
+    func_report_operation_team_seeding:
+      +tags: ["report_frots"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
 
