@@ -130,4 +130,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-
+    report_bao_cao_sua_xoa_du_lieu:
+      +tags: ["report_bcsxdl"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
