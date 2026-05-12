@@ -1,0 +1,46 @@
+version: 2
+
+sources:
+  - name: ptdbdspc_erp
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_line_product
+      - name: crm_information_consultant
+      - name: view_stag_employees_user
+      - name: crm_stage
+      - name: hr_department
+      - name: crm_type
+      - name: sh_medical_health_center_service
+      - name: sh_medical_health_center_service_category
+      - name: utm_source
+      - name: product_category
+      - name: res_users
+      - name: product_product
+      - name: product_template
+      - name: res_partner
+      - name: stag_payment_transfer
+      - name: m_res_company
+      - name: res_brand
+      - name: stag_sources
+      - name: dm_convert_case_when
+      - name: account_payment
+      - name: crm_account_payment_detail
+      - name: crm_account_payment_product_detail
+
+  - name: ptdbdspc_ads
+    schema: public
+    tables:
+      - name: google_ad_paris
+      - name: core_facebook_ad_ad_insight
+      - name: core_facebook_ad_ad
+      - name: core_facebook_ad_set
+      - name: core_facebook_ad_campaign
+      - name: core_facebook_ad_account
+      - name: ty_gia_techcombank
+      - name: local_paris_adnet
+      - name: m_nhom_dv_adnet_paris
+      - name: ggs_paris_chuan_hoa_nhom_dv_quang_cao
+      - name: cs_facebook_insight
+      - name: int_ptdbdspc_facebook_ads_v1

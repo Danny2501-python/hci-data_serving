@@ -163,3 +163,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_pt_dbds_paris_chinhanh:
+      +tags: ["report_ptdbdspc"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
