@@ -43,3 +43,4 @@ sources:
       - name: m_nhom_dv_adnet_paris
       - name: ggs_paris_chuan_hoa_nhom_dv_quang_cao
       - name: cs_facebook_insight
+      - name: int_ptdbdsp_facebook_ads_v1
