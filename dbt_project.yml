@@ -24,6 +24,7 @@ clean-targets:
 vars:
   # Adjust start_date for backfill
   start_date: '2025-08-01'
+  all_brand_etl: "(1,3,4,7)"
 
 # Model configurations
 models:
@@ -140,6 +141,22 @@ models:
         +materialized: table
     report_pt_dbds_paris:
       +tags: ["report_ptdbdsp"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    report_kangnam_bo_chi_so_kinh_doanh:
+      +tags: ["report_knbcskd"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    pretransformation_table_set:
+      +tags: ["staging_tables"]
       stg:
         +materialized: ephemeral
       int:
