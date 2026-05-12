@@ -137,4 +137,12 @@ models:
       int:
         +materialized: ephemeral
       mart:
-        +materialized: table
+        +materialized: table 
+    report_kangnam_bo_chi_so_kinh_doanh:
+      +tags: ["report_knbcskd"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table 
