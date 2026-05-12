@@ -1,5 +1,5 @@
 WITH v1 AS (
-    SELECT * FROM {{ ref('int_ptdbdsp_facebook_ads_v1') }}
+    SELECT * FROM {{ source('ptdbdsp_ads', 'int_ptdbdsp_facebook_ads_v1') }}
 ),
 
 v2 AS (
