@@ -138,3 +138,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_pt_dbds_paris:
+      +tags: ["report_ptdbdsp"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
