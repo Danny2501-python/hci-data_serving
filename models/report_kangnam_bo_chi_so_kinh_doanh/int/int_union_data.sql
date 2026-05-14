@@ -1,3 +1,5 @@
+WITH limit_date AS 
+	(SELECT '2025-08-01'::date AS ld)
 --- Dữ liệu thanh toán (Doanh số bán)
 SELECT 'payment' AS data_union, crm_id, type_crm_id, booking, code_customer, contact_name, 
         pm.type_data_partner, 
