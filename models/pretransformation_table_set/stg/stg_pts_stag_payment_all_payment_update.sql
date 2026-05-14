@@ -21,7 +21,7 @@ FROM {{source('pre_tns', 'crm_account_payment_detail')}} capd
     LEFT JOIN {{source('pre_tns', 'crm_line')}} cline ON capd.crm_line_id = cline.id AND cline.brand_etl = capd.brand_etl
 WHERE capd.brand_etl IN {{var('all_brand_etl')}} AND 
     ap.state = 'posted' AND capd.prepayment_amount <> 0 
-    AND ap.crm_id IN (SELECT crm_id FROM temp_crm_id_update WHERE brand_etl IN {{var('all_brand_etl')}})
+    AND ap.crm_id IN (SELECT crm_id FROM {{ ref('stg_pts_stag_payment_transfer_crm_id_update') }} WHERE brand_etl IN {{var('all_brand_etl')}})
 UNION ALL
 SELECT concat('pc-', cappd.id) AS id, 'cosmetic' as product_type, 
     ap.name AS ma_phieu, ap.crm_id, ap.payment_date, ap.payment_method, ap.communication, 
@@ -47,4 +47,4 @@ FROM {{source('pre_tns','crm_account_payment_product_detail')}} cappd
     LEFT JOIN {{source('pre_tns','crm_line_product')}} clinep ON cappd.crm_line_product_id = clinep.id AND clinep.brand_etl = cappd.brand_etl
 WHERE cappd.brand_etl IN {{var('all_brand_etl')}} AND 
     ap.state = 'posted' AND cappd.prepayment_amount <> 0 
-    AND ap.crm_id IN (SELECT crm_id FROM temp_crm_id_update WHERE brand_etl IN {{var('all_brand_etl')}})
+    AND ap.crm_id IN (SELECT crm_id FROM {{ ref('stg_pts_stag_payment_transfer_crm_id_update') }} WHERE brand_etl IN {{var('all_brand_etl')}})

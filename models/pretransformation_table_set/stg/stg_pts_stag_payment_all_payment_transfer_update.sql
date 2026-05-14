@@ -60,7 +60,7 @@ SELECT ctpl.id,
         AND ctpl.to_crm_line_id = ctplt.from_crm_line_id AND ctplt.brand_etl = ctpl.brand_etl 
   WHERE ctpl.brand_etl IN {{var('all_brand_etl')}} 
       AND ctpl.transfer_amount <> 0 AND ctp.state = 'done' 
-      AND ctp.crm_id IN (SELECT crm_id FROM {{ ref('stg_pts_stag_payment_transfer_crm_limit') }} WHERE brand_etl IN {{var('all_brand_etl')}})
+      AND ctp.crm_id IN (SELECT crm_id FROM {{ ref('stg_pts_stag_payment_transfer_crm_id_update') }} WHERE brand_etl IN {{var('all_brand_etl')}})
 )
 SELECT 
     rs.id, rs.ma_phieu, rs.crm_id

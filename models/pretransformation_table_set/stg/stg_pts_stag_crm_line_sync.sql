@@ -20,7 +20,7 @@ SELECT csb.brand_etl, csb.id_old crm_id_old, csb.crm_id,
 FROM {{source('pre_tns','crm_sync_brand')}} csb
     LEFT JOIN {{source('pre_tns','crm_line')}} cline on csb.crm_id = cline.crm_id AND csb.brand_etl = cline.brand_etl 
     LEFT JOIN {{source('pre_tns','view_stag_products')}} sp on cline.product_id = sp.product_id AND cline.brand_etl = sp.brand_etl 
-    LEFT JOIN {{source('pre_tns','cline_old')}} co on cline.id = co.clineid AND co.brand_etl = cline.brand_etl 
+    LEFT JOIN cline_old co on cline.id = co.clineid AND co.brand_etl = cline.brand_etl 
     LEFT JOIN (SELECT crm_line_id, brand_etl FROM {{source('pre_tns','crm_account_payment_detail')}} capd WHERE prepayment_amount <> 0 AND brand_etl <> 0 GROUP BY crm_line_id, brand_etl) 
         capd ON cline.id = capd.crm_line_id AND capd.brand_etl = cline.brand_etl
 WHERE cline.id IS NOT NULL AND cline.stage <> 'cancel'

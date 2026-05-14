@@ -34,7 +34,7 @@ SELECT
     ptf.write_date AS write_date,
     ptf.brand_id AS brand_id,
     ptf.brand_etl AS brand_etl
-FROM {{ref('stg_pts_stag_payment_all_payment_transfer')}} ptf
+FROM {{ref('stg_pts_stag_payment_all_payment_transfer_update')}} ptf
 UNION ALL
 -- Bảng inbound
 SELECT 
@@ -67,7 +67,7 @@ SELECT
     ptt.write_date AS write_date,
     ptt.brand_id AS brand_id,
     ptt.brand_etl AS brand_etl
-FROM {{ref('stg_pts_stag_payment_all_payment_transfer')}} ptt
+FROM {{ref('stg_pts_stag_payment_all_payment_transfer_update')}} ptt
 UNION ALL
 -- Bảng all payment
 SELECT 
@@ -100,10 +100,17 @@ SELECT
     ap.write_date AS write_date,
     ap.brand_id AS brand_id,
     ap.brand_etl AS brand_etl
-FROM {{ref('stg_pts_stag_payment_all_payment')}} ap
+FROM {{ref('stg_pts_stag_payment_all_payment_update')}} ap
+),opc_groupby AS (
+    SELECT 
+        crm_id, brand_etl, 
+        MIN(first_date_payment)::date AS first_date_payment, 
+        MAX(rnk_crm_pmdate)::int AS rnk_crm_pmdate
+    FROM {{ref('stg_pts_stag_payment_old_booking_continue')}}
+    GROUP BY crm_id, brand_etl
 )
 SELECT 
-    apat.id::int AS id,
+    apat.id::text AS id,
     apat.product_type::text AS product_type,
     apat.ma_phieu::text AS ma_phieu,
     apat.crm_id::int AS crm_id,
@@ -115,10 +122,19 @@ SELECT
         WHEN apat.product_id IS NULL OR apat.product_id = 0 THEN fpi.product_id::int
         ELSE fpi.product_id::int
     END AS product_id,
-    apat.quantity::numeric AS quantity,
-    apat.uom_price::numeric AS uom_price,
-    apat.number_used::numeric AS number_used,
-    apat.total::numeric AS total,
+    CASE 
+        WHEN apat.quantity < COALESCE(opc.quantity,0) THEN opc.quantity::numeric
+        ELSE apat.quantity::numeric 
+    END as quantity,
+    CASE 
+        WHEN apat.uom_price IS NULL AND apat.product_type::text = 'cosmetic' THEN 1::numeric
+        ELSE apat.uom_price::numeric
+    END AS uom_price,
+    (apat.number_used + COALESCE(opc.number_used,0))::numeric AS number_used,
+    CASE 
+        WHEN apat.total < COALESCE(opc.total,0) THEN opc.total::numeric
+        ELSE apat.total::numeric 
+    END as total,
     apat.total_received::numeric AS total_received,
     apat.total_received_cline::numeric AS total_received_cline,
     apat.payment::numeric AS payment,
@@ -134,6 +150,31 @@ SELECT
     apat.company_id::int AS company_id,
     apat.write_date::timestamp AS write_date,
     apat.brand_id::int AS brand_id,
-    apat.brand_etl::int AS brand_etl
+    apat.brand_etl::int AS brand_etl,
+    CASE 
+        WHEN MIN(apat.payment_date) OVER (PARTITION BY apat.product_type, apat.clineid,apat.brand_etl ORDER BY apat.payment_date ASC) is not null 
+            THEN MIN(apat.payment_date) OVER (PARTITION BY apat.product_type, apat.clineid,apat.brand_etl ORDER BY apat.payment_date ASC)
+        ELSE ogb.first_date_payment
+    END AS first_date_payment,
+    ROW_NUMBER() OVER (PARTITION BY apat.crm_id, apat.brand_etl ORDER BY apat.payment_date ASC) + COALESCE(ogb.rnk_crm_pmdate, 0) AS rnk_crm_pmdate,
+    ROW_NUMBER() OVER (PARTITION BY apat.product_type, apat.clineid,apat.brand_etl order by apat.payment_date ASC) + COALESCE(opc.rnk_clineid_pmdate,0) AS rnk_clineid_pmdate,
+    ROW_NUMBER() OVER (PARTITION BY apat.product_type, apat.clineid,apat.brand_etl order by apat.payment_date DESC) AS rnk_clineid_pmdate_desc,
+    (SUM(apat.payment) OVER (PARTITION BY apat.product_id, apat.clineid,apat.crm_id,apat.brand_etl ORDER BY apat.payment_date ASC)::numeric 
+        + COALESCE(opc.total_received_old,0)::numeric) AS total_received_cumsum,
+    COALESCE(opc.total_received_old,0)::numeric as total_received_old,
+    CASE
+        WHEN LEFT(apat.ma_phieu,3) = 'PDC' and apat.total_received_cline > 0 THEN TRUE
+        ELSE FALSE
+    END AS is_priority
 FROM all_payment_and_transfer apat
-    LEFT JOIN {{ref('stg_pts_stag_payment_fix_product_id')}} fpi ON apat.clineid = fpi.clineid AND apat.brand_id = fpi.brand_id
+    LEFT JOIN {{ref('stg_pts_stag_payment_fix_product_id')}} fpi 
+        ON apat.clineid = fpi.clineid 
+        AND apat.brand_etl = fpi.brand_etl
+    LEFT JOIN {{ref('stg_pts_stag_payment_old_booking_continue')}} opc 
+        ON apat.clineid = opc.clineid 
+        AND apat.crm_id = opc.crm_id
+        AND apat.brand_etl = opc.brand_etl
+    LEFT JOIN opc_groupby ogb 
+        ON apat.crm_id = ogb.crm_id 
+        AND apat.brand_etl = ogb.brand_etl
+    

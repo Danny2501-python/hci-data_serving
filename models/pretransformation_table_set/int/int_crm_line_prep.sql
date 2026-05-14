@@ -13,7 +13,7 @@ his_line_deposit AS (
 df_fdate AS (
     SELECT *
     FROM {{ ref('stg_pts_stag_payment_1st_date') }}
-    WHERE rn_product = 1
+    WHERE rn = 1
 )
 
 SELECT

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- stg_pts_paris_current_products
--- Lấy toàn bộ các dịch vụ hiện tại của Paris 
+-- Lấy toàn bộ các dịch vụ hiện tại của BV Hồng Hà 
 -- =============================================================================
 WITH pimp AS (
     SELECT
