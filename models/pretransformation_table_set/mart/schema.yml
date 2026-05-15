@@ -1,0 +1,219 @@
+version: 2
+
+models:
+  - name: stag_products_test_dbt
+    description: >
+      Bảng dịch vụ Kangnam cần cập nhật vào model 
+      Table: stag_products_test_dbt
+    columns:
+      - name: smhcsid
+        description: Mã dịch vụ trong bảng sh_medical_health_center_service
+      - name: product_id
+        description: Mã dịch vụ trong bảng product_product
+      - name: his_service_type
+        description: Loại hình dịch vụ trong bảng sh_medical_health_center_service có biến đổi 
+      - name: surgery_type
+        description: Loại phẫu thuật trong bảng sh_medical_health_center_service
+      - name: product_category
+        description: Danh mục sản phẩm trong bảng sh_medical_health_center_service có biến đổi 
+      - name: product_category_paris
+        description: Danh mục sản phẩm trong bảng import_product_service_analyst
+      - name: product_category_new
+        description: Danh mục sản phẩm trong bảng import_product_service_analyst
+      - name: default_code
+        description: Mã sản phẩm trong bảng product_product
+      - name: product
+        description: Tên sản phẩm trong bảng product_template
+      - name: list_price
+        description: Bảng giá niêm yết trong bảng product_template
+      - name: group_id
+        description: Nhóm trong bảng import_product_service_analyst
+      - name: kpi_point
+        description: Điểm KPI trong bảng sh_medical_health_center_service
+      - name: kpi_point_num
+        description: Số điểm KPI trong bảng sh_medical_health_center_service
+      - name: product_id_kn
+        description: Mã sản phẩm trong bảng import_product_service_analyst
+      - name: product_ctg_id
+        description: Danh mục sản phẩm trong bảng sh_medical_health_center_service_category
+      - name: is_main_service
+        description: Dịch vụ chính trong bảng import_product_service_analyst
+      - name: uom_id
+        description: Đơn vị trong bảng product_template
+      - name: uom
+        description: Đơn vị trong bảng uom_uom
+      - name: is_no_kpi
+        description: Dịch vụ không tính KPI trong bảng import_no_kpi_service
+      - name: kdtc_product_ctg_id
+        description: Danh mục nhóm dịch vụ biến đổi từ tên nhóm dịch vụ và default_code
+      - name: create_date
+        description: Ngày tạo dịch vụ trong bảng product_product
+      - name: write_date
+        description: Ngày cập nhật dịch vụtrong bảng product_product
+      - name: is_vip
+        description: VIP trong bảng import_product_service_analyst
+      - name: kpi_first_time
+        description: KPI lần đầu trong bảng sh_medical_health_center_service
+      - name: gr_bh_id
+        description: ""
+      - name: qty_service
+        description: Số lượng dịch vụ trong bảng import_product_service_analyst
+      - name: pr_product_id
+        description: ""
+      - name: hh_product_id
+        description: ""
+      - name: sci_product_id
+        description: ""
+  - name: stag_employees_test_dbt
+    description: >
+      Bảng nhân viên HCI cần cập nhật vào model 
+      Table: stag_employees_test_dbt
+    columns:
+      - name: id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: user_id
+        description: Mã user trong bảng res_users
+      - name: employee_code
+        description: Mã nhân viên trong bảng hr_employee
+      - name: employee
+        description: Tên nhân viên trong bảng hr_employee
+      - name: gender
+        description: Giới tính trong bảng hr_employee
+      - name: job_id
+        description: Mã chức vụ trong bảng hr_job
+      - name: job
+        description: Tên chức vụ trong bảng hr_job
+      - name: group_job_id
+        description: Mã nhóm chức vụ trong bảng hr_group_job
+      - name: group_job
+        description: Tên nhóm chức vụ trong bảng hr_group_job
+      - name: department
+        description: Tên phòng ban trong bảng hr_department
+      - name: team_id
+        description: Mã team trong bảng hr_team
+      - name: team
+        description: Tên team trong bảng hr_team
+      - name: sector_id
+        description: Mã sector trong bảng hr_department_sector
+      - name: sector
+        description: Tên sector trong bảng hr_department_sector
+      - name: department_id
+        description: Mã phòng ban trong bảng hr_department
+      - name: old_department_id
+        description: Mã phòng ban cũ trong bảng hr_department
+      - name: company_id
+        description: Mã công ty trong bảng m_res_company
+      - name: staff_level
+        description: Cấp bậc nhân viên trong bảng hr_employee
+      - name: area
+        description: Khu vực trong bảng hr_employee
+      - name: birthday
+        description: Ngày sinh trong bảng hr_employee
+      - name: place_of_birth
+        description: Nơi sinh trong bảng hr_employee
+      - name: identification_id
+        description: Số căn cước công dân trong bảng hr_employee
+      - name: barcode
+        description: Mã vạch trong bảng hr_employee
+      - name: mobile_phone
+        description: Số điện thoại trong bảng hr_employee
+      - name: work_email
+        description: Email công việc trong bảng hr_employee
+      - name: create_date
+        description: Ngày tạo nhân viên trong bảng hr_employee
+      - name: write_date
+        description: Ngày cập nhật nhân viên trong bảng hr_employee
+      - name: active
+        description: Trạng thái hoạt động trong bảng hr_employee
+      - name: resign_date
+        description: Ngày nghỉ việc trong bảng hr_employee
+      - name: reason_resign
+        description: Lý do nghỉ việc trong bảng hr_employee
+      - name: company
+        description: Tên công ty trong bảng m_res_company
+      - name: brand_id
+        description: Mã thương hiệu trong bảng res_brand
+      - name: brand
+        description: Tên thương hiệu trong bảng res_brand
+      - name: kn_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: kn_user_id
+        description: Mã user trong bảng res_users
+      - name: pr_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: pr_user_id
+        description: Mã user trong bảng res_users
+      - name: hh_id
+        description: Mã nhân viên trong bảng hr_employee
+      - name: hh_user_id
+        description: Mã user trong bảng res_users
+      - name: phongbanphanquyen
+        description: Phòng ban phân quyền trong bảng hr_employee
+      - name: job_lv2
+        description: Chức vụ cấp 2 trong bảng hr_employee
+      - name: row_num
+        description: Số thứ tự nhân viên trong bảng hr_employee 
+
+  - name: stag_payment_transfer_test_dbt
+    description: >
+      Bảng tổng hợp các giao dịch chuyển tiền ra vào chi nhánh, điều chuyển giữa các chi nhánh
+      Table: stag_payment_transfer_test_dbt
+    columns:
+      - name: id
+        description: Mã giao dịch chuyển tiền trong bảng stag_payment_all_payment_transfer
+      - name: product_type
+        description: Loại sản phẩm trong bảng stag_payment_all_payment_transfer
+      - name: ma_phieu
+        description: Mã phiếu trong bảng stag_payment_all_payment_transfer
+      - name: crm_id
+        description: Mã CRM trong bảng stag_payment_all_payment_transfer
+      - name: payment_date
+        description: Ngày thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: payment_method
+        description: Phương thức thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: communication
+        description: Truyền thông trong bảng stag_payment_all_payment_transfer
+      - name: clineid
+        description: Mã crm line tương ứng trong bảng crm line
+      - name: product_id
+        description: Mã sản phẩm tương ứng trong bảng product product
+      - name: quantity
+        description: Số lượng
+      - name: uom_price
+        description: Giá đơn vị
+      - name: number_used
+        description: Số lần sử dụng
+      - name: total
+        description: Tổng trong bảng stag_payment_all_payment_transfer
+      - name: total_received
+        description: Tổng nhận trong bảng stag_payment_all_payment_transfer
+      - name: total_received_cline
+        description: Tổng nhận khách hàng trong bảng stag_payment_all_payment_transfer
+      - name: payment
+        description: Thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: payment_type
+        description: Loại thanh toán trong bảng stag_payment_all_payment_transfer
+      - name: stage_product
+        description: Giai đoạn sản phẩm trong bảng stag_payment_all_payment_transfer
+      - name: consultants_1
+        description: Tư vấn viên 1 trong bảng stag_payment_all_payment_transfer
+      - name: consulting_role_1
+        description: Vai trò tư vấn 1 trong bảng stag_payment_all_payment_transfer
+      - name: consultants_2
+        description: Tư vấn viên 2 trong bảng stag_payment_all_payment_transfer
+      - name: consulting_role_2
+        description: Vai trò tư vấn 2 trong bảng stag_payment_all_payment_transfer
+      - name: ho_tro
+        description: Hỗ trợ trong bảng stag_payment_all_payment_transfer
+      - name: price_list_id
+        description: Mã danh sách giá trong bảng stag_payment_all_payment_transfer
+      - name: orgcompany_id
+        description: Mã tổ chức công ty trong bảng stag_payment_all_payment_transfer
+      - name: company_id
+        description: Mã công ty trong bảng stag_payment_all_payment_transfer
+      - name: write_date
+        description: Ngày cập nhật trong bảng stag_payment_all_payment_transfer
+      - name: brand_id
+        description: Mã thương hiệu trong bảng stag_payment_all_payment_transfer
+      - name: brand_etl
+        description: Thương hiệu ETL trong bảng stag_payment_all_payment_transfer

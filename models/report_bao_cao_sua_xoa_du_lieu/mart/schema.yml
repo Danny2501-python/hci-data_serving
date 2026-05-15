@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: report_bcsxdl_bao_cao_sua_xoa_du_lieu_deleted_payment
+    description: >
+      Báo cáo sửa xóa dữ liệu tổng hợp .
+    columns:
+      - name: id_log
+        description: ID của log
+      - name: deleted_date
+        description: Ngày xóa dữ liệu
+      - name: deleted_username
+        description: Người dùng xóa dữ liệu
+      - name: employee_code
+        description: Mã nhân viên
+      - name: department_user
+        description: Phòng ban
+      - name: company_user
+        description: Công ty
+      - name: thuonghieu_user
+        description: Thương hiệu
+      - name: book
+        description: Booking
+      - name: create_date_book
+        description: Ngày tạo booking
+      - name: line_service
+        description: Dịch vụ
+      - name: stage_line
+        description: Stage line
+      - name: invoice
+        description: Hóa đơn
+
+  - name: report_bcsxdl_bao_cao_sua_xoa_du_lieu_changed_consultant
+    description: >
+      Báo cáo sửa xóa dữ liệu tổng hợp .
+    columns:
+      - name: id_log
+        description: ID của log
+      - name: deleted_date
+        description: Ngày xóa dữ liệu
+      - name: deleted_username
+        description: Người dùng xóa dữ liệu
+      - name: employee_code
+        description: Mã nhân viên
+      - name: department_user
+        description: Phòng ban
+      - name: company_user
+        description: Công ty
+      - name: thuonghieu_user
+        description: Thương hiệu
+      - name: book
+        description: Booking
+      - name: create_date_book
+        description: Ngày tạo booking
+      - name: line_service
+        description: Dịch vụ
+      - name: stage_line
+        description: Stage line
+      - name: invoice
+        description: Hóa đơn
+
+  - name: report_bcsxdl_bao_cao_sua_xoa_du_lieu_deleted_data
+    description: >
+      Báo cáo sửa xóa dữ liệu tổng hợp .
+    columns:
+      - name: id_deleted
+        description: ID của log
+      - name: deleted_date
+        description: Ngày xóa dữ liệu
+      - name: deleted_username
+        description: Người dùng xóa dữ liệu
+      - name: employee_code
+        description: Mã nhân viên
+      - name: department_user
+        description: Phòng ban
+      - name: company_user
+        description: Công ty
+      - name: thuonghieu_user
+        description: Thương hiệu
+      - name: book
+        description: Booking
+      - name: create_date_book
+        description: Ngày tạo booking
+      - name: line_service
+        description: Dịch vụ
+      - name: stage_line
+        description: Stage line
+      - name: invoice
+        description: Hóa đơn
