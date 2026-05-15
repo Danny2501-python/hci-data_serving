@@ -111,14 +111,6 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-    report_kn_sale_online:
-      +tags: ["report_kso"]
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
     report_marketing_kn_dvda_tq:
       +tags: ["report_rmkdt"]
       mart:
@@ -131,32 +123,8 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-    report_bao_cao_sua_xoa_du_lieu:
-      +tags: ["report_bcsxdl"]
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
     report_pt_dbds_paris:
       +tags: ["report_ptdbdsp"]
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
-    report_kangnam_bo_chi_so_kinh_doanh:
-      +tags: ["report_knbcskd"]
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
-    pretransformation_table_set:
-      +tags: ["staging_tables"]
       stg:
         +materialized: ephemeral
       int:

@@ -1,1 +1,0 @@
-select * from {{ source('bao_cao_sua_xoa_du_lieu', 'view_ks_sh_medical_surgery') }}
