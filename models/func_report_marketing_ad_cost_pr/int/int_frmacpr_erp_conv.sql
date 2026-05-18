@@ -30,7 +30,7 @@ WITH base AS (
         ll.total_received,
         ll.stage_id,
         ll.brand_etl,
-        TRIM(mndap.nhom_dv_cpo)                                    AS nhom_dv,
+        TRIM(mndap.nhom_dv_cpo)                                     AS nhom_dv,
         CASE
             WHEN ll.overseas_vietnamese = 'marketing' THEN 'Việt Kiều '
             ELSE mrc.name
