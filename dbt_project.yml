@@ -55,6 +55,14 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_kn_sale_online:
+      +tags: ["report_kso"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
     report_marketing_kn_dvda:
       +tags: ["report_kn_dvda"]
       stg:
