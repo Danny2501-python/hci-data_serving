@@ -4,7 +4,10 @@
 -- =============================================================================
 WITH a AS (
     SELECT
-        cl3.overseas_vietnamese                        AS vk,
+        CASE 
+              WHEN cl3.overseas_vietnamese = 'expat' THEN 'exp' 
+              ELSE cl3.overseas_vietnamese 
+        END                                            AS vk,
         sp.product                                     AS ten_dv,
         ss.source                                      AS nguon,
         ss.category_source                             AS nhom_nguon,
