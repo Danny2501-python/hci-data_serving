@@ -5,14 +5,15 @@
 -- =============================================================================
 WITH fb AS (
     SELECT
-        CASE WHEN s.cn ILIKE '%Hai Ngoai%' THEN 'VIỆT KIỀU'
-             WHEN s.cn ILIKE '%QUOC TE%'   THEN 'QUỐC TẾ'
+        CASE WHEN s.cn ILIKE '%Hai Ngoai%' or s.cn = 'vki' THEN 'VIỆT KIỀU'
+             WHEN s.cn ILIKE '%QUOC TE%' or s.cn = 'qte'  THEN 'QUỐC TẾ'
+             WHEN s.cn IN ('exp','expat')  THEN 'exp'
              ELSE 'no'
         END                                                        AS vk,
         s.camp_name, s.ngay_chi_phi, s.vung, s.type_data,
         s.page_id, s.account_fb, s.chi_phi,
-        CASE WHEN s.chi_nhanh_no_camp IS NULL AND s.cn NOT ILIKE '%QUOC TE%' THEN 'VIỆT KIỀU'
-             WHEN s.chi_nhanh_no_camp IS NULL AND s.cn     ILIKE '%QUOC TE%' THEN 'QUỐC TẾ'
+        CASE WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn NOT ILIKE '%QUOC TE%' or s.cn = 'vki') THEN 'VIỆT KIỀU'
+             WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn     ILIKE '%QUOC TE%' or s.cn = 'qte') THEN 'QUỐC TẾ'
              ELSE s.chi_nhanh_no_camp
         END                                                        AS chi_nhanh_inter,
         CASE WHEN cns.nhom_dv IS NULL THEN cns2.nhom_dv
@@ -21,11 +22,11 @@ WITH fb AS (
     FROM {{ ref('stg_frmack_fb_insight_v3') }} s
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
-        WHERE UPPER(campain_name_split) = s.nhom_dv LIMIT 1
+        WHERE UPPER(campain_name_split) = UPPER(s.nhom_dv) LIMIT 1
     ) cns  ON TRUE
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
-        WHERE UPPER(campain_name_split) = s.nhom_dv2 LIMIT 1
+        WHERE UPPER(campain_name_split) = (s.nhom_dv2) LIMIT 1
     ) cns2 ON TRUE
 )
 SELECT

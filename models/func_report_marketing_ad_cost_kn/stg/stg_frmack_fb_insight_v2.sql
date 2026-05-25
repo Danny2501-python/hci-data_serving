@@ -15,9 +15,21 @@ SELECT
     f.date                                                       AS ngay_chi_phi,
     f.region                                                     AS vung,
     f.ad_campaign_name                                           AS camp_name,
-    split_part(f.ad_campaign_name, '_', 1)                       AS cn,
-    UPPER(TRIM(split_part(f.ad_campaign_name, '_', 2)))          AS nhom_dv,
-    UPPER(TRIM(split_part(f.ad_campaign_name, '_', 3)))          AS nhom_dv2,
+    CASE 
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
+        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 3)
+      ELSE split_part(f.ad_campaign_name, '_', 1)
+    END                                                          AS cn,
+    CASE 
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
+        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
+      ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 2)))
+    END                                                         AS nhom_dv,
+    CASE 
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
+        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
+      ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 3)))
+    END                                                          AS nhom_dv2,
     CASE WHEN f.ad_account_id = 'act_651294956930454'
          THEN 'Cost_fb_th' ELSE 'Cost_fb_cd'
     END                                                          AS type_data,

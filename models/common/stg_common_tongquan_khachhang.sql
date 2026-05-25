@@ -8,7 +8,10 @@ a AS (
     SELECT   
         ROW_NUMBER() OVER (PARTITION BY ecl.id ORDER BY ecl2.id) AS thu_tu,
         ecl.type_data_partner AS kh_cu_moi,
-        ecl.overseas_vietnamese AS vk,
+        CASE 
+            WHEN ecl.overseas_vietnamese = 'expat' THEN 'exp'
+            ELSE ecl.overseas_vietnamese
+        END AS vk,
         ecl.contact_name AS Ten_Khach,
         ecl2.id AS line_id,
         ecl.id AS id,
