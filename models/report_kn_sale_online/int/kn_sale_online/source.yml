@@ -14,9 +14,12 @@ sources:
       - name: crm_information_consultant
       - name: stag_sources
       - name: m_nhom_dv_adnet_paris
-      - name: crm_stage
       - name: table_team_sale_trans_field
       - name: stag_crm_booking_arrival_company
       - name: m_facebook_page_kangnam
       - name: cs_chat_api
+      - name: view_stag_employees_user
+      - name: crm_stage
+      - name: res_country_state
+      - name: crm_guarantee_cancel
 

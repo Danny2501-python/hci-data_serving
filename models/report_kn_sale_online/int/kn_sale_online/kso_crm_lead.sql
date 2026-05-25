@@ -19,7 +19,9 @@ select
       ecl.stage_id,
       ecl.state_id, 
       ecl.brand_etl,
-      ecl.create_uid
+      ecl.create_uid,
+      ecl.reason_cancel_booking
       ----ecl.type_crm_id
   from {{ source('kso_crm_base','crm_lead') }} ecl
   where brand_etl =1
+  and active is true

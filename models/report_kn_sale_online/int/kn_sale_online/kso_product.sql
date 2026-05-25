@@ -5,5 +5,5 @@ select product ten_dv,
  sp.his_service_type,
             sp.surgery_type,
             brand_etl
-from {{source('ksc_crm_base','view_stag_products')}} sp
+from {{source('kso_crm_base','view_stag_products')}} sp
 where brand_etl =1

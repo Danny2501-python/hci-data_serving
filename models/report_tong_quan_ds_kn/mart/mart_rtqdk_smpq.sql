@@ -9,7 +9,7 @@ with ecl as (
     select *
     from {{ ref('stg_rtqdk_crm_lead') }} cl
     where cl.brand_etl = 1
-      and cl.create_by_department is not null
+      ---and cl.create_by_department is not null
       and cl.active is true
 ),
 
