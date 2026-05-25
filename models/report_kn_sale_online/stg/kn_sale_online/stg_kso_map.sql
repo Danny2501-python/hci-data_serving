@@ -1,3 +1,5 @@
+
+with mapping as (
 select
         row_number() over(partition by cl.id order by cl2.line_id) thu_tu,
         cl.kh_cu_moi,
@@ -36,10 +38,10 @@ select
         case 
         when spt.company_id is null then cl.company_id
         else spt.company_id
-        end as chinhanhphanquyen,
+        end as chinhanhphanquyen_old,
         case when spt.company_id is null then mrc2.name
         else mrc3.name
-        end as chinhanh,
+        end as chinhanh_old,
         rcs.tinh,
         cl.ticket_id::text,
         sp.his_service_type,
@@ -61,4 +63,25 @@ left join {{ref('kso_source')}} ss on ss.old_id = cl.nguon_bk_id
 ---left join (select * from {{source('kso_crm_base','cs_chat_api')}} where brand_id=1) cca on text(cca.ticket_id) = text(cl.ticket_id)
 ---left join {{source('kso_crm_base','m_facebook_page_kangnam')}} m on m.id = cca.facebook_page_id
 where sp.nhom_dv <> 'SAN PHAM' and sp.nhom_dv IS NOT NULL
+)
+select * ,
+case 
+					when sh.arrival_company_id is not null 
+					and sh.arrival_company_id <> m.chinhanhphanquyen_old 
+					then sh.arrival_company
+					else m.chinhanh_old
+				end chinhanh,
+				
+				case 
+					when sh.arrival_company_id is not null 
+					and sh.arrival_company_id <> m.chinhanhphanquyen_old 
+					then sh.arrival_company_id
+					else m.chinhanhphanquyen_old 
+				end chinhanhphanquyen
 
+from mapping m 
+left join (
+        select * 
+        from {{source('kso_crm_base','stag_crm_booking_arrival_company')}} 
+       where brand_etl =1) sh 
+on m.id =sh.crm_id 
