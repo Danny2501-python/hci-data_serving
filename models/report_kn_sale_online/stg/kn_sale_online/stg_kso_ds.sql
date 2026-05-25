@@ -24,7 +24,7 @@ from (select * from {{ref('stg_kso_map')}}  stks
 where loai_ban_ghi= 2
 ---and (trang_thai <>'Hủy'
  ---and reason_cancel_booking not in ('tao_booking_bh') )
-) stks
+) stks 
 	left join lateral(
 		select sc."name",sc."group_name" ,sc.group, sc.work_email 
 		from table_team_sale_trans_field sc 
