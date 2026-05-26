@@ -25,6 +25,7 @@ sources:
       - name: res_country_state
       - name: res_country
       - name: m_res_company
+      - name: ucbt_page_config
       # Revenue
       - name: stag_payment_transfer
       - name: view_stag_products

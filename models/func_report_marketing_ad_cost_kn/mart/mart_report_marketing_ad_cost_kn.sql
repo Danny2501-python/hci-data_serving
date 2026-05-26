@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'report_marketing_ad_cost_kn_v2'
+    alias        = 'report_marketing_ad_cost_kn_v3'
   )
 }}
 -- =============================================================================
@@ -107,8 +107,8 @@ SELECT
     m.quoc_gia,
     m.metric                                                 AS "Metric",
     m.type_data,
-    'KXĐ'::text                                              AS page,
-    'KXĐ'::text                                              AS page_id,
+    COALESCE(m.page_name,'KXĐ')::text                        AS page,
+    COALESCE(m.page_id,'KXĐ')::text                          AS page_id,
     m.region,
     m.tinh_noi,
     m.campaign,
