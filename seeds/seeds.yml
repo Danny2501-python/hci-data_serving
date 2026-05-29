@@ -1,6 +1,12 @@
 version: 2
 
 seeds:
+  - name: ucbt_country_continent
+    config:
+      column_types:
+        id: integer
+        country: varchar
+        continent: varchar
   - name: import_stag_employee_null
     config:
       column_types:
