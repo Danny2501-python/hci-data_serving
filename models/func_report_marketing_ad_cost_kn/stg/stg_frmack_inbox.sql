@@ -54,7 +54,7 @@ i AS (
              ELSE a.chi_nhanh_qc
         END                                                          AS chi_nhanh_inter,
         a."người liên hệ qua nhắn tin mới"::text                    AS metric,
-        upc.page_name  
+        upc.page_name  ,upc.page_id
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
     LEFT JOIN {{ source('kangnam', 'campaign_name_split') }} cns
@@ -108,5 +108,5 @@ SELECT
     i.metric,
     'inbox'::text AS type_data,
     0             AS ticket_id,
-    i.page_name
+    i.page_name,i.page_id
 FROM i

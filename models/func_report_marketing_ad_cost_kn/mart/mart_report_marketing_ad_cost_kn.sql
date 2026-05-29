@@ -24,6 +24,7 @@ SELECT
     f.chi_nhanh,
     f.local_k,
     f.quoc_gia,
+    ccm.continent                                            AS chau_luc,
     f.metric                                                 AS "Metric",
     f.type_data,
     mcp.service_name                                         AS page,
@@ -60,6 +61,8 @@ LEFT JOIN (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY page_id ORDER BY created_at DESC) AS rn
     FROM {{ ref('stg_frmack_cs_services') }}
 ) mcp ON mcp.page_id::text = f.page_id::text AND mcp.rn = 1
+LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+    ON ccm.country = f.quoc_gia
 
 UNION ALL
 
@@ -75,6 +78,7 @@ SELECT
     m.chi_nhanh,
     m.local_k,
     m.quoc_gia,
+    ccm.continent                                            AS chau_luc,
     m.metric                                                 AS "Metric",
     m.type_data,
     mms.service_name                                         AS page,
@@ -84,11 +88,13 @@ SELECT
     m.campaign,
     NULL::text                                               AS account_fb
 FROM {{ ref('int_frmack_region') }} m
-LEFT JOIN (
-    SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
-) tcp ON tcp.ticket_id = m.ticket_id
-LEFT JOIN {{ ref('stg_frmack_cs_services') }} mms
-       ON mms.service_id = tcp.service_id
+    LEFT JOIN (
+        SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
+    ) tcp ON tcp.ticket_id = m.ticket_id
+    LEFT JOIN {{ ref('stg_frmack_cs_services') }} mms
+        ON mms.service_id = tcp.service_id
+    LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+        ON ccm.country = m.quoc_gia
 WHERE m.ticket_id <> 0
 
 UNION ALL
@@ -105,13 +111,16 @@ SELECT
     m.chi_nhanh,
     m.local_k,
     m.quoc_gia,
+    ccm.continent                                            AS chau_luc,
     m.metric                                                 AS "Metric",
     m.type_data,
     COALESCE(m.page_name,'KXĐ')::text                        AS page,
-    COALESCE(m.page_id,'KXĐ')::text                          AS page_id,
+    COALESCE(m.page_id_from_camp,'KXĐ')::text                  AS page_id,
     m.region,
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb
 FROM {{ ref('int_frmack_region') }} m
+    LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+        ON ccm.country = m.quoc_gia
 WHERE (m.ticket_id = 0 OR m.ticket_id IS NULL)
