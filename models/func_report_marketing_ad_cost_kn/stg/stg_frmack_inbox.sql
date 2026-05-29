@@ -14,8 +14,20 @@ WITH a AS (
         lka.tinh,
         lka."chi nhánh"                                              AS chi_nhanh_qc,
         lka.ngay_hh,
-        TRIM(split_part(mik."tên chiến dịch", '_', 1))               AS cn,
-        TRIM(split_part(mik."tên chiến dịch", '_', 2))               AS nhom_dv_qc,
+        CASE 
+            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
+                and TRIM(split_part(mik."tên chiến dịch", '_', 1)) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 2)
+        END                                                          AS page_code,
+        CASE 
+            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
+                and TRIM(split_part(mik."tên chiến dịch", '_', 1)) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 3)
+            ELSE TRIM(split_part(mik."tên chiến dịch", '_', 1))
+        END                                                          AS cn,
+        CASE 
+            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
+                and split_part(mik."tên chiến dịch", '_', 1) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 5)
+            ELSE UPPER(TRIM(split_part(mik."tên chiến dịch", '_', 2)))
+        END                                                          AS nhom_dv_qc,
         mik."vùng"                                                   AS local
     FROM {{ source('kangnam', 'm_inbox_kangnam') }} mik
     LEFT JOIN LATERAL (
@@ -41,11 +53,14 @@ i AS (
              WHEN a.chi_nhanh_qc IS NULL AND a.cn     ILIKE '%QUOC TE%' THEN 'QUỐC TẾ'
              ELSE a.chi_nhanh_qc
         END                                                          AS chi_nhanh_inter,
-        a."người liên hệ qua nhắn tin mới"::text                    AS metric
+        a."người liên hệ qua nhắn tin mới"::text                    AS metric,
+        upc.page_name  ,upc.page_id
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
     LEFT JOIN {{ source('kangnam', 'campaign_name_split') }} cns
            ON UPPER(cns.campain_name_split) = UPPER(a.nhom_dv_qc)
+    LEFT JOIN {{ source('kangnam', 'ucbt_page_config') }} upc
+           ON upc.page_code = a.page_code
     WHERE a."người liên hệ qua nhắn tin mới" IS NOT NULL
 )
 SELECT
@@ -92,5 +107,6 @@ SELECT
     END           AS quoc_gia,
     i.metric,
     'inbox'::text AS type_data,
-    0             AS ticket_id
+    0             AS ticket_id,
+    i.page_name,i.page_id
 FROM i
