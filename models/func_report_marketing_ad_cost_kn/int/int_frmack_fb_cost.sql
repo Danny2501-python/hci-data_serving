@@ -12,7 +12,7 @@ WITH fb AS (
         END                                                        AS vk,
         s.camp_name, s.ngay_chi_phi, s.vung, s.type_data,
         s.page_id, s.account_fb, s.chi_phi,
-        CASE WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn NOT ILIKE '%QUOC TE%' or s.cn = 'vki') THEN 'VIỆT KIỀU'
+        CASE WHEN s.chi_nhanh_no_camp IS NULL AND ((s.cn NOT ILIKE '%QUOC TE%' and s.cn <> 'qte') or s.cn = 'vki') THEN 'VIỆT KIỀU'
              WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn     ILIKE '%QUOC TE%' or s.cn = 'qte') THEN 'QUỐC TẾ'
              ELSE s.chi_nhanh_no_camp
         END                                                        AS chi_nhanh_inter,
