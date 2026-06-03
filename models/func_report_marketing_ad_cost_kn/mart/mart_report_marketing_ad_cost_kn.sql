@@ -83,7 +83,7 @@ SELECT
     m.type_data,
     mms.service_name                                         AS page,
     mms.page_id,
-    m.region,
+    CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb
@@ -116,7 +116,7 @@ SELECT
     m.type_data,
     COALESCE(m.page_name,'KXĐ')::text                        AS page,
     COALESCE(m.page_id_from_camp,'KXĐ')::text                  AS page_id,
-    m.region,
+    CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb
