@@ -1,0 +1,20 @@
+	version: 2
+
+sources:
+  - name: prs_raw_data
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_line_product
+      - name: m_res_company
+      - name: dm_convert_case_when
+      - name: view_stag_products
+      - name: stag_payment_transfer
+      - name: crm_information_consultant
+      - name: stag_sources
+      - name: m_nhom_dv_adnet_paris
+      - name: stag_crm_booking_arrival_company
+      - name: view_stag_employees_user
+      - name: crm_stage
+      - name: res_country_state
