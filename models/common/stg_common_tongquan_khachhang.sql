@@ -7,6 +7,7 @@ cline AS (
 a AS (
     SELECT   
         ROW_NUMBER() OVER (PARTITION BY ecl.id ORDER BY ecl2.id) AS thu_tu,
+        ecl.reason_cancel_booking,
         ecl.type_data_partner AS kh_cu_moi,
         ecl.overseas_vietnamese AS vk,
         ecl.contact_name AS Ten_Khach,

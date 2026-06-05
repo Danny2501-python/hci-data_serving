@@ -13,6 +13,7 @@ SELECT
 FROM {{ ref('stg_frmack_crm_base') }}
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
+  and (reason_cancel_booking not in ('tao_booking_bh') or reason_cancel_booking is null)
 
 UNION ALL
 -- DS (Pass 8)
@@ -51,6 +52,7 @@ SELECT
 FROM {{ ref('stg_frmack_crm_base') }}
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND tong_tien > 0 AND loai_ban_ghi = 2
+  and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
 
 UNION ALL
 -- GG (Pass 10)
@@ -70,6 +72,7 @@ SELECT
 FROM {{ ref('stg_frmack_crm_base') }}
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
+  and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
 
 UNION ALL
 -- HL (Pass 7)
@@ -81,3 +84,4 @@ SELECT
 FROM {{ ref('stg_frmack_crm_base') }}
 WHERE ngay_hl >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
+  and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
