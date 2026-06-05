@@ -40,6 +40,7 @@ WITH x AS (
         stks.ma_phieu,
         stks.fk,
         stks.tien_ap,
+        stks.reason_cancel_booking,
         CASE WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
              WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'
