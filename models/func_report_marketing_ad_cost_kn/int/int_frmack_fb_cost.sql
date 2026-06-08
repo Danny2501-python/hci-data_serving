@@ -3,6 +3,8 @@
 -- Facebook cost with full campaign mapping, chi_nhanh and local_k.
 -- Reads from stg_frmack_fb_insight.
 -- =============================================================================
+-- =============================================================================
+
 WITH fb AS (
     SELECT
         CASE WHEN s.cn ILIKE '%Hai Ngoai%' or s.cn = 'vki' THEN 'VIỆT KIỀU'
@@ -12,13 +14,15 @@ WITH fb AS (
         END                                                        AS vk,
         s.camp_name, s.ngay_chi_phi, s.vung, s.type_data,
         s.page_id, s.account_fb, s.chi_phi,
-        CASE WHEN s.chi_nhanh_no_camp IS NULL AND ((s.cn NOT ILIKE '%QUOC TE%' and s.cn <> 'qte') or s.cn = 'vki') THEN 'VIỆT KIỀU'
-             WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn     ILIKE '%QUOC TE%' or s.cn = 'qte') THEN 'QUỐC TẾ'
-             ELSE s.chi_nhanh_no_camp
+        CASE 
+            WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn     ILIKE '%QUOC TE%' or s.cn = 'qte') THEN 'QUỐC TẾ'
+            WHEN s.chi_nhanh_no_camp IS NULL AND ((s.cn NOT ILIKE '%QUOC TE%' and s.cn <> 'qte') or s.cn = 'vki') THEN 'VIỆT KIỀU'
+            ELSE s.chi_nhanh_no_camp
         END                                                        AS chi_nhanh_inter,
         CASE WHEN cns.nhom_dv IS NULL THEN cns2.nhom_dv
              ELSE cns.nhom_dv
-        END                                                        AS nhom_dv_sys
+        END                                                        AS nhom_dv_sys,
+        fc.country_name_vn,fc.continent_vn
     FROM {{ ref('stg_frmack_fb_insight_v3') }} s
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
@@ -28,6 +32,7 @@ WITH fb AS (
         SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
         WHERE UPPER(campain_name_split) = (s.nhom_dv2) LIMIT 1
     ) cns2 ON TRUE
+    LEFT JOIN {{source('kangnam','fb_country_code_mapping')}} fc on fc.country_code = s.country
 )
 SELECT
     fb.camp_name,
@@ -61,17 +66,18 @@ SELECT
         WHEN 'Cần Thơ'          THEN 'Thành phố Cần Thơ'
         WHEN 'Haiphong'         THEN 'Thành phố Hải Phòng'
         ELSE CASE
-            WHEN fb.chi_nhanh_inter ILIKE '%VIỆT KIỀU%' THEN 'VIỆT KIỀU'
-            WHEN fb.chi_nhanh_inter ILIKE '%QUỐC TẾ%'  THEN 'QUỐC TẾ'
+            WHEN fb.chi_nhanh_inter ILIKE '%VIỆT KIỀU%' or fb.vk = 'VIỆT KIỀU' THEN fb.continent_vn
+            WHEN fb.chi_nhanh_inter ILIKE '%QUỐC TẾ%' or fb.vk = 'QUỐC TẾ' THEN fb.continent_vn
             ELSE 'Tỉnh ' || regexp_replace(fb.vung, '\s*Province$', '')
         END
     END                                                            AS local_k,
-    CASE WHEN fb.chi_nhanh_inter = 'VIỆT KIỀU' THEN 'VIỆT KIỀU'
-         WHEN fb.chi_nhanh_inter = 'QUỐC TẾ'  THEN 'QUỐC TẾ'
+    CASE WHEN fb.chi_nhanh_inter = 'VIỆT KIỀU' THEN fb.country_name_vn
+         WHEN fb.chi_nhanh_inter = 'QUỐC TẾ'  THEN fb.country_name_vn
          ELSE 'Việt Nam'
     END                                                            AS quoc_gia,
     fb.chi_phi::text AS metric,
     fb.type_data,
     fb.page_id,
-    fb.account_fb
+    fb.account_fb,
+    fb.country_name_vn,fb.continent_vn
 FROM fb
