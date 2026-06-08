@@ -1,1 +1,2 @@
-select * from {{ source('rtqdp_source', 'stag_products') }}
+select * from {{ source('rtqdp_source', 'view_stag_products') }}
+where brand_etl = 3

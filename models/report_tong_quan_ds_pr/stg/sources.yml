@@ -21,3 +21,4 @@ sources:
       - name: res_users
       - name: res_partner
       - name: stag_employees
+      - name: view_stag_products

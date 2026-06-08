@@ -74,7 +74,7 @@ dv as (
     left join {{ ref('stg_rtqdp_m_res_company') }} mrc on spt.company_id = mrc.id and mrc.brand_etl = 3
     left join {{ ref('stg_rtqdp_res_brand') }} erb on mrc.brand_id = erb.id and erb.brand_etl = 3
     left join {{ ref('stg_rtqdp_utm_source') }} eus on ecl2.source_id = eus.id and eus.brand_etl = 3
-    left join {{ ref('stg_rtqdp_products') }} sp on sp.pr_product_id = spt.product_id 
+    left join {{ ref('stg_rtqdp_products') }} sp on sp.product_id = spt.product_id 
     left join {{ ref('stg_rtqdp_sources') }} ss on ss.old_id = ecl2.source_id and ss.brand_id = 3
     where spt.payment <> 0 
         and spt.payment_date >= '20250801' 
