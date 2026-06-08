@@ -29,12 +29,15 @@ SELECT
     f.type_data,
     mcp.service_name                                         AS page,
     f.page_id,
-    CASE WHEN tn.tinh_noi = 'Bà Rịa - Vũng Tàu' THEN 'Hồ Chí Minh và lân cận'
-         WHEN tn.tinh_noi ILIKE '%Lào Cai%'       THEN 'Miền Bắc mở rộng'
-         WHEN tn.tinh_noi ILIKE '%Yên Bái%'       THEN 'Miền Bắc mở rộng'
-         WHEN tn.tinh_noi ILIKE '%Huế%'           THEN 'Đà nẵng lân cận'
-         WHEN tn.tinh_noi = 'KXĐ'                 THEN 'KXĐ'
-         ELSE grm.region
+    CASE
+        WHEN f.vk = 'VIỆT KIỀU'                     THEN f.local_k
+        WHEN f.vk = 'QUỐC TẾ'                       THEN f.local_k
+        WHEN tn.tinh_noi = 'Bà Rịa - Vũng Tàu'      THEN 'Hồ Chí Minh và lân cận'
+        WHEN tn.tinh_noi ILIKE '%Lào Cai%'          THEN 'Miền Bắc mở rộng'
+        WHEN tn.tinh_noi ILIKE '%Yên Bái%'          THEN 'Miền Bắc mở rộng'
+        WHEN tn.tinh_noi ILIKE '%Huế%'              THEN 'Đà nẵng lân cận'
+        WHEN tn.tinh_noi = 'KXĐ'                    THEN 'KXĐ'
+        ELSE grm.region
     END                                                      AS region,
     tn.tinh_noi,
     f.camp_name                                              AS campaign,

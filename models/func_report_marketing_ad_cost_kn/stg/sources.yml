@@ -27,6 +27,7 @@ sources:
       - name: m_res_company
       - name: ucbt_page_config
       - name: ucbt_country_continent
+      - name: fb_country_code_mapping
       # Revenue
       - name: stag_payment_transfer
       - name: view_stag_products

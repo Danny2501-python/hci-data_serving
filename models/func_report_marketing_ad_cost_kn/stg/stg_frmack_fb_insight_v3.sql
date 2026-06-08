@@ -35,7 +35,7 @@ v2_supplement AS (
 SELECT 
     chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
     type_data, page_id, account_fb, chi_nhanh_no_camp,
-    'old' as source
+    'old' as source,country
 FROM v1
 
 UNION ALL
@@ -43,5 +43,5 @@ UNION ALL
 SELECT 
     chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
     type_data, page_id, account_fb, chi_nhanh_no_camp,
-    'new' as source
+    'new' as source,country
 FROM v2_supplement

@@ -39,7 +39,8 @@ SELECT
     f.ad_campaign_id                                            AS fb_ad_campaign_id,
     f.adset_id                                                  AS fb_ad_set_id,
     f.ad_id                                                     AS fb_ad_ad_id,
-    lka."chi nhánh"                                              AS chi_nhanh_no_camp
+    lka."chi nhánh"                                              AS chi_nhanh_no_camp, 
+    f.country as country
 FROM {{ source('kangnam', 'cs_facebook_insight') }} f
 -- Chi nhánh: latest location config on or before the ad date
 LEFT JOIN LATERAL (
