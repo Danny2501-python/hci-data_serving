@@ -147,3 +147,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_pr_consultant:
+      +tags: ["report_prs"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
