@@ -14,6 +14,7 @@ sources:
       - name: core_facebook_ad_account
       - name: cs_facebook_insight
       - name: stg_fb_insight_old
+      - name: stg_fb_insight_old_zero
       # Mapping / config
       - name: ty_gia_techcombank
       - name: location_kangnam_adnet
