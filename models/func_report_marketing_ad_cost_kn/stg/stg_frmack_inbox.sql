@@ -4,6 +4,7 @@
 -- cn = split_part(1) for vk/chi_nhanh checks.
 -- Regular LEFT JOIN campaign_name_split (not LATERAL LIMIT 1).
 -- =============================================================================
+
 WITH a AS (
     SELECT DISTINCT
         mik."tên chiến dịch",
@@ -41,8 +42,9 @@ WITH a AS (
 ),
 i AS (
     SELECT
-        CASE WHEN a.cn ILIKE '%Hai Ngoai%' THEN 'VIỆT KIỀU'
-             WHEN a.cn ILIKE '%QUOC TE%'   THEN 'QUỐC TẾ'
+        CASE WHEN a.cn ILIKE '%Hai Ngoai%' or a.cn = 'vki' THEN 'VIỆT KIỀU'
+             WHEN a.cn ILIKE '%QUOC TE%' or a.cn = 'qte' THEN 'QUỐC TẾ'
+             WHEN a.cn = 'exp' THEN 'exp'
              ELSE 'no'
         END                                                          AS vk,
         a.local,
