@@ -1,9 +1,10 @@
 {{ config(materialized='table') }}
 
 with source as (
-    select distinct 
+    select 
         adset_id,
-        adset_name
+        adset_name,
+        row_number() over (partition by adset_id order by "date" desc) as rn
     from {{ source('public', 'cs_facebook_insight') }}
     where adset_id is not null
 )
@@ -13,3 +14,4 @@ select
     adset_id,
     adset_name
 from source
+where rn = 1
