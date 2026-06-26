@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: rvdkk_source
+    schema: public
+    tables:
+      - name: res_users
+      - name: res_partner
+      - name: hr_employee
+      - name: hr_department
+      - name: crm_lead
+      - name: crm_category_source
+      - name: stag_sources
+      - name: crm_stage
+      - name: crm_line
+      - name: stag_products
+      - name: crm_type
+      - name: stag_payment_transfer
+      - name: crm_information_consultant
+      - name: m_res_company
+      - name: res_brand
