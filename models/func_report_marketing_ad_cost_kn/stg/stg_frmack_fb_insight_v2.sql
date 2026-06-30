@@ -39,8 +39,14 @@ SELECT
     f.ad_campaign_id                                            AS fb_ad_campaign_id,
     f.adset_id                                                  AS fb_ad_set_id,
     f.ad_id                                                     AS fb_ad_ad_id,
-    lka."chi nhánh"                                              AS chi_nhanh_no_camp, 
-    f.country as country
+    lka."chi nhánh"                                              AS chi_nhanh_no_camp,
+    f.country as country,
+    CASE
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_')) >= 9
+        AND split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%'
+      THEN split_part(f.ad_campaign_name, '_', 8)
+      ELSE NULL
+    END                                                           AS actor
 FROM {{ source('kangnam', 'cs_facebook_insight') }} f
 -- Chi nhánh: latest location config on or before the ad date
 LEFT JOIN LATERAL (

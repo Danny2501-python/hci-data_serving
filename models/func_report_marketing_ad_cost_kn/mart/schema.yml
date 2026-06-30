@@ -42,3 +42,5 @@ models:
         description: "Campaign name"
       - name: account_fb
         description: "Facebook Ad Account name"
+      - name: actor
+        description: "Actor segment (position 8) from FB campaign name convention: {brand}_{page}_{local}_{chinhanh}_{nhomdichvu}_{muctieu}_{funnel}_{actor}_{angle}. NULL for non-FB records."
