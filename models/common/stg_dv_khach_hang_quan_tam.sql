@@ -18,17 +18,17 @@ WITH cline as (
         END as booking_report_date,
         cln.create_date + interval '7 hours' as cline_created_date,
         CASE
-            WHEN sp.his_service_type IN ('Spa','Laser','Card') or ss.category_source_code = 'MBS' then '1.BEAUTY & SPA'
-            WHEN sp.his_service_type = 'Odontology' or UPPER(sp.product_category) ilike '%HÀM MẶT%' then '2.HÀM MẶT/NHA KHOA'
-            WHEN sp.his_service_type = 'wellness' then '3.WELLNESS'
+            WHEN sp.his_service_type IN ('Spa','Laser','Card') or ss.category_source_code = 'MBS' then '8.BEAUTY & SPA'
+            WHEN sp.his_service_type = 'Odontology' or UPPER(sp.product_category) ilike '%HÀM MẶT%' then '3.HÀM MẶT/NHA KHOA'
+            WHEN sp.his_service_type = 'wellness' then '9.WELLNESS'
             WHEN sp.his_service_type = 'weight_loss' 
-                or (sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%HÚT MỠ%') then '4.BÉO ĐA CHUYÊN KHOA'
-            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%MẮT%' then '5.MẮT'
-            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%MŨI%' then '6.MŨI'
-            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%CẤY MỠ%' then '7.CẤY MỠ'
+                or (sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%HÚT MỠ%') then '7.BÉO ĐA CHUYÊN KHOA'
+            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%MẮT%' then '1.MẮT'
+            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%MŨI%' then '2.MŨI'
+            WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%CẤY MỠ%' then '5.CẤY MỠ'
             WHEN sp.his_service_type = 'Surgery' 
-                and (UPPER(sp.product_category) ilike '%NGỰC%' or UPPER(sp.product_category) ilike '%MÔNG%') then '8.NGỰC/MÔNG'
-            ELSE '9.DỊCH VỤ KHÁC'
+                and (UPPER(sp.product_category) ilike '%NGỰC%' or UPPER(sp.product_category) ilike '%MÔNG%') then '6.NGỰC/MÔNG'
+            ELSE '6.DỊCH VỤ KHÁC'
         END as product_group
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
