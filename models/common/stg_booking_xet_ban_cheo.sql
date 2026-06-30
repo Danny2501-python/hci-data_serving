@@ -16,20 +16,21 @@ WITH cline as (
             WHEN cl.customer_come = 'yes' then cl.arrival_date + interval '7 hours'
             else cl.booking_date + interval '7 hours'
         END as booking_report_date,
-        cln.created_date + interval '7 hours' as cline_created_date,
+        cln.create_date + interval '7 hours' as cline_created_date,
+        spt.payment_date as cline_payment_date,
         CASE
-            WHEN cp.his_service_type = 'Surgery' then 'PTTM'
-            WHEN cp.his_service_type IN ('Spa','Laser','Card') then 'Beauty & Spa'
-            WHEN cp.his_service_type = 'Odontology' then 'Nha khoa'
-            WHEN cp.his_service_type = 'wellness' then 'Wellness'
-            WHEN cp.his_service_type = 'weight_loss' then 'Weight Loss'
+            WHEN sp.his_service_type = 'Surgery' then 'PTTM'
+            WHEN sp.his_service_type IN ('Spa','Laser','Card') then 'Beauty & Spa'
+            WHEN sp.his_service_type = 'Odontology' then 'Nha khoa'
+            WHEN sp.his_service_type = 'wellness' then 'Wellness'
+            WHEN sp.his_service_type = 'weight_loss' then 'Weight Loss'
             ELSE 'Khác'
         END as business_line
-    FROM {{ source('source_common', 'crm_line') }} cln
-        left join {{ source('source_common', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
-        left join {{ source('source_common', 'stag_payment_transfer') }} spt on spt.clineid = cln.id and spt.brand_etl = cln.brand_etl
-        left join {{ source('source_common', 'stag_products') }} sp on sp.id = cln.product_id and sp.brand_etl = cln.brand_etl
-    WHERE cl.id in (SELECT crm_id FROM {{ source('source_common', 'stg_booking_id_co_tien_tc') }})
+    FROM {{ source('crm_base', 'crm_line') }} cln
+        left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
+        left join {{ source('crm_base', 'stag_payment_transfer') }} spt on spt.clineid = cln.id and spt.brand_etl = cln.brand_etl
+        left join {{ source('crm_base', 'view_stag_products') }} sp on sp.product_id = cln.product_id and sp.brand_etl = cln.brand_etl
+    WHERE cl.id in (SELECT crm_id FROM {{ ref('stg_booking_id_co_tien_tc') }})
 ), rnk_bl_cline as (
     select cln.*,
         ROW_NUMBER() OVER (PARTITION BY cln.business_line, cln.code_customer ORDER BY cln.cline_created_date) as cus_bl_cline_order,
@@ -43,8 +44,8 @@ SELECT
     (rbc.cus_cline_order = 1) as is_main_service,
     (rbc.crm_cline_order = 1) as is_main_service_bk,
     (case 
-        when prev_rbc.cline_created_date is null then false
-        else rbc.cline_created_date > prev_rbc.cline_created_date + interval '6 months'
+        when prev_rbc.cline_payment_date is null then false
+        else rbc.cline_payment_date > prev_rbc.cline_payment_date + interval '6 months'
     end) as is_line_over_6_months_in_bl,
     first_value(rbc.business_line) over (partition by rbc.code_customer order by rbc.cline_created_date) as main_bl_customer,
     first_value(rbc.business_line) over (partition by rbc.crm_id order by rbc.cline_created_date) as main_bl_bk
