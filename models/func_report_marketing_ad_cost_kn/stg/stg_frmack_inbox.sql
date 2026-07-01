@@ -29,6 +29,11 @@ WITH a AS (
                 and split_part(mik."tên chiến dịch", '_', 1) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 5)
             ELSE UPPER(TRIM(split_part(mik."tên chiến dịch", '_', 2)))
         END                                                          AS nhom_dv_qc,
+        CASE 
+            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
+                and split_part(mik."tên chiến dịch", '_', 1) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 8)
+            ELSE NULL
+        END                                                          AS camp_actor,
         mik."vùng"                                                   AS local
     FROM {{ source('kangnam', 'm_inbox_kangnam') }} mik
     LEFT JOIN LATERAL (
@@ -56,6 +61,7 @@ i AS (
              ELSE a.chi_nhanh_qc
         END                                                          AS chi_nhanh_inter,
         a."người liên hệ qua nhắn tin mới"::text                    AS metric,
+        a.camp_actor,
         upc.page_name  ,upc.page_id
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
@@ -110,5 +116,6 @@ SELECT
     i.metric,
     'inbox'::text AS type_data,
     0             AS ticket_id,
-    i.page_name,i.page_id
+    i.page_name,i.page_id,
+    i.camp_actor
 FROM i

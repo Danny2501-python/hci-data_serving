@@ -64,7 +64,8 @@ a AS (
         sp.default_code AS id_dv,
         spt.ma_phieu,
         CONCAT(ecl.id, ecl2.id, spt.id) AS fk,
-        CAST(NULL AS FLOAT) AS tien_ap
+        CAST(NULL AS FLOAT) AS tien_ap,
+        ecl.ticket_id
     FROM ecl 
     LEFT JOIN {{ source('crm_base', 'res_brand') }} erb3 ON erb3.id = ecl.brand_id AND erb3.brand_etl = 1 
     LEFT JOIN {{ source('crm_base', 'm_res_company') }} mrc3 ON mrc3.id = ecl.company_id AND mrc3.brand_etl = 1

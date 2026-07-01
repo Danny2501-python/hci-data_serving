@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'report_marketing_ad_cost_kn_v2'
+    alias        = 'report_marketing_ad_cost_kn_v3'
   )
 }}
 -- =============================================================================
@@ -91,7 +91,7 @@ SELECT
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb,
-    NULL::text                                               AS actor
+    camp_actor                                               AS actor
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN (
         SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
@@ -125,7 +125,7 @@ SELECT
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb,
-    NULL::text                                               AS actor
+    camp_actor                                               AS actor
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia

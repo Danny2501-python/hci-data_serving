@@ -54,7 +54,8 @@ WITH x AS (
              ELSE rcs.name
         END                                                  AS local_k,
         rc.name                                              AS quoc_gia,
-        cl.ticket_id
+        cl.ticket_id,
+        substring(cta.ad_id_value FROM '\d+')                AS fb_ad_id
     FROM {{ ref('stg_common_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
       ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL
@@ -62,16 +63,21 @@ WITH x AS (
       ON rcs.id = cl.state_id  AND rcs.brand_etl = 1
     LEFT JOIN {{ source('kangnam', 'res_country') }} rc
       ON rc.id  = cl.country_id AND rc.brand_etl = 1
+    LEFT JOIN {{ source('kangnam', 'cs_ticket_api') }} cta
+      ON cta.ticket_id = stks.ticket_id AND cta.brand_id = 1
+
 ),
 kh AS (
-    SELECT x.*,
+    SELECT x.*,dc.campaign_name,
            CASE WHEN x.ngay_den_cua IS NOT NULL THEN x.sdt ELSE NULL END AS den_cua,
            CASE WHEN x.vk = 'marketing'   THEN 'VIỆT KIỀU'
                 WHEN x.vk = 'mkt_oversea'  THEN 'QUỐC TẾ'
                 ELSE x.chi_nhanh
            END AS chi_nhanh_sm
     FROM x
-)
+     LEFT JOIN {{source('kangnam', 'dim_camp_adset_ad') }} dca ON dca.ad_id = x.fb_ad_id 
+     LEFT JOIN {{source('kangnam','dim_campaign')}} dc ON dca.ad_campaign_id = dc.campaign_id
+ )
 SELECT kh.*,
        kh.nguon_moi         AS "Nguon",
        kh.nhom_nguon_moi    AS "Nhom_nguon",
@@ -79,5 +85,9 @@ SELECT kh.*,
             WHEN kh.chi_nhanh_sm = 'BỆNH VIỆN KANGNAM NGUYỄN TRÃI'   THEN 'BỆNH VIỆN KANGNAM SÀI GÒN'
             WHEN kh.chi_nhanh_sm = 'BỆNH VIỆN KANGNAM SÀI GÒN'       THEN 'BỆNH VIỆN KANGNAM SÀI GÒN'
             ELSE kh.chi_nhanh_sm
-       END AS chi_nhanh_new
+       END AS chi_nhanh_new,
+       CASE WHEN cardinality(string_to_array(campaign_name,'_' )) >= 9 
+             and split_part(campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(campaign_name, '_', 8)
+             ELSE NULL
+       END AS camp_actor
 FROM kh

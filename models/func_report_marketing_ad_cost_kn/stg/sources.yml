@@ -40,3 +40,5 @@ sources:
       # Caresoft
       - name: cs_services_api
       - name: cs_ticket_api
+      - name: dim_camp_adset_ad
+      - name: dim_campaign
