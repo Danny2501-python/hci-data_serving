@@ -11,7 +11,7 @@ WITH cline as (
         cl.code_customer,
         cln.brand_etl,
         cln.id as cline_id,
-        cln.stage,
+        cln.stage,ss.source as source,ss.category_source_code,
         CASE 
             WHEN cl.customer_come = 'yes' then cl.arrival_date + interval '7 hours'
             else cl.booking_date + interval '7 hours'
@@ -27,7 +27,7 @@ WITH cline as (
             WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%MŨI%' then '2.MŨI'
             WHEN sp.his_service_type = 'Surgery' and UPPER(sp.product_category) ilike '%CẤY MỠ%' then '5.CẤY MỠ'
             WHEN sp.his_service_type = 'Surgery' 
-                and (UPPER(sp.product_category) ilike '%NGỰC%' or UPPER(sp.product_category) ilike '%MÔNG%') then '6.NGỰC/MÔNG'
+                and (UPPER(sp.product_category) ilike '%NGỰC%' or UPPER(sp.product_category) ilike '%MÔNG%') then '4.NGỰC/MÔNG'
             ELSE '6.DỊCH VỤ KHÁC'
         END as product_group
     FROM {{ source('crm_base', 'crm_line') }} cln
@@ -42,6 +42,7 @@ FROM cline cl
 SELECT 
     cr.crm_id,
     cr.code_customer,
+    cr.source,cr.category_source_code,
     cr.brand_etl,
     cr.booking_report_date,
     cr.product_group as first_product_group
