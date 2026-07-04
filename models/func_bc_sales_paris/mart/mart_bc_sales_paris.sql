@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'bc_sales_paris'
+    alias        = 'bc_sales_paris_v2'
   )
 }}
 -- =============================================================================
