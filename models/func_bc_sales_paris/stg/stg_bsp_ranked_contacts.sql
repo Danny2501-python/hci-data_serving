@@ -1,3 +1,6 @@
+{{
+  config(materialized = 'table')
+}}
 -- =============================================================================
 -- stg_bsp_ranked_contacts  (Pass 1)
 -- Lấy thông tin khách hàng từ Caresoft Inbox Facebook.
@@ -5,7 +8,9 @@
 -- sau đó lấy cuộc hội thoại đầu tiên có group_name theo start_time.
 -- rank dùng để lọc rank=1 ở tầng int (int_bsp_inbox).
 -- =============================================================================
-WITH first_ticket AS (
+-- Tính rank trên TẤT CẢ ticket trước, rồi mới filter Inbox Facebook
+-- (đúng với logic gốc: ticket đầu tiên của khách phải là Inbox Facebook)
+WITH all_tickets AS (
     SELECT
         ad_id_value,
         requester_id,
@@ -13,14 +18,20 @@ WITH first_ticket AS (
         ticket_source,
         ROW_NUMBER() OVER (PARTITION BY requester_id ORDER BY created_at) AS rank
     FROM {{ source('paris', 'cs_ticket_api') }}
-    WHERE ticket_source = 'Inbox Facebook'
-      AND created_at > '2022-01-01'
+    WHERE created_at > '2025-01-01'
+),
+first_ticket AS (
+    SELECT ad_id_value, requester_id, ticket_id, ticket_source
+    FROM all_tickets
+    WHERE rank = 1
+      AND ticket_source = 'Inbox Facebook'
 ),
 first_chat AS (
-    SELECT *,
+    SELECT ticket_id, customer_id, facebook_page_id, agent_name,
+           agent_email, conversation_id,
            ROW_NUMBER() OVER (PARTITION BY ticket_id ORDER BY start_time ASC) AS rnk
     FROM {{ source('paris', 'cs_chat_api') }}
-    WHERE group_name IS NOT NULL
+    WHERE group_name IS NOT NULL and start_time > '2025-01-01'
 )
 SELECT
     DATE(cca.created_at)                                               AS ngay_tao_khach,
@@ -36,9 +47,8 @@ SELECT
     cca.username
 FROM {{ source('paris', 'cs_contact_api') }} cca
 LEFT JOIN first_ticket t
-       ON t.requester_id = cca.id AND t.rank = 1
+       ON t.requester_id = cca.id
 LEFT JOIN first_chat cca2
        ON cca2.customer_id = t.requester_id AND cca2.rnk = 1
 WHERE cca.brand_id = 3
-  AND DATE(cca.created_at) > '2022-01-01'
   AND cca2.facebook_page_id <> ' '

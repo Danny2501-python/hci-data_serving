@@ -6,6 +6,13 @@
 -- =============================================================================
 
 -- Lead_total (Pass 5): loai_ban_ghi=1, trang_thai hợp lệ, nhom_dv không phải Sản Phẩm
+
+WITH base AS MATERIALIZED (
+    SELECT *
+    FROM {{ ref('stg_bsp_crm_base') }}
+    WHERE nhom_dv IS NOT NULL
+      AND nhom_dv NOT IN ('SAN PHAM', 'Sản Phẩm')
+)
 SELECT
     'ad'::text                        AS ad_id,
     'Lead_total'::text                AS bang,
@@ -20,11 +27,11 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao               AS phong_ban
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 1
   AND trang_thai IN ('Tiềm năng', 'Tham khảo', 'Đặt lịch')
-  AND nhom_dv <> 'Sản Phẩm'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'Sản Phẩm'
+  -- AND nhom_dv IS NOT NULL
 
 UNION ALL
 
@@ -43,10 +50,10 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 2
-  AND nhom_dv <> 'SAN PHAM'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'SAN PHAM'
+  -- AND nhom_dv IS NOT NULL
 
 UNION ALL
 
@@ -65,10 +72,10 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 2
-  AND nhom_dv <> 'SAN PHAM'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'SAN PHAM'
+  -- AND nhom_dv IS NOT NULL
 
 UNION ALL
 
@@ -87,10 +94,10 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 2
-  AND nhom_dv <> 'SAN PHAM'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'SAN PHAM'
+  -- AND nhom_dv IS NOT NULL
 
 UNION ALL
 
@@ -109,11 +116,11 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 2
   AND doanh_so > 0
-  AND nhom_dv <> 'SAN PHAM'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'SAN PHAM'
+  -- AND nhom_dv IS NOT NULL
 
 UNION ALL
 
@@ -132,7 +139,7 @@ SELECT
     ten_khach,
     ma_booking,
     phong_ban_nguoi_tao1              AS phong_ban
-FROM {{ ref('stg_bsp_crm_base') }}
+FROM base
 WHERE loai_ban_ghi = 2
-  AND nhom_dv <> 'SAN PHAM'
-  AND nhom_dv IS NOT NULL
+  -- AND nhom_dv <> 'SAN PHAM'
+  -- AND nhom_dv IS NOT NULL

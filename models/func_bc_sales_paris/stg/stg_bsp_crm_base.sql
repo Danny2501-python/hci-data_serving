@@ -1,6 +1,10 @@
+{{
+  config(materialized = 'table')
+}}
 -- =============================================================================
 -- stg_bsp_crm_base  (Pass 4)
 -- CRM tổng quan khách hàng Paris — nguồn cho các stream Lead/BK/HL/DC/TC/DS.
+-- Materialized as table: int_bsp_crm_union đọc 6 lần, cần compute 1 lần.
 -- =============================================================================
 SELECT
     TEXT(stks.ticket_id)              AS ticket_id,

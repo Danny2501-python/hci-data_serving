@@ -9,6 +9,7 @@ WITH json_data AS (
         (jsonb_array_elements(custom_fields::jsonb) ->> 'id')::int    AS extracted_id,
         (jsonb_array_elements(custom_fields::jsonb) ->> 'value')       AS extracted_value
     FROM {{ source('paris', 'cs_contact_api') }}
+    WHERE brand_id = 3
 ),
 filtered AS (
     SELECT
