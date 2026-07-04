@@ -6,6 +6,24 @@ Output: bảng `bc_sales_paris_v2`.
 
 ---
 
+## Lưu ý — Tiềm năng lệch số liệu với `func_report_marketing_ad_cost_pr`
+
+Model này dùng `view_stag_tongquan_khachhang_sm_pr` làm nguồn CRM, trong khi
+`func_report_marketing_ad_cost_pr` dùng `stg_frmacpr_leads_lines` (join trực tiếp
+`crm_lead` + `crm_line`). Hai nguồn có **4 điều kiện khác nhau** khiến DC/BK có thể lệch:
+
+| # | Điều kiện | View (bc_sales_paris) | stg_frmacpr_leads_lines | Tác động |
+|---|-----------|----------------------|--------------------------|----------|
+| 1 | `create_by_department` | **không lọc** (NULL được phép) | **IS NOT NULL** bắt buộc | View có thêm lead tự tạo/import không có phòng ban |
+| 2 | `active` | **`= true`** | **không lọc** | stg_frmacpr có thêm lead đã archive/cancel |
+| 3 | Date filter | **`create_date + 7h >= 2022-01-01`** | **không có** | stg_frmacpr có thêm lead cũ hơn 2022 |
+| 4 | Lead không có line | **bị loại** (`product_category IS NOT NULL`) | **giữ lại** (LEFT JOIN) | stg_frmacpr có thêm lead chưa có dịch vụ |
+
+**Nếu cần đồng nhất:** chọn một chuẩn rồi áp điều kiện tương ứng vào model còn lại.
+Xem chi tiết tại LOGIC.md của `func_report_marketing_ad_cost_pr`.
+
+---
+
 ## Kiến trúc tổng thể
 
 ```
