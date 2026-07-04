@@ -1,12 +1,12 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'report_marketing_ad_cost_pr'
+    alias        = 'report_marketing_ad_cost_pr_v2'
   )
 }}
 -- =============================================================================
 -- mart_report_marketing_ad_cost_pr  (Final output)
--- Ghi đè toàn bộ bảng report_marketing_ad_cost_pr mỗi lần chạy.
+-- Ghi đè toàn bộ bảng report_marketing_ad_cost_pr_v2 mỗi lần chạy.
 -- Đây là model table duy nhất trong pipeline Paris.
 -- =============================================================================
 
