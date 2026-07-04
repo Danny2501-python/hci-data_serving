@@ -5,7 +5,7 @@ models:
     description: >
       Báo cáo sales tổng hợp thương hiệu Paris.
       Refactored từ function bc_sales_paris().
-      Output alias: bc_sales_paris.
+      Output alias: bc_sales_paris_v2.
     columns:
       - name: ad_id
         description: "Ad ID từ Facebook (Inbox), hoặc 'ad' với các stream CRM/Chi phí"
