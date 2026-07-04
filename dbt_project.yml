@@ -165,3 +165,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    func_bc_sales_paris:
+      +tags: ["func_bc_sales_paris"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
