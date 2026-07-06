@@ -25,6 +25,7 @@ vars:
   # Adjust start_date for backfill
   start_date: '2025-08-01'
   all_brand_etl: "(1,3,4,7)"
+  all_brand_mkt_camp: "('kgs','kbs','kwl','kwn','kdt','kal','prd','hh','vde')"
 
 # Model configurations
 models:
@@ -165,11 +166,6 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-    func_bc_sales_paris:
-      +tags: ["func_bc_sales_paris"]
-      stg:
-        +materialized: ephemeral
-      int:
-        +materialized: ephemeral
-      mart:
-        +materialized: table
+    data_dictionary:
+      +tags: ["data_dictionary"]
+      +materialized: table
