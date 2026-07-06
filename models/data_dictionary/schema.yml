@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: data_dictionary
+    description: >
+      Bảng data dictionary tổng hợp toàn bộ cấu trúc bảng/cột trong schema public
+      của data warehouse (database: new_product, host: 10.10.10.214).
+      Tên cột, kiểu dữ liệu được tự động lấy từ information_schema.columns.
+      Mô tả cột được đồng bộ từ PostgreSQL column comment (pg_catalog.pg_description).
+      Để cập nhật mô tả, chạy: COMMENT ON COLUMN <ten_bang>.<ten_cot> IS '<mo_ta>';
+    config:
+      materialized: table
+      tags: ["data_dictionary"]
+    columns:
+      - name: ten_bang
+        description: "Tên bảng trong data warehouse (schema public)"
+      - name: ten_cot
+        description: "Tên cột trong bảng"
+      - name: mo_ta
+        description: "Mô tả ý nghĩa của cột, lấy từ PostgreSQL column comment"
+      - name: kieu_du_lieu
+        description: "Kiểu dữ liệu của cột (integer, varchar, timestamp, boolean, ...)"
+      - name: ngay_tao
+        description: "Thời điểm bản ghi được load vào data dictionary (theo lần chạy dbt)"
+      - name: ngay_sua
+        description: "Thời điểm bản ghi được cập nhật gần nhất (theo lần chạy dbt)"
+      - name: xoa
+        description: "Cờ soft-delete: false = cột đang hoạt động, true = cột đã bị đánh dấu xóa"

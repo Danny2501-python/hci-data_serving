@@ -68,7 +68,7 @@ WITH x AS (
 
 ),
 kh AS (
-    SELECT x.*,dc.campaign_name,
+    SELECT x.*,dc.campaign_name,da.account_name as account_fb,
            CASE WHEN x.ngay_den_cua IS NOT NULL THEN x.sdt ELSE NULL END AS den_cua,
            CASE WHEN x.vk = 'marketing'   THEN 'VIỆT KIỀU'
                 WHEN x.vk = 'mkt_oversea'  THEN 'QUỐC TẾ'
@@ -77,6 +77,7 @@ kh AS (
     FROM x
      LEFT JOIN {{source('kangnam', 'dim_camp_adset_ad') }} dca ON dca.ad_id = x.fb_ad_id 
      LEFT JOIN {{source('kangnam','dim_campaign')}} dc ON dca.ad_campaign_id = dc.campaign_id
+     LEFT JOIN {{source('kangnam', 'dim_account') }} da ON da.account_id = dca.account_id
  )
 SELECT kh.*,
        kh.nguon_moi         AS "Nguon",
@@ -87,7 +88,7 @@ SELECT kh.*,
             ELSE kh.chi_nhanh_sm
        END AS chi_nhanh_new,
        CASE WHEN cardinality(string_to_array(campaign_name,'_' )) >= 9 
-             and split_part(campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(campaign_name, '_', 8)
+             and split_part(campaign_name, '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(campaign_name, '_', 8)
              ELSE NULL
        END AS camp_actor
 FROM kh

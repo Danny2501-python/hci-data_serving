@@ -42,3 +42,4 @@ sources:
       - name: cs_ticket_api
       - name: dim_camp_adset_ad
       - name: dim_campaign
+      - name: dim_account

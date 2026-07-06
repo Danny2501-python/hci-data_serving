@@ -16,19 +16,19 @@ SELECT
     f.region                                                     AS vung,
     f.ad_campaign_name                                           AS camp_name,
     CASE 
-      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 3)
-      ELSE split_part(f.ad_campaign_name, '_', 1)
+      WHEN cardinality(string_to_array(dc.campaign_name,'_' )) >= 9 
+        and split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(dc.campaign_name, '_', 3)
+     -- ELSE split_part(f.ad_campaign_name, '_', 1)
     END                                                          AS cn,
     CASE 
-      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
-      ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 2)))
+      WHEN cardinality(string_to_array(dc.campaign_name,'_' )) >= 9 
+        and split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(dc.campaign_name, '_', 5)
+     -- ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 2)))
     END                                                         AS nhom_dv,
     CASE 
-      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
-      ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 3)))
+      WHEN cardinality(string_to_array(dc.campaign_name,'_' )) >= 9 
+        and split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(dc.campaign_name, '_', 5)
+     -- ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 3)))
     END                                                          AS nhom_dv2,
     CASE WHEN f.ad_account_id = 'act_651294956930454'
          THEN 'Cost_fb_th' ELSE 'Cost_fb_cd'
@@ -42,12 +42,13 @@ SELECT
     lka."chi nhánh"                                              AS chi_nhanh_no_camp,
     f.country as country,
     CASE
-      WHEN cardinality(string_to_array(f.ad_campaign_name,'_')) >= 9
-        AND split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%'
-      THEN split_part(f.ad_campaign_name, '_', 8)
+      WHEN cardinality(string_to_array(dc.campaign_name,'_')) >= 9
+        AND split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+      THEN split_part(dc.campaign_name, '_', 8)
       ELSE NULL
     END                                                           AS actor
 FROM {{ source('kangnam', 'cs_facebook_insight') }} f
+LEFT JOIN {{ ref('dim_campaign')}} dc ON dc.campaign_id = f.ad_campaign_id
 -- Chi nhánh: latest location config on or before the ad date
 LEFT JOIN LATERAL (
     SELECT "chi nhánh"

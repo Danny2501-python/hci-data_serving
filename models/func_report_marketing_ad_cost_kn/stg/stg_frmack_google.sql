@@ -65,7 +65,8 @@ SELECT
     CASE WHEN a.account <> 'Thương hiệu - Brand' THEN 'Google_cd'
          ELSE 'Google_th'
     END                                                              AS type_data,
-    0                                                                AS ticket_id
+    0                                                                AS ticket_id,
+    a.account
 FROM a
 LEFT JOIN {{ source('kangnam', 'product_category') }} pc
        ON pc.id::text = a.nhom_dv_raw AND pc.brand_etl = 1

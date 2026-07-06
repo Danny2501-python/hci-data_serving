@@ -4,6 +4,7 @@ with source as (
     select 
         ad_campaign_id as campaign_id,
         ad_campaign_name as campaign_name,
+        ad_account_id,
         row_number() over (partition by ad_campaign_id order by "date" desc) as rn
     from {{ source('public', 'cs_facebook_insight') }}
     where ad_campaign_id is not null
@@ -12,6 +13,7 @@ with source as (
 select 
     md5(campaign_id) as id,
     campaign_id,
-    campaign_name
+    campaign_name,
+    ad_account_id
 from source
 where rn = 1
