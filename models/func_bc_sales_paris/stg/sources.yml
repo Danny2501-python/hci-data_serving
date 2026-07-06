@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: paris
+    schema: public
+    tables:
+      # Caresoft — bc_sales_paris specific
+      - name: cs_contact_api
+      - name: cs_chat_api
+      - name: cs_custom_fields_kh
+      - name: cs_custom_fields
+      # Sales team config
+      - name: table_team_sale_paris
+      - name: view_stag_employees_user
+      - name: m_facebook_page_kangnam
+      # CRM
+      - name: view_stag_tongquan_khachhang_sm_pr
