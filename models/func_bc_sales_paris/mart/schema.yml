@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: mart_bc_sales_paris
+    description: >
+      Báo cáo sales tổng hợp thương hiệu Paris.
+      Refactored từ function bc_sales_paris().
+      Output alias: bc_sales_paris_v2.
+    columns:
+      - name: ad_id
+        description: "Ad ID từ Facebook (Inbox), hoặc 'ad' với các stream CRM/Chi phí"
+      - name: bang
+        description: "Loại record: Inbox / Lead_total / BK / HL / DC / TC / DS / Chi_phi"
+      - name: ticket_id
+        description: "Ticket ID từ Caresoft hoặc CRM"
+      - name: requester_id
+        description: "Khách hàng ID (Inbox), SĐT (CRM), doanh số text (DS), chi phí text (Chi_phi)"
+      - name: nv
+        description: "Tên nhân viên phụ trách (UPPER)"
+      - name: work_email
+        description: "Email nhân viên"
+      - name: date
+        description: "Ngày phát sinh record theo từng loại: ngay_tao/ngay_hl/ngay_dc/ngay_den_cua/ngay_tt"
+      - name: nguon
+        description: "Nguồn khách: tên source CRM hoặc 'Facebook'"
+      - name: chi_nhanh
+        description: "Chi nhánh đầy đủ"
+      - name: nhom_dv
+        description: "Nhóm dịch vụ"
+      - name: ten_khach
+        description: "Tên khách hàng"
+      - name: ma_booking
+        description: "Mã booking"
+      - name: phong_ban
+        description: "Phòng ban nhân viên tạo record"
