@@ -1,7 +1,7 @@
 {{
   config(
-    materialized = 'table',
-    alias        = 'stag_crm_lead_first_product_group'
+    materialized = 'view',
+    alias        = 'view_stag_crm_lead_first_product_group'
   )
 }}
 
