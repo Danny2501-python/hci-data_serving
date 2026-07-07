@@ -1,5 +1,5 @@
 -- =============================================================================
--- stg_frmack_cs_tickets  (Pass 14)
+-- stg_frmack_cs_tickets
 -- Caresoft tickets: pick first service_id per ticket_id.
 -- ROW_NUMBER ORDER BY ticket_id (matching original, not created_at).
 -- Filter: Inbox Facebook + Inbox Facebook Out; updated_at >= 2025-01-01.
@@ -7,7 +7,7 @@
 SELECT
     ticket_id,
     service_id,
-    created_at,
+    created_at::date as ngay_tao,
     requester_id,
     SUBSTRING(requester FROM '"phone_no":\s*"([^"]+)"') AS sdt,
     SUBSTRING(ad_id_value FROM '''(\d+)''') AS ad_id,

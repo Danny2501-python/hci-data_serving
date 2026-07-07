@@ -93,3 +93,13 @@ FROM {{ ref('stg_frmack_crm_base') }}
 WHERE ngay_hl >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
   and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
+
+UNION ALL
+-- Deal (Caresoft Tickets — ad-attributed)
+SELECT
+    vk, ten_dv, nguon, nhom_nguon, kenh,
+    ngay, nhom_dv, chi_nhanh,
+    local_k, quoc_gia, metric,
+    type_data, ticket_id, campaign_name AS campaign, page_name, page_id_from_camp,
+    camp_actor, account_fb
+FROM {{ ref('stg_frmack_deal') }}
