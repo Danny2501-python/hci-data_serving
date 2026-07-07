@@ -60,7 +60,7 @@ WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
   and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
 
 UNION ALL
--- GG (Pass 10)
+-- Chi phí GG (Pass 10)
 SELECT
     vk, ten_dv, nguon, nhom_nguon, kenh, ngay,
     nhom_dv, chi_nhanh, local_k, quoc_gia, metric,

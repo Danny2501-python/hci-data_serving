@@ -43,3 +43,4 @@ sources:
       - name: dim_camp_adset_ad
       - name: dim_campaign
       - name: dim_account
+      - name: cs_deal_detail_api_v2

@@ -7,6 +7,10 @@
 SELECT
     ticket_id,
     service_id,
+    created_at,
+    requester_id,
+    SUBSTRING(requester FROM '"phone_no":\s*"([^"]+)"') AS sdt,
+    SUBSTRING(ad_id_value FROM '''(\d+)''') AS ad_id,
     ROW_NUMBER() OVER (PARTITION BY ticket_id ORDER BY ticket_id) AS rnk
 FROM {{ source('kangnam', 'cs_ticket_api') }}
 WHERE updated_at >= '2025-01-01 00:00:00'::timestamp without time zone
