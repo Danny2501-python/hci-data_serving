@@ -110,5 +110,5 @@ SELECT
     i.metric,
     'inbox'::text AS type_data,
     0             AS ticket_id,
-    i.page_name,i.page_id
+    i.page_name,i.page_id,i.ten_ad as campaign
 FROM i
