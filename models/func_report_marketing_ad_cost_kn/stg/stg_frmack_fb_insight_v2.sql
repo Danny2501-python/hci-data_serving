@@ -17,19 +17,23 @@ SELECT
     f.ad_campaign_name                                           AS camp_name,
     CASE 
       WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 3)
+        and split_part(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(f.ad_campaign_name, '_', 3)
       ELSE split_part(f.ad_campaign_name, '_', 1)
     END                                                          AS cn,
     CASE 
       WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
+        and split_part(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(f.ad_campaign_name, '_', 5)
       ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 2)))
     END                                                         AS nhom_dv,
-    CASE 
-      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9 
-        and split_part(f.ad_campaign_name, '_', 1) NOT ILIKE 'MIEN%' THEN split_part(f.ad_campaign_name, '_', 5)
+    CASE
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9
+        and split_part(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(f.ad_campaign_name, '_', 5)
       ELSE UPPER(TRIM(split_part(f.ad_campaign_name, '_', 3)))
     END                                                          AS nhom_dv2,
+    CASE
+      WHEN cardinality(string_to_array(f.ad_campaign_name,'_' )) >= 9
+        and split_part(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(f.ad_campaign_name, '_', 8)
+    END                                                          AS actor_code,
     CASE WHEN f.ad_account_id = 'act_651294956930454'
          THEN 'Cost_fb_th' ELSE 'Cost_fb_cd'
     END                                                          AS type_data,

@@ -41,4 +41,20 @@ models:
       - name: campaign
         description: "Campaign name"
       - name: account_fb
-        description: "Facebook Ad Account name"
+        description: >
+          Facebook Ad Account name. Stream 1 (FB Cost): from cs_facebook_insight
+          directly. Stream 2/3 (DC/DS/Lead/TC/BK/HL): resolved via
+          ad_id (extracted from cs_ticket_api.ad_id_value) → dim_camp_adset_ad
+          → dim_account. Inbox: resolved via m_inbox_kangnam."id chiến dịch"
+          → dim_campaign → dim_account (no Caresoft ticket linkage available
+          for Inbox). NULL/'KXĐ' when the campaign/account can't be resolved
+          or for Google-sourced records (no Facebook ad account concept).
+      - name: actor
+        description: >
+          Actor code — token 8 (1-based) of the underscore-delimited Facebook
+          campaign name, extracted only when the name follows the 9+ token
+          naming convention and its first token is IN the
+          `all_brand_mkt_camp` whitelist (dbt var; same guard used for the
+          `page` dimension). NULL when the campaign name doesn't follow this
+          convention (legacy naming, no matched ad, unrecognized brand code)
+          or for Google-sourced records, which have no such convention.

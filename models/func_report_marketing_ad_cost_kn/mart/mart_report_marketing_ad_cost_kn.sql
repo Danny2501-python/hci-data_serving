@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'report_marketing_ad_cost_kn_v2'
+    alias        = 'report_marketing_ad_cost_kn_v3'
   )
 }}
 -- =============================================================================
@@ -41,7 +41,8 @@ SELECT
     END                                                      AS region,
     tn.tinh_noi,
     f.camp_name                                              AS campaign,
-    f.account_fb
+    f.account_fb,
+    f.actor_code                                             AS actor
 FROM {{ ref('int_frmack_fb_cost') }} f
 -- Compute tinh_noi inline (same re_map formula as Pass 12)
 LEFT JOIN LATERAL (
@@ -85,7 +86,8 @@ SELECT
     CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
     m.tinh_noi,
     m.campaign,
-    NULL::text                                               AS account_fb
+    m.account_fb                                             AS account_fb,
+    m.actor_code                                             AS actor
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
@@ -113,7 +115,8 @@ SELECT
     CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
     m.tinh_noi,
     m.campaign,
-    NULL::text                                               AS account_fb
+    COALESCE(m.account_fb,'KXĐ')::text                       AS account_fb,
+    COALESCE(m.actor_code,'KXĐ')::text                       AS actor
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia

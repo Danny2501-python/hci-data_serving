@@ -32,16 +32,16 @@ v2_supplement AS (
           AND v1.vung         = v2.vung
     )
 )
-SELECT 
-    chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
+SELECT
+    chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2,
     type_data, page_id, account_fb, chi_nhanh_no_camp,
-    'old' as source,country
+    'old' as source,country, actor_code
 FROM v1
 
 UNION ALL
 
-SELECT 
-    chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2, 
+SELECT
+    chi_phi, ngay_chi_phi, vung, camp_name, cn, nhom_dv, nhom_dv2,
     type_data, page_id, account_fb, chi_nhanh_no_camp,
-    'new' as source,country
+    'new' as source,country, actor_code
 FROM v2_supplement

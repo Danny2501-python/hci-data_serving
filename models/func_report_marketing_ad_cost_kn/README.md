@@ -43,7 +43,9 @@ cb.ad_id
   → LEFT JOIN dim_campaign       (theo ad_campaign_id) → campaign_name
   → page_code = split_part(campaign_name, '_', 2)
         CHỈ KHI cardinality(split '_') >= 9
-              VÀ token đầu tiên KHÔNG ILIKE 'MIEN%'
+              VÀ token đầu tiên IN var('all_brand_mkt_camp')
+              (whitelist brand code, xem mục 7 — trước đây dùng blacklist
+              "NOT ILIKE 'MIEN%'", đã đổi sang whitelist)
         (không có ELSE ⇒ các trường hợp khác page_code = NULL)
   → LEFT JOIN ucbt_page_config (theo page_code) → page_name
   → COALESCE(page_name, 'KXĐ'), COALESCE(campaign_name, 'KXĐ')
@@ -134,3 +136,62 @@ chưa đến cửa cũng bị rớt oan dù `ngay_tao`/`ngay_hl` nằm trong kho
 **Fix đã áp dụng** (`int_frmack_union.sql`): bỏ filter ngày ra khỏi CTE dùng
 chung, filter riêng theo field ngày đúng nghiệp vụ của từng nhánh ở outer
 `WHERE` (xem bảng ở mục 3) — khớp lại với hành vi bản gốc trước refactor.
+
+## 7. Chiều `actor` — token vị trí 8 của campaign name
+
+Tách thêm cột `actor` (mã người thực hiện campaign) trong `mart`, lấy từ
+**token vị trí 8** (1-based, tính từ trái) của campaign name theo convention
+đặt tên Facebook: `{brand}_{page}_{local}_{chinhanh}_{nhomdichvu}_{muctieu}_
+{funnel}_{actor}_{angle}...`. Dùng **đúng guard điều kiện** như `page_code`
+(mục 3): chỉ tách khi `cardinality(split '_') >= 9` VÀ token đầu tiên
+`IN {{ var('all_brand_mkt_camp') }}`; nếu không thỏa → `NULL`. Không join
+sang seed `ucbt_camp_actor.csv` (name/email/actor_code) — cột `actor` chỉ
+chứa mã thô.
+
+**[Đổi guard] Blacklist `MIEN%` → whitelist `all_brand_mkt_camp`:** guard
+điều kiện dùng để nhận diện naming convention mới (9+ token) trước đây là
+`token đầu KHÔNG ILIKE 'MIEN%'` (blacklist — nhận mọi campaign trừ tiền tố
+`MIEN`). Đã đổi thống nhất sang whitelist qua dbt var:
+
+```yaml
+# dbt_project.yml
+vars:
+  all_brand_mkt_camp: "('kgs','kbs','kwl','kwn','kdt','kal','prd','hh','vde')"
+```
+
+Áp dụng cho **toàn bộ** chỗ dùng guard này (không chỉ `actor`):
+`page_code`, `cn`, `nhom_dv`, `nhom_dv2` ở `int_frmack_union.sql`,
+`stg_frmack_inbox.sql`, `stg_frmack_fb_insight_v2.sql`. Vì đây là whitelist
+chặt hơn blacklist cũ, **campaign nào có token đầu không nằm trong 9 brand
+code trên** (kể cả không phải `MIEN%`) sẽ chuyển từ "có parse được" (dưới
+guard cũ) sang `NULL` (dưới guard mới) cho `page_code`/`cn`/`nhom_dv`/
+`nhom_dv2`/`actor_code`.
+
+## 8. Chiều `account_fb` cho non-FB-cost stream (DC/DS/Lead/TC/BK/HL/Inbox)
+
+Trước đây `account_fb` (tên Ad Account Facebook) **chỉ có giá trị ở Stream 1**
+(FB Cost); Stream 2/3 trong `mart` luôn hard-code `NULL::text AS account_fb`.
+Đã bổ sung để `account_fb` được suy ra nhất quán ở mọi stream, tham khảo
+logic từ branch cũ `func_report_marketing_ad_cost_kn_2026-06-30_actor_ad`:
+
+| Nguồn | Chuỗi join lấy `account_fb` |
+|---|---|
+| DC/DS/Lead/TC/BK/HL | `int_frmack_union.crm_base_with_page`/`payment_with_page`: `cb.ad_id → dim_camp_adset_ad (account_id) → dim_account (account_name)`. Dùng lại đúng `dcaa` đã join sẵn cho `page_code`/`campaign_name`, chỉ thêm 1 `LEFT JOIN dim_account`. |
+| Inbox | `stg_frmack_inbox`: **không có** `ad_id_value`/Caresoft ticket trong `m_inbox_kangnam`, nên dùng cột có sẵn `"id chiến dịch"` → `dim_campaign (ad_account_id) → dim_account (account_name)`. Khác cơ chế với nhóm CRM ở trên — đã xác nhận với người dùng trước khi áp dụng. |
+| FB Cost (Stream 1) | Không đổi — vẫn lấy trực tiếp từ `cs_facebook_insight.ad_account_name` (qua `stg_frmack_fb_insight_v2`). |
+| Google (GG) | Luôn `NULL` — cột `account_fb` mang nghĩa "Facebook Ad Account", Google có khái niệm account riêng (`cp_google_kangnam.account`) nhưng không map vào đây. |
+
+Ở `mart`, Stream 2 expose `account_fb` thô (có thể `NULL`); Stream 3 dùng
+`COALESCE(account_fb, 'KXĐ')` — đồng nhất với cách xử lý `page`/`actor` ở
+stream này.
+
+| Nguồn | Nơi tách `actor_code` | Ghi chú |
+|---|---|---|
+| DC/DS/Lead/TC/BK/HL | `int_frmack_union.crm_base_with_page`/`payment_with_page`, từ `dc.campaign_name` (join qua `dim_camp_adset_ad`→`dim_campaign`) | Cùng CTE, cùng guard với `page_code` |
+| Inbox | `stg_frmack_inbox`, từ `mik."tên chiến dịch"` | Tách ngay tại `stg`, giống cách `page_code` được tách ở đây |
+| FB Cost (Stream 1) | `stg_frmack_fb_insight_v2`, từ `f.ad_campaign_name` → truyền qua `stg_frmack_fb_insight_v3` → `int_frmack_fb_cost` | `stg_frmack_fb_insight_v1` (nguồn legacy) luôn `actor_code = NULL` vì không có parse campaign name |
+| Google (GG) | — | Luôn `NULL`, Google không theo convention đặt tên này |
+
+Ở `mart`, Stream 1 & 2 expose `actor` thô (có thể `NULL`); Stream 3 (non-FB,
+`ticket_id = 0/NULL`) dùng `COALESCE(actor_code, 'KXĐ')` để đồng nhất với
+cách xử lý `page`/`page_id` ở stream này.
