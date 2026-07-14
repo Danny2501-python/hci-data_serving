@@ -16,21 +16,20 @@ WITH a AS (
         lka."chi nhánh"                                              AS chi_nhanh_qc,
         lka.ngay_hh,
         CASE
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9
-                and split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 2)
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 2)
         END                                                          AS page_code,
         CASE
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9
-                and split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 8)
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 8)
         END                                                          AS actor_code,
-        CASE 
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
-                and split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 3)
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 5)
+        END                                                          AS nhom_dv_muc_tieu_code,
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 3)
             ELSE TRIM(split_part(mik."tên chiến dịch", '_', 1))
         END                                                          AS cn,
         CASE 
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
-                and split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 5)
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 5)
             ELSE UPPER(TRIM(split_part(mik."tên chiến dịch", '_', 2)))
         END                                                          AS nhom_dv_qc,
         mik."vùng"                                                   AS local
@@ -60,7 +59,7 @@ i AS (
              ELSE a.chi_nhanh_qc
         END                                                          AS chi_nhanh_inter,
         a."người liên hệ qua nhắn tin mới"::text                    AS metric,
-        upc.page_name  ,upc.page_id, a.actor_code, da.account_name AS account_fb
+        upc.page_name  ,upc.page_id, a.actor_code, a.nhom_dv_muc_tieu_code, da.account_name AS account_fb
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
     LEFT JOIN {{ source('kangnam', 'campaign_name_split') }} cns
@@ -120,5 +119,5 @@ SELECT
     i.metric,
     'inbox'::text AS type_data,
     0             AS ticket_id,
-    i.page_name,i.page_id,i.ten_ad as campaign,i.actor_code,i.account_fb
+    i.page_name,i.page_id,i.ten_ad as campaign,i.actor_code,i.account_fb,i.nhom_dv_muc_tieu_code
 FROM i

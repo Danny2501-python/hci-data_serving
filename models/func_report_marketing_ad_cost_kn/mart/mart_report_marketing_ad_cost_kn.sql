@@ -30,19 +30,20 @@ SELECT
     CASE WHEN mcp.page_name = 'N/A' THEN 'KXĐ' ELSE mcp.page_name END                                          AS page,
     f.page_id,
     CASE
-        WHEN f.vk = 'VIỆT KIỀU'                     THEN f.local_k
-        WHEN f.vk = 'QUỐC TẾ'                       THEN f.local_k
-        WHEN tn.tinh_noi = 'Bà Rịa - Vũng Tàu'      THEN 'Hồ Chí Minh và lân cận'
-        WHEN tn.tinh_noi ILIKE '%Lào Cai%'          THEN 'Miền Bắc mở rộng'
-        WHEN tn.tinh_noi ILIKE '%Yên Bái%'          THEN 'Miền Bắc mở rộng'
-        WHEN tn.tinh_noi ILIKE '%Huế%'              THEN 'Đà nẵng lân cận'
-        WHEN tn.tinh_noi = 'KXĐ'                    THEN 'KXĐ'
-        ELSE grm.region
+        WHEN f.vk = 'VIỆT KIỀU'                         THEN UPPER(f.local_k)
+        WHEN f.vk = 'QUỐC TẾ'                           THEN UPPER(f.local_k)
+        WHEN tn.tinh_noi = 'Bà Rịa - Vũng Tàu'          THEN 'HỒ CHÍ MINH VÀ LÂN CẬN'
+        WHEN tn.tinh_noi ILIKE '%Lào Cai%'              THEN 'MIỀN BẮC MỞ RỘNG'
+        WHEN tn.tinh_noi ILIKE '%Yên Bái%'              THEN 'MIỀN BẮC MỞ RỘNG'
+        WHEN tn.tinh_noi ILIKE '%Huế%'                  THEN 'ĐÀ NẴNG LÂN CẬN'
+        WHEN tn.tinh_noi = 'KXĐ' or grm.region is null  THEN 'KXĐ'
+        ELSE UPPER(grm.region)
     END                                                      AS region,
     tn.tinh_noi,
     f.camp_name                                              AS campaign,
     f.account_fb,
-    f.actor_code                                             AS actor
+    COALESCE(f.actor_code,'KXĐ')::text                       AS actor,
+    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu
 FROM {{ ref('int_frmack_fb_cost') }} f
 -- Compute tinh_noi inline (same re_map formula as Pass 12)
 LEFT JOIN LATERAL (
@@ -63,6 +64,10 @@ LEFT JOIN {{ source('kangnam', 'ggs_region_map') }} grm
 LEFT JOIN {{ ref('dim_page') }} mcp ON mcp.page_id::text = f.page_id::text
 LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
     ON ccm.country = f.quoc_gia
+LEFT JOIN LATERAL (
+    SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+    WHERE UPPER(campain_name_split) = UPPER(f.nhom_dv_muc_tieu_code) LIMIT 1
+) cns_mt ON TRUE
 
 UNION ALL
 
@@ -83,14 +88,19 @@ SELECT
     m.type_data,
     m.page_name                                         AS page,
     m.page_id_from_camp                                         AS page_id,
-    CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
+    CASE WHEN ccm.continent IS NULL THEN UPPER(m.region) ELSE UPPER(ccm.continent) END AS region,
     m.tinh_noi,
     m.campaign,
     m.account_fb                                             AS account_fb,
-    m.actor_code                                             AS actor
+    COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
+    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
+    LEFT JOIN LATERAL (
+        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        WHERE UPPER(campain_name_split) = UPPER(m.nhom_dv_muc_tieu_code) LIMIT 1
+    ) cns_mt ON TRUE
 WHERE m.ticket_id <> 0
 
 UNION ALL
@@ -112,12 +122,17 @@ SELECT
     m.type_data,
     COALESCE(m.page_name,'KXĐ')::text                        AS page,
     COALESCE(m.page_id_from_camp,'KXĐ')::text                  AS page_id,
-    CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
+    CASE WHEN ccm.continent IS NULL THEN UPPER(m.region) ELSE UPPER(ccm.continent) END AS region,
     m.tinh_noi,
     m.campaign,
     COALESCE(m.account_fb,'KXĐ')::text                       AS account_fb,
-    COALESCE(m.actor_code,'KXĐ')::text                       AS actor
+    COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
+    COALESCE(cns_mt.nhom_dv,'KXĐ')::text                      AS nhom_dv_muc_tieu
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
+    LEFT JOIN LATERAL (
+        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        WHERE UPPER(campain_name_split) = UPPER(m.nhom_dv_muc_tieu_code) LIMIT 1
+    ) cns_mt ON TRUE
 WHERE (m.ticket_id = 0 OR m.ticket_id IS NULL)

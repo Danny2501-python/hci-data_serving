@@ -29,7 +29,12 @@ models:
       - name: Metric
         description: "Value: Cost, Revenue, Lead count..."
       - name: type_data
-        description: "Record type: DC, TC, Lead, DS, etc."
+        description: >
+          Record type: DC, TC, Lead, DS, inbox, Cost_fb_cd/Cost_fb_th,
+          Google_cd/Google_th, BKHL, HL, DealCS. DealCS = Caresoft ticket
+          (Inbox Facebook/Inbox Facebook Out) with FB ad attribution
+          (ad_id parsed from cs_ticket_api.ad_id_value); Metric = phone
+          number (sdt, parsed from cs_ticket_api.requester.phone_no).
       - name: page
         description: "Facebook Page name"
       - name: page_id
@@ -55,6 +60,23 @@ models:
           campaign name, extracted only when the name follows the 9+ token
           naming convention and its first token is IN the
           `all_brand_mkt_camp` whitelist (dbt var; same guard used for the
-          `page` dimension). NULL when the campaign name doesn't follow this
+          `page` dimension). 'KXĐ' when the campaign name doesn't follow this
           convention (legacy naming, no matched ad, unrecognized brand code)
-          or for Google-sourced records, which have no such convention.
+          or for Google-sourced records, which have no such convention —
+          COALESCE'd to 'KXĐ' in all 3 streams of the mart.
+      - name: nhom_dv_muc_tieu
+        description: >
+          "Mục tiêu" service group, resolved from token 5 (1-based) of the
+          underscore-delimited Facebook campaign name — same guard as
+          `actor`/`page` (first token IN `all_brand_mkt_camp`). The raw
+          token-5 code is looked up against
+          `campaign_name_split.campain_name_split` (case-insensitive) to
+          return the canonical `campaign_name_split.nhom_dv` value — same
+          lookup mechanism already used for the existing `nhom_dv` column on
+          Inbox/FB Cost/DealCS, now applied uniformly to all sources
+          including DC/DS/Lead/TC/BK/HL (which previously had no
+          campaign-derived value here at all). NULL when the raw code
+          doesn't match any row in `campaign_name_split`, when the campaign
+          name doesn't follow the 9+ token convention, or for Google
+          (COALESCE'd to 'KXĐ' in Stream 3; raw NULL possible in Stream 1 & 2,
+          same as `page`/`account_fb`).
