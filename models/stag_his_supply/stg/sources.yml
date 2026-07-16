@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: shs_his
+    schema: public
+    tables:
+      - name: sh_surgery_specialty_service_rel
+      - name: sh_medical_specialty_supply
+      - name: sh_medical_specialty
+      - name: sh_surgery_supply_service_rel
+      - name: sh_medical_surgery_supply
+      - name: sh_medical_surgery
+      - name: sh_evaluation_supply_service_rel
+      - name: sh_medical_evaluation_supply
+      - name: sh_medical_evaluation
+      - name: sh_medical_patient_rounding_medicines
+      - name: sh_medical_patient_rounding
+      - name: sh_rounding_service_rel
+      - name: sh_medical_inpatient
+      - name: sh_medical_lab_test_material
+      - name: sh_medical_lab_test
+      - name: sh_medical_medicines
+      - name: uom_uom
+      - name: sh_medical_appointment_register_walkin
+      - name: sh_medical_health_center
+      - name: stock_location
+      - name: crm_lead
+      - name: sh_medical_health_center_service
+      - name: stock_picking
