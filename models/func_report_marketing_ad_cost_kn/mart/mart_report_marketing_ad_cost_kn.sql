@@ -27,7 +27,7 @@ SELECT
     ccm.continent                                            AS chau_luc,
     f.metric                                                 AS "Metric",
     f.type_data,
-    mcp.service_name                                         AS page,
+    CASE WHEN mcp.page_name = 'N/A' THEN 'KXĐ' ELSE mcp.page_name END                                          AS page,
     f.page_id,
     CASE
         WHEN f.vk = 'VIỆT KIỀU'                     THEN f.local_k
@@ -59,11 +59,7 @@ LEFT JOIN LATERAL (
 ) tn ON TRUE
 LEFT JOIN {{ source('kangnam', 'ggs_region_map') }} grm
        ON grm.location = tn.tinh_noi
--- Map page by page_id (dedup by created_at DESC like original Pass 15)
-LEFT JOIN (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY page_id ORDER BY created_at DESC) AS rn
-    FROM {{ ref('stg_frmack_cs_services') }}
-) mcp ON mcp.page_id::text = f.page_id::text AND mcp.rn = 1
+LEFT JOIN {{ ref('dim_page') }} mcp ON mcp.page_id::text = f.page_id::text
 LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
     ON ccm.country = f.quoc_gia
 
@@ -84,18 +80,13 @@ SELECT
     ccm.continent                                            AS chau_luc,
     m.metric                                                 AS "Metric",
     m.type_data,
-    mms.service_name                                         AS page,
-    mms.page_id,
+    m.page_name                                         AS page,
+    m.page_id_from_camp                                         AS page_id,
     CASE WHEN ccm.continent IS NULL THEN m.region ELSE ccm.continent END AS region,
     m.tinh_noi,
     m.campaign,
     NULL::text                                               AS account_fb
 FROM {{ ref('int_frmack_region') }} m
-    LEFT JOIN (
-        SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
-    ) tcp ON tcp.ticket_id = m.ticket_id
-    LEFT JOIN {{ ref('stg_frmack_cs_services') }} mms
-        ON mms.service_id = tcp.service_id
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
 WHERE m.ticket_id <> 0

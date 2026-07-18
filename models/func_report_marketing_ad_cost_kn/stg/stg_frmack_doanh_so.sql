@@ -72,5 +72,7 @@ SELECT
     a.quoc_gia,
     a.doanh_so::text          AS metric,
     'DS'::text                AS type_data,
-    a.ticket_id
+    a.ticket_id,SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id
 FROM a
+LEFT JOIN {{ source('kangnam', 'cs_ticket_api')}} cta
+       ON cta.ticket_id = a.ticket_id AND cta.brand_id = 1
