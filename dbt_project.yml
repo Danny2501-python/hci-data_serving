@@ -173,3 +173,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_kn_tele_transfer:
+      +tags: ["report_kn_tele_transfer"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
