@@ -1,7 +1,6 @@
 {{
   config(
-    materialized = 'view',
-    alias        = 'view_stag_crm_lead_first_product_group'
+    materialized = 'ephemeral'
   )
 }}
 

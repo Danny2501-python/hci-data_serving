@@ -1,7 +1,6 @@
 {{
   config(
-    materialized = 'view',
-    alias        = 'view_stag_crm_line_cross_sale'
+    materialized = 'ephemeral'
   )
 }}
 
