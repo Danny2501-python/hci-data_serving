@@ -24,7 +24,7 @@ stg_frmack_fb_insight_v3 ──► int_frmack_fb_cost ────────�
 | Model | Nguồn | Vai trò |
 |---|---|---|
 | `stg_frmack_crm_base` | `stg_common_tongquan_khachhang` + `crm_lead` + `res_country_state` + `res_country` + `cs_ticket_api` + `stg_dv_khach_hang_quan_tam` | Bảng khách hàng gốc (CRM), dùng chung cho DC / Lead / TC / BK / HL. Tính `kenh`, `local_k`, `chi_nhanh_new`, `ngay_den_cua`/`ngay_tao`/`ngay_hl`, **`ad_id`** = số được trích từ `cs_ticket_api.ad_id_value`, và **`nhom_dv_KH_quan_tam`** (xem mục 11). **Không có cột `page_name`** — cột này chỉ được sinh ra ở lớp `int`. |
-| `stg_frmack_doanh_so` | `stag_payment_transfer` + `crm_lead` + ... | Doanh số (DS), cũng trích `ad_id` từ `cs_ticket_api`. |
+| `stg_frmack_doanh_so` | `stag_payment_transfer` + `crm_lead` + `stg_dv_khach_hang_quan_tam` + ... | Doanh số (DS), cũng trích `ad_id` từ `cs_ticket_api` và **`nhom_dv_KH_quan_tam`** (join `crm_id`/`brand_etl` trực tiếp, không qua `stg_frmack_crm_base` — xem mục 11). |
 | `stg_frmack_inbox` | `m_inbox_kangnam` | Dữ liệu inbox, đã có sẵn `page_name`, `page_id`, `campaign` (= `ten_ad`). |
 | `stg_frmack_google` | `cp_google_kangnam` | Chi phí Google, không có khái niệm `page_name` (luôn `NULL`). |
 | `stg_frmack_fb_insight_v1/v2/v3` | `cs_facebook_insight` | Chi phí quảng cáo Facebook. |
@@ -285,28 +285,36 @@ dịch vụ, phân loại theo `his_service_type`/`product_category`) của bả
 stg_dv_khach_hang_quan_tam (ref, ephemeral)
   crm_id, brand_etl, first_product_group
         │
-        ▼ LEFT JOIN ON dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl
-stg_frmack_crm_base.x   (cl = crm_lead đã JOIN ở CTE x)
+        ├─ LEFT JOIN ON dkq.crm_id = cl.id  AND dkq.brand_etl = cl.brand_etl
+        │  stg_frmack_crm_base.x   (cl = crm_lead đã JOIN ở CTE x)
+        │        │
+        │        ▼ cb.* (propagate qua toàn bộ chuỗi CTE x → kh → SELECT cuối)
+        │  int_frmack_union.crm_base_with_page  (cbwp.nhom_dv_KH_quan_tam)
+        │        ▼ nhánh DC/Lead/TC/BK/HL
         │
-        ▼ cb.* (propagate qua toàn bộ chuỗi CTE x → kh → SELECT cuối)
-int_frmack_union.crm_base_with_page  (cbwp.nhom_dv_KH_quan_tam)
-        │
-        ▼ chỉ ở nhánh DC/Lead/TC/BK/HL
+        └─ LEFT JOIN ON dkq.crm_id = cl3.id AND dkq.brand_etl = cl3.brand_etl
+           stg_frmack_doanh_so.a   (cl3 = crm_lead đã JOIN ở CTE a)
+                 ▼ a.nhom_dv_KH_quan_tam (propagate qua SELECT cuối)
+           int_frmack_union.payment_with_page  (pwp.nhom_dv_KH_quan_tam)
+                 ▼ nhánh DS
+
 int_frmack_union → int_frmack_region → mart (Stream 2/3)
 ```
 
-**Chỉ populate cho DC/Lead/TC/BK/HL** — 5 nhánh duy nhất xuất phát từ
-`stg_frmack_crm_base` (qua CTE dùng chung `crm_base_with_page`). Các nhánh
-khác **không** xuất phát từ `stg_frmack_crm_base` nên `nhom_dv_KH_quan_tam`
-luôn `NULL` ngay từ `int_frmack_union`:
+**Populate cho DC/Lead/TC/BK/HL/DS** — 6 nhánh có liên kết `crm_lead`
+(`stg_frmack_crm_base` cho 5 nhánh đầu qua CTE dùng chung `crm_base_with_page`;
+`stg_frmack_doanh_so` cho DS, join `crm_lead` trực tiếp — không qua
+`stg_frmack_crm_base` nhưng vẫn có `crm_id`/`brand_etl` để join
+`stg_dv_khach_hang_quan_tam` độc lập). Các nhánh còn lại **không có liên kết
+CRM** nên `nhom_dv_KH_quan_tam` luôn `NULL` ngay từ `int_frmack_union`:
 
 | Nguồn | `nhom_dv_KH_quan_tam` ở `int_frmack_union` | Lý do |
 |---|---|---|
-| DC/Lead/TC/BK/HL | `cbwp.nhom_dv_KH_quan_tam` (từ `crm_base_with_page`) | Xuất phát từ `stg_frmack_crm_base` |
-| DS | `NULL` | Từ `stg_frmack_doanh_so`, join `crm_lead` trực tiếp, **không** qua `stg_frmack_crm_base` |
+| DC/Lead/TC/BK/HL | `cbwp.nhom_dv_KH_quan_tam` (từ `crm_base_with_page`, join qua `stg_frmack_crm_base`) | Có `crm_id`/`brand_etl` (từ `crm_lead` đã JOIN trong `stg_frmack_crm_base.x`) |
+| DS | `pwp.nhom_dv_KH_quan_tam` (từ `payment_with_page`, join qua `stg_frmack_doanh_so`) | Có `crm_id`/`brand_etl` (từ `crm_lead` đã JOIN trực tiếp trong `stg_frmack_doanh_so.a`, **không** qua `stg_frmack_crm_base`) |
 | Inbox | `NULL` | Từ `m_inbox_kangnam`, không có liên kết CRM |
 | GG | `NULL` | Từ `cp_google_kangnam`, không có khái niệm khách hàng CRM |
-| DealCS | `NULL` | Từ `cs_ticket_api` qua `stg_frmack_cs_tickets`/`stg_frmack_deal`, không qua `stg_frmack_crm_base` |
+| DealCS | `NULL` | Từ `cs_ticket_api` qua `stg_frmack_cs_tickets`/`stg_frmack_deal`, không qua CRM |
 
 Ở `mart`: Stream 1 (FB Cost, từ `int_frmack_fb_cost` — hoàn toàn không liên
 quan `crm_base`) expose `NULL::text` cứng. Stream 2 & 3 (từ

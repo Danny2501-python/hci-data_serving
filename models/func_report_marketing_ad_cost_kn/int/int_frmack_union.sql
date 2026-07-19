@@ -72,7 +72,7 @@ SELECT
     pwp.actor_code::text as actor_code,
     pwp.account_fb::text as account_fb,
     pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    null::text as nhom_dv_KH_quan_tam
+    pwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM payment_with_page pwp
   left join {{source('kangnam','ucbt_page_config')}} upc on pwp.page_code = upc.page_code
 

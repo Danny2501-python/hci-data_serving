@@ -84,11 +84,11 @@ models:
         description: >
           Customer's first product group of interest, from
           `stg_dv_khach_hang_quan_tam.first_product_group` (the
-          `product_group` of the customer's earliest `crm_line`), joined into
-          `stg_frmack_crm_base` by `crm_id`/`brand_etl`. Only populated for
-          DC/Lead/TC/BK/HL (the branches sourced from `stg_frmack_crm_base`
-          via `crm_base_with_page`); raw NULL for DS, Inbox, Google, FB Cost,
-          and DealCS, none of which originate from `stg_frmack_crm_base`.
-          Stream 1 (FB Cost) exposes this raw (always NULL, same as
+          `product_group` of the customer's earliest `crm_line`), joined by
+          `crm_id`/`brand_etl` into `stg_frmack_crm_base` (DC/Lead/TC/BK/HL)
+          and separately into `stg_frmack_doanh_so` (DS). Populated for
+          DC/Lead/TC/BK/HL/DS (all branches with a `crm_lead` linkage); raw
+          NULL for Inbox, Google, and DealCS, none of which have a CRM
+          customer linkage. Stream 1 (FB Cost) exposes this raw (always NULL, same as
           `page`/`account_fb`/`nhom_dv_muc_tieu` there); Stream 2 & 3
           (non-FB) COALESCE to `'KXĐ'` — same treatment as `actor`.
