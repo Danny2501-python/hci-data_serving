@@ -18,11 +18,11 @@ WITH re_map AS (
 )
 SELECT
     r.*,
-    CASE WHEN r.tinh_noi = 'Bà Rịa - Vũng Tàu' THEN 'Hồ Chí Minh và lân cận'
-         WHEN r.tinh_noi ILIKE '%Lào Cai%'       THEN 'Miền Bắc mở rộng'
-         WHEN r.tinh_noi ILIKE '%Yên Bái%'       THEN 'Miền Bắc mở rộng'
-         WHEN r.tinh_noi ILIKE '%Huế%'           THEN 'Đà nẵng lân cận'
-         WHEN r.tinh_noi = 'KXĐ'                 THEN 'KXĐ'
+    CASE WHEN r.tinh_noi = 'Bà Rịa - Vũng Tàu'          THEN 'Hồ Chí Minh và lân cận'
+         WHEN r.tinh_noi ILIKE '%Lào Cai%'              THEN 'Miền Bắc mở rộng'
+         WHEN r.tinh_noi ILIKE '%Yên Bái%'              THEN 'Miền Bắc mở rộng'
+         WHEN r.tinh_noi ILIKE '%Huế%'                  THEN 'Đà nẵng lân cận'
+         WHEN r.tinh_noi = 'KXĐ' OR grm.region is null  THEN 'KXĐ'
          ELSE grm.region
     END AS region
 FROM re_map r

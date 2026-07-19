@@ -15,18 +15,21 @@ WITH a AS (
         lka.tinh,
         lka."chi nhánh"                                              AS chi_nhanh_qc,
         lka.ngay_hh,
-        CASE 
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
-                and TRIM(split_part(mik."tên chiến dịch", '_', 1)) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 2)
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 2)
         END                                                          AS page_code,
-        CASE 
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
-                and TRIM(split_part(mik."tên chiến dịch", '_', 1)) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 3)
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 8)
+        END                                                          AS actor_code,
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 5)
+        END                                                          AS nhom_dv_muc_tieu_code,
+        CASE
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 3)
             ELSE TRIM(split_part(mik."tên chiến dịch", '_', 1))
         END                                                          AS cn,
         CASE 
-            WHEN cardinality(string_to_array(mik."tên chiến dịch",'_' )) >= 9 
-                and split_part(mik."tên chiến dịch", '_', 1) NOT ILIKE 'MIEN%' THEN split_part(mik."tên chiến dịch", '_', 5)
+            WHEN split_part(mik."tên chiến dịch", '_', 1) IN {{var('all_brand_mkt_camp')}} THEN split_part(mik."tên chiến dịch", '_', 5)
             ELSE UPPER(TRIM(split_part(mik."tên chiến dịch", '_', 2)))
         END                                                          AS nhom_dv_qc,
         mik."vùng"                                                   AS local
@@ -56,13 +59,19 @@ i AS (
              ELSE a.chi_nhanh_qc
         END                                                          AS chi_nhanh_inter,
         a."người liên hệ qua nhắn tin mới"::text                    AS metric,
-        upc.page_name  ,upc.page_id
+        upc.page_name  ,upc.page_id, a.actor_code, a.nhom_dv_muc_tieu_code, da.account_name AS account_fb
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
     LEFT JOIN {{ source('kangnam', 'campaign_name_split') }} cns
            ON UPPER(cns.campain_name_split) = UPPER(a.nhom_dv_qc)
     LEFT JOIN {{ source('kangnam', 'ucbt_page_config') }} upc
            ON upc.page_code = a.page_code
+    -- Campaign không đi qua Caresoft ticket (Inbox không có ad_id_value); dùng
+    -- "id chiến dịch" có sẵn trong m_inbox_kangnam để lấy account_fb (FB Ad Account name)
+    LEFT JOIN {{ ref('dim_campaign') }} dc
+           ON dc.campaign_id::text = a.id_chien_dich
+    LEFT JOIN {{ ref('dim_account') }} da
+           ON da.account_id::text = dc.ad_account_id::text
     WHERE a."người liên hệ qua nhắn tin mới" IS NOT NULL
 )
 SELECT
@@ -110,5 +119,5 @@ SELECT
     i.metric,
     'inbox'::text AS type_data,
     0             AS ticket_id,
-    i.page_name,i.page_id,i.ten_ad as campaign
+    i.page_name,i.page_id,i.ten_ad as campaign,i.actor_code,i.account_fb,i.nhom_dv_muc_tieu_code
 FROM i
