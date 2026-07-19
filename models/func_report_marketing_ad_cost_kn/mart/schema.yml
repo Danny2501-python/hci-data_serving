@@ -80,3 +80,15 @@ models:
           name doesn't follow the 9+ token convention, or for Google
           (COALESCE'd to 'KXĐ' in Stream 3; raw NULL possible in Stream 1 & 2,
           same as `page`/`account_fb`).
+      - name: nhom_dv_KH_quan_tam
+        description: >
+          Customer's first product group of interest, from
+          `stg_dv_khach_hang_quan_tam.first_product_group` (the
+          `product_group` of the customer's earliest `crm_line`), joined into
+          `stg_frmack_crm_base` by `crm_id`/`brand_etl`. Only populated for
+          DC/Lead/TC/BK/HL (the branches sourced from `stg_frmack_crm_base`
+          via `crm_base_with_page`); raw NULL for DS, Inbox, Google, FB Cost,
+          and DealCS, none of which originate from `stg_frmack_crm_base`.
+          Stream 1 (FB Cost) exposes this raw (always NULL, same as
+          `page`/`account_fb`/`nhom_dv_muc_tieu` there); Stream 2 & 3
+          (non-FB) COALESCE to `'KXĐ'` — same treatment as `actor`.

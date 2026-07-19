@@ -54,7 +54,8 @@ WITH x AS (
              ELSE rcs.name
         END                                                  AS local_k,
         rc.name                                              AS quoc_gia,
-        cl.ticket_id, SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id
+        cl.ticket_id, SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id,
+        dkq.first_product_group AS nhom_dv_KH_quan_tam
     FROM {{ ref('stg_common_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
       ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL
@@ -64,6 +65,8 @@ WITH x AS (
       ON rc.id  = cl.country_id AND rc.brand_etl = 1
      LEFT JOIN {{ source('kangnam', 'cs_ticket_api') }} cta
       ON cta.ticket_id  = cl.ticket_id AND cta.brand_id = 1
+     LEFT JOIN {{ ref('stg_dv_khach_hang_quan_tam') }} dkq
+      ON dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl
 ),
 kh AS (
     SELECT x.*,

@@ -23,12 +23,12 @@ stg_frmack_fb_insight_v3 ──► int_frmack_fb_cost ────────�
 
 | Model | Nguồn | Vai trò |
 |---|---|---|
-| `stg_frmack_crm_base` | `stg_common_tongquan_khachhang` + `crm_lead` + `res_country_state` + `res_country` + `cs_ticket_api` | Bảng khách hàng gốc (CRM), dùng chung cho DC / Lead / TC / BK / HL. Tính `kenh`, `local_k`, `chi_nhanh_new`, `ngay_den_cua`/`ngay_tao`/`ngay_hl`, và **`ad_id`** = số được trích từ `cs_ticket_api.ad_id_value`. **Không có cột `page_name`** — cột này chỉ được sinh ra ở lớp `int`. |
+| `stg_frmack_crm_base` | `stg_common_tongquan_khachhang` + `crm_lead` + `res_country_state` + `res_country` + `cs_ticket_api` + `stg_dv_khach_hang_quan_tam` | Bảng khách hàng gốc (CRM), dùng chung cho DC / Lead / TC / BK / HL. Tính `kenh`, `local_k`, `chi_nhanh_new`, `ngay_den_cua`/`ngay_tao`/`ngay_hl`, **`ad_id`** = số được trích từ `cs_ticket_api.ad_id_value`, và **`nhom_dv_KH_quan_tam`** (xem mục 11). **Không có cột `page_name`** — cột này chỉ được sinh ra ở lớp `int`. |
 | `stg_frmack_doanh_so` | `stag_payment_transfer` + `crm_lead` + ... | Doanh số (DS), cũng trích `ad_id` từ `cs_ticket_api`. |
 | `stg_frmack_inbox` | `m_inbox_kangnam` | Dữ liệu inbox, đã có sẵn `page_name`, `page_id`, `campaign` (= `ten_ad`). |
 | `stg_frmack_google` | `cp_google_kangnam` | Chi phí Google, không có khái niệm `page_name` (luôn `NULL`). |
 | `stg_frmack_fb_insight_v1/v2/v3` | `cs_facebook_insight` | Chi phí quảng cáo Facebook. |
-| `stg_frmack_cs_tickets` | `cs_ticket_api` (lọc `ticket_source IN ('Inbox Facebook','Inbox Facebook Out')`, `updated_at >= 2025-01-01`) | 1 dòng/ticket (rnk=1). Map `ticket_id → service_id`; đồng thời trích `sdt` (số điện thoại, từ `requester.phone_no`) và `ad_id` (từ `ad_id_value`) — dùng bởi `stg_frmack_deal` (xem mục 9). `service_id` **không còn được dùng trong `mart`** (xem mục 5), chỉ `sdt`/`ad_id` còn dùng. |
+| `stg_frmack_cs_tickets` | `cs_ticket_api` (lọc `ticket_source IN ('Inbox Facebook','Inbox Facebook Out')`, `updated_at >= 2025-01-01`) | 1 dòng/ticket (rnk=1). Map `ticket_id → service_id`; trích `sdt` (số điện thoại, từ `requester.phone_no`), `ad_id` (từ `ad_id_value`) — dùng bởi `stg_frmack_deal` (xem mục 9) — và **`nhom_dv_chinh_cs`** (từ `custom_fields`, xem mục 12). `service_id` **không còn được dùng trong `mart`** (xem mục 5), chỉ `sdt`/`ad_id` còn dùng. |
 | `stg_frmack_cs_services` | `cs_services_api` (lọc `service_type = 'Inbox Facebook'`, `detail IS NOT NULL`) | Map `service_id → service_name, page_id`. **Không còn được dùng trong `mart`** (xem mục 5). |
 | `stg_frmack_deal` | `stg_frmack_cs_tickets` + `dim_camp_adset_ad` + `dim_campaign` + `dim_account` + `ucbt_page_config` | Khối "DealCS": ticket Caresoft có gắn FB ad (`ad_id NOT NULL`), `metric` = số điện thoại (`sdt`). Xem mục 9. |
 
@@ -272,3 +272,78 @@ token 5 không khớp guard, hoặc khớp guard nhưng không có dòng nào tr
 `campaign_name_split` map tới); Stream 3 dùng `COALESCE(cns_mt.nhom_dv,
 'KXĐ')` — đồng nhất với cách xử lý `page`/`account_fb` ở stream này (khác với
 `actor`, nay coalesce ở cả 3 stream — mục 7).
+
+## 11. Chiều `nhom_dv_KH_quan_tam` — nhóm dịch vụ khách hàng quan tâm (từ `crm_line` đầu tiên)
+
+Tách thêm cột `nhom_dv_KH_quan_tam`, lấy từ
+`stg_dv_khach_hang_quan_tam.first_product_group` — `product_group` (nhóm
+dịch vụ, phân loại theo `his_service_type`/`product_category`) của bản ghi
+`crm_line` **đầu tiên** (`cus_bk_line_order = 1`, sắp theo
+`cline_created_date`) của khách hàng đó, không phải nhóm dịch vụ mới nhất.
+
+```
+stg_dv_khach_hang_quan_tam (ref, ephemeral)
+  crm_id, brand_etl, first_product_group
+        │
+        ▼ LEFT JOIN ON dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl
+stg_frmack_crm_base.x   (cl = crm_lead đã JOIN ở CTE x)
+        │
+        ▼ cb.* (propagate qua toàn bộ chuỗi CTE x → kh → SELECT cuối)
+int_frmack_union.crm_base_with_page  (cbwp.nhom_dv_KH_quan_tam)
+        │
+        ▼ chỉ ở nhánh DC/Lead/TC/BK/HL
+int_frmack_union → int_frmack_region → mart (Stream 2/3)
+```
+
+**Chỉ populate cho DC/Lead/TC/BK/HL** — 5 nhánh duy nhất xuất phát từ
+`stg_frmack_crm_base` (qua CTE dùng chung `crm_base_with_page`). Các nhánh
+khác **không** xuất phát từ `stg_frmack_crm_base` nên `nhom_dv_KH_quan_tam`
+luôn `NULL` ngay từ `int_frmack_union`:
+
+| Nguồn | `nhom_dv_KH_quan_tam` ở `int_frmack_union` | Lý do |
+|---|---|---|
+| DC/Lead/TC/BK/HL | `cbwp.nhom_dv_KH_quan_tam` (từ `crm_base_with_page`) | Xuất phát từ `stg_frmack_crm_base` |
+| DS | `NULL` | Từ `stg_frmack_doanh_so`, join `crm_lead` trực tiếp, **không** qua `stg_frmack_crm_base` |
+| Inbox | `NULL` | Từ `m_inbox_kangnam`, không có liên kết CRM |
+| GG | `NULL` | Từ `cp_google_kangnam`, không có khái niệm khách hàng CRM |
+| DealCS | `NULL` | Từ `cs_ticket_api` qua `stg_frmack_cs_tickets`/`stg_frmack_deal`, không qua `stg_frmack_crm_base` |
+
+Ở `mart`: Stream 1 (FB Cost, từ `int_frmack_fb_cost` — hoàn toàn không liên
+quan `crm_base`) expose `NULL::text` cứng. Stream 2 & 3 (từ
+`int_frmack_region`) dùng `COALESCE(m.nhom_dv_KH_quan_tam, 'KXĐ')` — đồng
+nhất với cách xử lý `actor` (mục 7), khác với `page`/`account_fb`/
+`nhom_dv_muc_tieu` (vốn chỉ coalesce ở Stream 3, để raw `NULL` ở Stream 2).
+
+## 12. Cột `nhom_dv_chinh_cs` — "Nhóm dịch vụ chính" từ `custom_fields` của Caresoft ticket
+
+Thêm cột `nhom_dv_chinh_cs` ở `stg_frmack_cs_tickets`, lấy từ trường
+`custom_fields` của `cs_ticket_api` — một JSON array dạng text, mỗi phần tử
+có cấu trúc `{"code", "id", "label", "type", "value"}`, ví dụ:
+
+```json
+[{"code": null, "id": 9790, "label": "Phân loại công việc", "type": "Single drop-down list", "value": null},
+ {"code": null, "id": 9791, "label": "Nhân viên seeding", "type": "Single drop-down list", "value": null}]
+```
+
+`nhom_dv_chinh_cs` = `value` của phần tử có `id = 9794` (label thực tế trong
+dữ liệu: **"Nhóm dịch vụ chính"**). Cách tách:
+
+```sql
+LEFT JOIN LATERAL (
+    SELECT elem ->> 'value' AS nhom_dv_chinh_cs
+    FROM jsonb_array_elements(cta.custom_fields::jsonb) AS elem
+    WHERE (elem ->> 'id')::int = 9794
+    LIMIT 1
+) ndc ON TRUE
+```
+
+Dùng `LATERAL ... LIMIT 1` (không unnest trực tiếp trong SELECT list) để
+không nhân dòng — mỗi ticket chỉ có tối đa 1 phần tử `id = 9794` trong
+`custom_fields`, nhưng cách viết an toàn cho cả trường hợp trùng `id`. Với
+`brand_id = 1` + điều kiện lọc hiện có (`updated_at >= 2025-01-01`,
+`ticket_source IN ('Inbox Facebook','Inbox Facebook Out')`), `custom_fields`
+luôn là JSON array hợp lệ (không `NULL`/`'NaN'`) nên không cần guard trước
+khi `::jsonb`.
+
+Cột này **chưa được propagate** sang `stg_frmack_deal`/`int_frmack_union`/
+`mart` — hiện chỉ có ở `stg_frmack_cs_tickets`.

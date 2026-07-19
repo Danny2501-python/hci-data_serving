@@ -52,7 +52,8 @@ SELECT
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
-    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -70,7 +71,8 @@ SELECT
     pwp.page_code::text as page_id_from_camp,
     pwp.actor_code::text as actor_code,
     pwp.account_fb::text as account_fb,
-    pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    null::text as nhom_dv_KH_quan_tam
 FROM payment_with_page pwp
   left join {{source('kangnam','ucbt_page_config')}} upc on pwp.page_code = upc.page_code
 
@@ -86,7 +88,8 @@ SELECT
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
-    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -100,7 +103,8 @@ SELECT
     type_data, ticket_id, campaign, page_name,page_id::text as page_id_from_camp,
     actor_code::text as actor_code,
     account_fb::text as account_fb,
-    nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    null::text as nhom_dv_KH_quan_tam
 FROM {{ ref('stg_frmack_inbox') }}
 
 UNION ALL
@@ -115,7 +119,8 @@ SELECT
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
-    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -130,7 +135,8 @@ SELECT
     type_data, ticket_id, campaign, null as page_name,null as page_id_from_camp,
     null as actor_code,
     null as account_fb,
-    null as nhom_dv_muc_tieu_code
+    null as nhom_dv_muc_tieu_code,
+    null::text as nhom_dv_KH_quan_tam
 FROM {{ ref('stg_frmack_google') }}
 
 UNION ALL
@@ -145,7 +151,8 @@ SELECT
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
-    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -164,7 +171,8 @@ SELECT
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
-    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code
+    cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_hl >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -177,5 +185,6 @@ SELECT
     vk, ten_dv, nguon, nhom_nguon, kenh, ngay,
     nhom_dv, chi_nhanh, local_k, quoc_gia, metric,
     type_data, ticket_id, campaign, page_name, page_id_from_camp,
-    actor_code, account_fb, nhom_dv_muc_tieu_code
+    actor_code, account_fb, nhom_dv_muc_tieu_code,
+    null::text as nhom_dv_KH_quan_tam
 FROM {{ ref('stg_frmack_deal') }}

@@ -43,7 +43,8 @@ SELECT
     f.camp_name                                              AS campaign,
     f.account_fb,
     COALESCE(f.actor_code,'KXĐ')::text                       AS actor,
-    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu
+    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
+    null::text                                                AS nhom_dv_KH_quan_tam
 FROM {{ ref('int_frmack_fb_cost') }} f
 -- Compute tinh_noi inline (same re_map formula as Pass 12)
 LEFT JOIN LATERAL (
@@ -93,7 +94,8 @@ SELECT
     m.campaign,
     m.account_fb                                             AS account_fb,
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
-    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu
+    cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
+    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
@@ -127,7 +129,8 @@ SELECT
     m.campaign,
     COALESCE(m.account_fb,'KXĐ')::text                       AS account_fb,
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
-    COALESCE(cns_mt.nhom_dv,'KXĐ')::text                      AS nhom_dv_muc_tieu
+    COALESCE(cns_mt.nhom_dv,'KXĐ')::text                      AS nhom_dv_muc_tieu,
+    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia

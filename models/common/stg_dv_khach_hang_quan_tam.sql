@@ -32,7 +32,6 @@ WITH cline as (
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'stag_sources')}} ss on ss.old_id = cl.source_id and ss.brand_id = cl.brand_etl
-        left join {{ source('crm_base', 'stag_payment_transfer') }} spt on spt.clineid = cln.id and spt.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'view_stag_products') }} sp on sp.product_id = cln.product_id and sp.brand_etl = cln.brand_etl
 ),cline_rank as (
 SELECT cl.*,ROW_NUMBER() OVER (PARTITION BY cl.crm_id ORDER BY cl.cline_created_date) as cus_bk_line_order
