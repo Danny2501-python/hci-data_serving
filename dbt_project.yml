@@ -175,3 +175,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    stag_his_supply:
+      +tags: ["stag_his_supply"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
