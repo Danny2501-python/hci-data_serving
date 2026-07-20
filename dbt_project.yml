@@ -25,6 +25,8 @@ vars:
   # Adjust start_date for backfill
   start_date: '2025-08-01'
   all_brand_etl: "(1,3,4,7)"
+  # Whitelist of brand codes (campaign name token 1) recognized as the 9+ token naming convention
+  all_brand_mkt_camp: "('kgs','kbs','kwl','kwn','kdt','kal','prd','hh','vde')"
 
 # Model configurations
 models:

@@ -13,7 +13,7 @@ WITH fb AS (
              ELSE 'no'
         END                                                        AS vk,
         s.camp_name, s.ngay_chi_phi, s.vung, s.type_data,
-        s.page_id, s.account_fb, s.chi_phi,
+        s.page_id, s.account_fb, s.chi_phi, s.actor_code, s.nhom_dv_muc_tieu_code,
         CASE 
             WHEN s.chi_nhanh_no_camp IS NULL AND (s.cn     ILIKE '%QUOC TE%' or s.cn = 'qte') THEN 'QUỐC TẾ'
             WHEN s.chi_nhanh_no_camp IS NULL AND ((s.cn NOT ILIKE '%QUOC TE%' and s.cn <> 'qte') or s.cn = 'vki') THEN 'VIỆT KIỀU'
@@ -79,5 +79,7 @@ SELECT
     fb.type_data,
     fb.page_id,
     fb.account_fb,
-    fb.country_name_vn,fb.continent_vn
+    fb.country_name_vn,fb.continent_vn,
+    fb.actor_code,
+    fb.nhom_dv_muc_tieu_code
 FROM fb

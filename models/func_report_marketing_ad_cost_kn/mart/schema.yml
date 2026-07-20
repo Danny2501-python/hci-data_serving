@@ -29,7 +29,12 @@ models:
       - name: Metric
         description: "Value: Cost, Revenue, Lead count..."
       - name: type_data
-        description: "Record type: DC, TC, Lead, DS, etc."
+        description: >
+          Record type: DC, TC, Lead, DS, inbox, Cost_fb_cd/Cost_fb_th,
+          Google_cd/Google_th, BKHL, HL, DealCS. DealCS = Caresoft ticket
+          (Inbox Facebook/Inbox Facebook Out) with FB ad attribution
+          (ad_id parsed from cs_ticket_api.ad_id_value); Metric = phone
+          number (sdt, parsed from cs_ticket_api.requester.phone_no).
       - name: page
         description: "Facebook Page name"
       - name: page_id
@@ -41,4 +46,49 @@ models:
       - name: campaign
         description: "Campaign name"
       - name: account_fb
-        description: "Facebook Ad Account name"
+        description: >
+          Facebook Ad Account name. Stream 1 (FB Cost): from cs_facebook_insight
+          directly. Stream 2/3 (DC/DS/Lead/TC/BK/HL): resolved via
+          ad_id (extracted from cs_ticket_api.ad_id_value) → dim_camp_adset_ad
+          → dim_account. Inbox: resolved via m_inbox_kangnam."id chiến dịch"
+          → dim_campaign → dim_account (no Caresoft ticket linkage available
+          for Inbox). NULL/'KXĐ' when the campaign/account can't be resolved
+          or for Google-sourced records (no Facebook ad account concept).
+      - name: actor
+        description: >
+          Actor code — token 8 (1-based) of the underscore-delimited Facebook
+          campaign name, extracted only when the name follows the 9+ token
+          naming convention and its first token is IN the
+          `all_brand_mkt_camp` whitelist (dbt var; same guard used for the
+          `page` dimension). 'KXĐ' when the campaign name doesn't follow this
+          convention (legacy naming, no matched ad, unrecognized brand code)
+          or for Google-sourced records, which have no such convention —
+          COALESCE'd to 'KXĐ' in all 3 streams of the mart.
+      - name: nhom_dv_muc_tieu
+        description: >
+          "Mục tiêu" service group, resolved from token 5 (1-based) of the
+          underscore-delimited Facebook campaign name — same guard as
+          `actor`/`page` (first token IN `all_brand_mkt_camp`). The raw
+          token-5 code is looked up against
+          `campaign_name_split.campain_name_split` (case-insensitive) to
+          return the canonical `campaign_name_split.nhom_dv` value — same
+          lookup mechanism already used for the existing `nhom_dv` column on
+          Inbox/FB Cost/DealCS, now applied uniformly to all sources
+          including DC/DS/Lead/TC/BK/HL (which previously had no
+          campaign-derived value here at all). NULL when the raw code
+          doesn't match any row in `campaign_name_split`, when the campaign
+          name doesn't follow the 9+ token convention, or for Google
+          (COALESCE'd to 'KXĐ' in Stream 3; raw NULL possible in Stream 1 & 2,
+          same as `page`/`account_fb`).
+      - name: nhom_dv_KH_quan_tam
+        description: >
+          Customer's first product group of interest, from
+          `stg_dv_khach_hang_quan_tam.first_product_group` (the
+          `product_group` of the customer's earliest `crm_line`), joined by
+          `crm_id`/`brand_etl` into `stg_frmack_crm_base` (DC/Lead/TC/BK/HL)
+          and separately into `stg_frmack_doanh_so` (DS). Populated for
+          DC/Lead/TC/BK/HL/DS (all branches with a `crm_lead` linkage); raw
+          NULL for Inbox, Google, and DealCS, none of which have a CRM
+          customer linkage. Stream 1 (FB Cost) exposes this raw (always NULL, same as
+          `page`/`account_fb`/`nhom_dv_muc_tieu` there); Stream 2 & 3
+          (non-FB) COALESCE to `'KXĐ'` — same treatment as `actor`.
