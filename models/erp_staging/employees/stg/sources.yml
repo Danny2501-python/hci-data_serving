@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: stem_erp
+    schema: public
+    tables:
+      - name: hr_employee
+      - name: m_res_company
+      - name: res_brand
+      - name: hr_department_sector
+      - name: hr_team
+      - name: hr_job
+      - name: hr_group_job
+      - name: hr_department
+      - name: stag_phongbanphanquyen_id

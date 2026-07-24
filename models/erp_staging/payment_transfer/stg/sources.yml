@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: sptr_erp
+    schema: public
+    tables:
+      - name: account_payment
+      - name: crm_line
+      - name: crm_account_payment_detail
+      - name: crm_line_product
+      - name: crm_account_payment_product_detail
+      - name: crm_transfer_payment_line
+      - name: crm_transfer_payment
+  # Bảng đích thật (Python đang ghi) — CHỈ dùng phần brand_etl = 0 (dữ liệu hệ thống cũ, đã đóng băng
+  # từ trước khi tách hệ thống 01/08/2025). Không có SQL/ETL nào trong DAG tái tạo được phần này, và
+  # write_stag_payment_transfer()/write_stag_payment_transfer_grby_date() luôn loại trừ brand_etl=0 khỏi
+  # DELETE — nên đây là nguồn dữ liệu bất biến, không phải model dbt cần tính lại. Xem LOGIC.md.
+  - name: sptr_legacy
+    schema: public
+    tables:
+      - name: stag_payment_transfer
+      - name: stag_payment_transfer_grby_date
