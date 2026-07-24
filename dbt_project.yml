@@ -191,3 +191,34 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    erp_staging:
+      +tags: ["erp_staging"]
+      products:
+        stg:
+          +materialized: ephemeral
+        int:
+          +materialized: ephemeral
+        mart:
+          +materialized: table
+      employees:
+        stg:
+          +materialized: ephemeral
+        int:
+          +materialized: ephemeral
+        mart:
+          +materialized: table
+      payment_transfer:
+        stg:
+          +materialized: view
+        int:
+          +materialized: table
+        mart:
+          +materialized: table
+    report_his_supply:
+      +tags: ["report_his_supply"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
