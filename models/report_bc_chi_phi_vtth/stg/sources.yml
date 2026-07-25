@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: dwh_public
+    schema: public
+    tables:
+      - name: report_kpi_team_service
+      - name: stock_move
+      - name: stock_valuation_layer

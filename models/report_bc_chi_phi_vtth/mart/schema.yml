@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: mart_report_bc_chi_phi_vtth
+    description: >
+      Báo cáo vật tư tiêu hao (phiếu phẫu thuật) phân bổ theo bác sĩ mổ chính
+      và dịch vụ tương ứng. Nếu 1 vật tư gắn nhiều dịch vụ thì phân bổ theo tỷ
+      lệ doanh thu dịch vụ; nếu phiếu có nhiều bác sĩ mổ chính thì chia đều.
+    columns:
+      - name: form_id
+        description: Id phiếu phẫu thuật/thủ thuật
+      - name: brand_etl
+        description: Mã hệ thống dữ liệu của thương hiệu
+      - name: form_supply_id
+        description: Id dòng vật tư tiêu hao gốc
+      - name: walkinid
+        description: Id phiếu khám tương ứng
+      - name: crm_id
+        description: Id booking trong CRM
+      - name: booking
+        description: Mã booking
+      - name: code_customer
+        description: Mã khách hàng
+      - name: contact_name
+        description: Tên khách hàng
+      - name: company
+        description: Tên công ty/chi nhánh
+      - name: company_id
+        description: Id công ty/chi nhánh
+      - name: services_date
+        description: Ngày sử dụng vật tư
+      - name: supply_category
+        description: Loại vật tư (THUỐC / VẬT TƯ)
+      - name: supply
+        description: Tên vật tư sử dụng
+      - name: supply_id
+        description: Id vật tư (theo bảng nguồn nghiệp vụ)
+      - name: supply_product_id
+        description: Id sản phẩm vật tư (dùng để tra giá trị xuất kho)
+      - name: uom
+        description: Đơn vị tính
+      - name: qty_used
+        description: Số lượng vật tư đã sử dụng gốc (chưa phân bổ) trên dòng
+      - name: supply_cost_value
+        description: >
+          Giá trị tiền xuất kho gốc (chưa phân bổ) của vật tư, lấy từ
+          stock_valuation_layer theo phiếu xuất (picking_id) + sản phẩm vật tư
+      - name: service_product_id
+        description: Id dịch vụ mà vật tư này được gắn tới (qua BOM/service rel)
+      - name: service_revenue
+        description: Doanh thu của dịch vụ trên phiếu, dùng để tính tỷ lệ phân bổ
+      - name: service_rate
+        description: >
+          Tỷ lệ phân bổ theo dịch vụ trong nhóm vật tư (1 nếu vật tư chỉ gắn 1
+          dịch vụ; theo tỷ lệ doanh thu nếu gắn nhiều dịch vụ; chia đều nếu
+          tổng doanh thu nhóm = 0)
+      - name: employee_id
+        description: Id bác sĩ mổ chính (hoặc mổ phụ nếu phiếu không có BS mổ chính)
+      - name: doctor_name
+        description: Tên bác sĩ
+      - name: doctor_rate
+        description: Tỷ lệ phân bổ theo bác sĩ (1 / số bác sĩ mổ chính trên phiếu)
+      - name: allocated_qty
+        description: Số lượng vật tư đã phân bổ cho dịch vụ x bác sĩ này
+      - name: allocated_cost_value
+        description: Giá trị tiền vật tư đã phân bổ cho dịch vụ x bác sĩ này
