@@ -12,13 +12,18 @@
 --   - Nếu tổng doanh thu các dịch vụ > 0: chia theo tỷ lệ doanh thu.
 --   - Nếu tổng doanh thu = 0 (hoặc NULL): chia đều theo số dịch vụ trong nhóm.
 -- Nhóm chỉ có 1 dịch vụ -> rate = 1 (100%) tự nhiên theo đúng công thức trên.
+--
+-- MATERIALIZED = table: đồng bộ với các model khác trong pipeline này để
+-- tránh bị inline vào query tổng (xem lý do chi tiết ở stg_bcvtth_bom).
 -- =============================================================================
+{{ config(materialized='table') }}
+
 WITH svc_revenue AS (
-    -- MAX(revenue): 1 dịch vụ có thể có nhiều dòng doanh thu khác nhau trên
-    -- cùng phiếu (vd. đặt lại/đổi dòng dịch vụ với giá khác) vì
+    -- MAX(revenue/product): 1 dịch vụ có thể có nhiều dòng doanh thu khác
+    -- nhau trên cùng phiếu (vd. đặt lại/đổi dòng dịch vụ với giá khác) vì
     -- report_kpi_team_service không có order_product_id để phân biệt dòng
     -- gốc; lấy 1 giá trị đại diện để tránh JOIN fan-out gây trùng khoá.
-    SELECT form_id, brand_etl, product_id, MAX(revenue) AS revenue
+    SELECT form_id, brand_etl, product_id, MAX(product) AS service_name, MAX(revenue) AS revenue
     FROM {{ ref('stg_bcvtth_team_service') }}
     GROUP BY form_id, brand_etl, product_id
 ),
@@ -26,6 +31,7 @@ WITH svc_revenue AS (
 base AS (
     SELECT
         s.*,
+        r.service_name,
         r.revenue
     FROM {{ ref('int_bcvtth_supply_with_cost') }} s
     LEFT JOIN svc_revenue r
