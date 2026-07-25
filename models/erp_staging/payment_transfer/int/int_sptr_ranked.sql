@@ -19,10 +19,19 @@ crm_info as (
 windowed as (
     select
         b.*,
-        min(b.payment_date) over (partition by b.brand_etl, b.clineid, b.product_type) as first_date_payment_calc,
+        -- clineid IS NULL ép về NULL: Postgres PARTITION BY gộp mọi NULL clineid (thanh toán cosmetic
+        -- mồ côi, join crm_line_product thất bại) làm 1 nhóm, trong khi pandas groupby(dropna=True mặc
+        -- định) trả NaN cho các dòng có key NaN -- xem erp_staging/products/knowledge.md mục 3.
+        case when b.clineid is not null then
+            min(b.payment_date) over (partition by b.brand_etl, b.clineid, b.product_type)
+        end as first_date_payment_calc,
         dense_rank() over (partition by b.brand_etl, b.crm_id order by b.payment_date) as rnk_crm_pmdate_calc,
-        dense_rank() over (partition by b.brand_etl, b.clineid, b.product_type order by b.payment_date) as rnk_clineid_pmdate_calc,
-        dense_rank() over (partition by b.brand_etl, b.clineid, b.product_type order by b.payment_date desc) as rnk_clineid_pmdate_desc
+        case when b.clineid is not null then
+            dense_rank() over (partition by b.brand_etl, b.clineid, b.product_type order by b.payment_date)
+        end as rnk_clineid_pmdate_calc,
+        case when b.clineid is not null then
+            dense_rank() over (partition by b.brand_etl, b.clineid, b.product_type order by b.payment_date desc)
+        end as rnk_clineid_pmdate_desc
     from base b
 )
 
