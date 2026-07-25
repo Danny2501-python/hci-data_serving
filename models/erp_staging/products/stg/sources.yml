@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: stps_erp
+    schema: public
+    tables:
+      - name: product_product
+      - name: product_template
+      - name: product_category
+      - name: uom_uom
+      - name: sh_medical_health_center_service
+      - name: sh_medical_health_center_service_category
+      - name: import_product_service_analyst
