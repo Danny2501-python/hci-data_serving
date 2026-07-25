@@ -18,11 +18,19 @@ WITH crm_base_with_page as (
         CASE
             WHEN split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(dc.campaign_name, '_', 5)
         END                                                          AS nhom_dv_muc_tieu_code,
-        da.account_name                                              AS account_fb
+        da.account_name                                              AS account_fb,
+        mms.service_name                                             AS page_name_ticket
     FROM {{ ref('stg_frmack_crm_base') }} cb
     LEFT JOIN {{ref('dim_camp_adset_ad')}} dcaa ON dcaa.ad_id::text = cb.ad_id::text
     LEFT JOIN {{ ref('dim_campaign') }} dc ON dc.campaign_id::text = dcaa.ad_campaign_id::text
     LEFT JOIN {{ ref('dim_account') }} da ON da.account_id::text = dcaa.account_id::text
+    LEFT JOIN (
+        SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
+    ) tcp ON tcp.ticket_id::text = cb.ticket_id::text
+    LEFT JOIN (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY service_id ORDER BY created_at DESC) AS rn
+        FROM {{ ref('stg_frmack_cs_services') }}
+    ) mms ON mms.service_id::text = tcp.service_id::text AND mms.rn = 1
 ), payment_with_page as (
     SELECT
         ds.*,dc.campaign_name,
@@ -35,11 +43,19 @@ WITH crm_base_with_page as (
         CASE
             WHEN split_part(dc.campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }} THEN split_part(dc.campaign_name, '_', 5)
         END                                                          AS nhom_dv_muc_tieu_code,
-        da.account_name                                              AS account_fb
+        da.account_name                                              AS account_fb,
+        mms.service_name                                             AS page_name_ticket
     FROM {{ ref('stg_frmack_doanh_so') }} ds
     LEFT JOIN {{ref('dim_camp_adset_ad')}} dcaa ON dcaa.ad_id::text = ds.ad_id::text
     LEFT JOIN {{ ref('dim_campaign') }} dc ON dc.campaign_id::text = dcaa.ad_campaign_id::text
     LEFT JOIN {{ ref('dim_account') }} da ON da.account_id::text = dcaa.account_id::text
+    LEFT JOIN (
+        SELECT * FROM {{ ref('stg_frmack_cs_tickets') }} WHERE rnk = 1
+    ) tcp ON tcp.ticket_id::text = ds.ticket_id::text
+    LEFT JOIN (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY service_id ORDER BY created_at DESC) AS rn
+        FROM {{ ref('stg_frmack_cs_services') }}
+    ) mms ON mms.service_id::text = tcp.service_id::text AND mms.rn = 1
     WHERE ds.ngay >= '{{ var("start_date", "2025-08-01") }}'::date
 )
 SELECT
@@ -48,7 +64,7 @@ SELECT
     local_k, quoc_gia, sdt::text AS metric,
     'DC'::text AS type_data, ticket_id,
     coalesce(cbwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(cbwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
@@ -67,7 +83,7 @@ SELECT
     nhom_dv, chi_nhanh, local_k, quoc_gia, metric,
     type_data, ticket_id,
     coalesce(pwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(pwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     pwp.page_code::text as page_id_from_camp,
     pwp.actor_code::text as actor_code,
     pwp.account_fb::text as account_fb,
@@ -84,7 +100,7 @@ SELECT
     local_k, quoc_gia, sdt::text,
     'Lead', ticket_id,
     coalesce(cbwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(cbwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
@@ -115,7 +131,7 @@ SELECT
     local_k, quoc_gia, sdt::text,
     'TC', ticket_id,
     coalesce(cbwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(cbwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
@@ -147,7 +163,7 @@ SELECT
     local_k, quoc_gia, sdt::text,
     'BKHL', ticket_id,
     coalesce(cbwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(cbwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
@@ -167,7 +183,7 @@ SELECT
     local_k, quoc_gia, sdt::text,
     'HL', ticket_id,
     coalesce(cbwp.campaign_name,'KXĐ')::text AS campaign,
-    coalesce(upc.page_name,'KXĐ')::text as page_name,
+    coalesce(cbwp.page_name_ticket, upc.page_name,'KXĐ')::text as page_name,
     cbwp.page_code::text as page_id_from_camp,
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,

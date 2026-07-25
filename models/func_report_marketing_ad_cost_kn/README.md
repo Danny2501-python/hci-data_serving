@@ -36,12 +36,18 @@ stg_frmack_fb_insight_v3 ──► int_frmack_fb_cost ────────�
 
 ### `int_frmack_union` — UNION ALL 9 nguồn (DC, DS, Lead, Inbox, TC, GG, BK, HL, DealCS)
 
-Với các nguồn xuất phát từ **`stg_frmack_crm_base`** (DC, Lead, TC, BK, HL), `page_name`
-và `campaign` được suy ra qua chuỗi join sau, trong 2 CTE dùng chung
-`crm_base_with_page` (cho DC/Lead/TC/BK/HL) và `payment_with_page` (cho DS):
+Với các nguồn xuất phát từ **`stg_frmack_crm_base`** (DC, Lead, TC, BK, HL) và
+`stg_frmack_doanh_so` (DS), `page_name` được suy ra qua **2 path, có thứ tự ưu
+tiên**, trong 2 CTE dùng chung `crm_base_with_page` (cho DC/Lead/TC/BK/HL) và
+`payment_with_page` (cho DS) — xem thêm mục 13:
 
 ```
-cb.ad_id
+Path A (ưu tiên) — cb.ticket_id
+  → LEFT JOIN stg_frmack_cs_tickets (rnk=1, theo ticket_id) → service_id
+  → LEFT JOIN stg_frmack_cs_services (dedup rn=1 theo service_id) → service_name
+        page_name_ticket = service_name
+
+Path B (fallback, khi Path A NULL) — cb.ad_id
   → LEFT JOIN dim_camp_adset_ad  (theo ad_id)
   → LEFT JOIN dim_campaign       (theo ad_campaign_id) → campaign_name
   → page_code = split_part(campaign_name, '_', 2)
@@ -56,7 +62,9 @@ cb.ad_id
               là chủ ý — giữ nguyên, không khôi phục lại check cardinality.
         (không có ELSE ⇒ các trường hợp khác page_code = NULL)
   → LEFT JOIN ucbt_page_config (theo page_code) → page_name
-  → COALESCE(page_name, 'KXĐ'), COALESCE(campaign_name, 'KXĐ')
+
+page_name (cuối cùng) = COALESCE(page_name_ticket, page_name, 'KXĐ')
+campaign  (cuối cùng) = COALESCE(campaign_name, 'KXĐ')
         ← luôn có giá trị, KHÔNG BAO GIỜ NULL ở bước này
 ```
 
@@ -101,11 +109,17 @@ là `ticket_source IN ('Inbox Facebook','Inbox Facebook Out')` và có `service_
 = 'Inbox Facebook'` — rất nhiều ticket hợp lệ (gọi điện, walk-in, ticket cũ trước
 2025-01-01...) không thỏa, khiến `page` = NULL.
 
-**Fix đã áp dụng:** Stream 1 và Stream 2 chuyển sang lấy `page` trực tiếp từ
-`dim_page`/`m.page_name` (map theo `campaign_name` → `page_code` →
-`ucbt_page_config`), bỏ hẳn phụ thuộc vào `stg_frmack_cs_tickets`/
-`stg_frmack_cs_services` trong `mart`. Hai model stg này hiện không còn được
-`ref()` ở đâu trong `mart` nữa.
+**Fix đã áp dụng (tại thời điểm đó):** Stream 1 và Stream 2 chuyển sang lấy
+`page` trực tiếp từ `dim_page`/`m.page_name` (map theo `campaign_name` →
+`page_code` → `ucbt_page_config`), bỏ hẳn phụ thuộc vào
+`stg_frmack_cs_tickets`/`stg_frmack_cs_services` trong `mart`.
+
+> ⚠️ **[Cập nhật — xem mục 13]** Phụ thuộc vào `stg_frmack_cs_tickets`/
+> `stg_frmack_cs_services` đã được **thêm lại**, nhưng lần này làm **path ưu
+> tiên** (không phải path duy nhất, không có fallback như bản cũ từng gây
+> bug) — đặt ở lớp `int_frmack_union` (CTE dùng chung), không phải ở `mart`.
+> Path campaign_name/`ucbt_page_config` mô tả ở mục 3 vẫn còn nguyên, đóng
+> vai trò **fallback** khi path ticket không resolve được.
 
 ## 6. [Đã fix] Khối `Lead` biến mất hoàn toàn
 
@@ -355,3 +369,74 @@ khi `::jsonb`.
 
 Cột này **chưa được propagate** sang `stg_frmack_deal`/`int_frmack_union`/
 `mart` — hiện chỉ có ở `stg_frmack_cs_tickets`.
+
+## 13. `page_name` cho DC/DS/Lead/TC/BK/HL — ưu tiên path `ticket_id`, fallback `campaign_name`
+
+**Vấn đề:** Path `campaign_name` (mục 3) chỉ resolve được `page` khi ticket có
+`ad_id` join được xuyên suốt `dim_camp_adset_ad → dim_campaign` **và**
+campaign đặt tên đúng convention 9+ token với brand code hợp lệ. Rất nhiều
+Lead/DC/TC/BK/HL hợp lệ không thỏa 1 trong 2 điều kiện này (không có `ad_id`,
+hoặc `ad_id` không map được, hoặc campaign cũ/đặt tên sai convention) →
+`page` = `'KXĐ'` dù thực tế ticket Caresoft của khách hàng đó **có** gắn với
+1 page cụ thể qua `service_id`.
+
+**Thêm path ưu tiên** (dùng lại đúng cơ chế đã có ở `mms.service_name` từ bản
+trước khi bị bỏ ở mục 5, nhưng lần này **có fallback** thay vì thay thế hoàn
+toàn):
+
+```
+cb.ticket_id (có sẵn trong stg_frmack_crm_base/stg_frmack_doanh_so, từ crm_lead.ticket_id)
+  → LEFT JOIN stg_frmack_cs_tickets (subquery WHERE rnk = 1) theo ticket_id → service_id
+  → LEFT JOIN stg_frmack_cs_services (subquery dedup ROW_NUMBER PARTITION BY
+        service_id ORDER BY created_at DESC, rn = 1) theo service_id
+  → page_name_ticket = service_name
+        (service_name trong stg_frmack_cs_services CHÍNH LÀ tên page — không
+        cần tra thêm qua page_id/ucbt_page_config/dim_page)
+```
+
+Cả 2 join đều **1:1 theo key** (`stg_frmack_cs_tickets` unique theo
+`ticket_id` nhờ `rnk=1`; `stg_frmack_cs_services` unique theo `service_id`
+nhờ `rn=1`) nên không có rủi ro nhân dòng (fan-out) khi thêm vào CTE dùng
+chung `crm_base_with_page`/`payment_with_page`.
+
+**Công thức cuối cùng** ở cả 6 nhánh (DC/DS/Lead/TC/BK/HL):
+
+```sql
+COALESCE(page_name_ticket, <page_name từ path campaign_name>, 'KXĐ')
+```
+
+Path `campaign_name` (mục 3) **không bị xoá** — vẫn chạy nguyên vẹn, chỉ lùi
+xuống làm fallback khi `page_name_ticket IS NULL` (ticket không có/không map
+được `service_id`, hoặc `service_id` không có trong `stg_frmack_cs_services`).
+
+**Vì sao không lặp lại bug ở mục 5:** Bug cũ là do path `ticket_id →
+service_id` là path **duy nhất** và **không có fallback** — khi ticket không
+thoả điều kiện lọc của `stg_frmack_cs_tickets`/`stg_frmack_cs_services`
+(`ticket_source`, `service_type`, `updated_at >= 2025-01-01`...), `page` rơi
+thẳng xuống NULL. Lần này path đó chỉ là **ưu tiên đầu tiên**; khi nó NULL,
+COALESCE rơi xuống path `campaign_name` đã có sẵn (mục 3) trước khi mới rơi
+xuống `'KXĐ'` — không có trường hợp nào bị mất `page` so với hành vi trước
+khi thêm thay đổi này.
+
+**Impact đo được** (dữ liệu thật, `date >= '2026-07-01'`, đếm số dòng
+`campaign = 'KXĐ'` — tức path campaign_name fail — nhưng `page <> 'KXĐ'` —
+tức được path ticket cứu):
+
+| type_data | total_rows | page = 'KXĐ' (sau fix) | resolved qua path ticket |
+|---|---|---|---|
+| DC | 10014 | 5956 | 885 |
+| DS | 11280 | 7199 | 950 |
+| Lead | 8603 | 2510 | 838 |
+| TC | 6467 | 3990 | 557 |
+| BKHL | 11727 | 6725 | 943 |
+| HL | 23092 | 13422 | 2896 |
+
+Vẫn còn nhiều dòng `'KXĐ'` sau fix — tức là ticket của các dòng đó **cũng**
+không map được `service_id`/`service_name` (ví dụ ticket không phải nguồn
+`Inbox Facebook`/`Inbox Facebook Out`, `updated_at` trước 2025-01-01, hoặc
+không có `ticket_id` liên kết) **và** campaign cũng không parse được — không
+phải lỗi của thay đổi này, mà là giới hạn dữ liệu nguồn ở cả 2 path.
+
+Cột `page_id` (khác với `page_name`) **không đổi** — vẫn chỉ lấy từ
+`page_code` (path campaign_name), path ticket không có khái niệm `page_id`
+tương ứng để expose (chỉ có `service_name`, không có ID Facebook Page thô).
