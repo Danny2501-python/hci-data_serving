@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: thv
+    schema: public
+    tables:
+      - name: cs_ticket_api_thv
+      - name: crm_lead
+      - name: dim_page_ad
+      - name: cs_agents_api_thv
+      - name: cs_contact_api_thv
+      - name: view_stag_employees_user
+      - name: stag_crm_booking_arrival_company
+      - name: view_stag_products
+      - name: crm_line
+      - name: crm_line_product
+      - name: stag_payment_transfer
+      - name: utm_source
+      - name: table_team_sale_trans_field
+      - name: m_res_company 
+      - name: stag_sources
+      - name: crm_category_source
+      - name: cs_chat_api_thv
+      - name: dim_page
+      - name: crm_stage
+      - name: res_country_state
+      - name: ehc_tb_invoice_thv
+      - name: ehc_tb_patientrecord_thv
+      - name: ehc_tb_nguoigioithieu_thv
+      - name: product_product
+      - name: product_template
+      - name: hr_employee
+      - name: product_category
+      

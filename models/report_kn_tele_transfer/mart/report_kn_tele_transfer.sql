@@ -2,7 +2,7 @@
 with a as (
 select upper(first_user) user_report,
  * from {{ ref('ktt_combine') }}
-where first_user = create_user
+where lower(first_user) = lower(create_user)
 union all
 select upper(first_user) user_report ,
  * from {{ ref('ktt_combine') }}
@@ -19,9 +19,9 @@ union all
 select 'data_expand_create' as type_report, ---lấy từ lead trở đi
     upper(create_user) user_report ,
  * from {{ ref('ktt_combine') }}
-where first_user <> create_user
+where lower(first_user) <> lower(create_user)
 union all
 select 'data_expand' as type_report, ---lấy từ lead trở đi
 upper(first_user) user_report ,
  * from {{ ref('ktt_combine') }}
-where first_user <> create_user
+where lower(first_user) <> lower(create_user)
