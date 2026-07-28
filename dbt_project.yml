@@ -222,3 +222,11 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_bc_chi_phi_vtth:
+      +tags: ["report_bc_chi_phi_vtth"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table   
