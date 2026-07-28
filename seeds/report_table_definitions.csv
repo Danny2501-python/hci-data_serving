@@ -1,0 +1,2 @@
+schema_name,table_name,description
+public,report_marketing_ad_cost_kn_v2,"Báo cáo chi phí & hiệu quả marketing Kangnam. 3 stream UNION ALL: (1) FB cost theo page_id, (2) non-FB với ticket_id != 0 (page theo ticket->service hoặc campaign_name), (3) non-FB với ticket_id = 0/NULL (mọi cột COALESCE về 'KXĐ' nếu không xác định được). 'KXĐ' (viết tắt ""Không Xác Định"") là giá trị fallback dùng xuyên suốt bảng này khi 1 chiều dữ liệu không suy ra được — không phải NULL."

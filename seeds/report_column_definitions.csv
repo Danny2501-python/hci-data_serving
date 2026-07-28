@@ -1,0 +1,26 @@
+schema_name,table_name,column_name,description
+public,report_marketing_ad_cost_kn_v2,Metric,"Giá trị đo lường, Ý NGHĨA PHỤ THUỘC type_data: Cost/Revenue/Lead count cho hầu hết type_data; riêng type_data='Lead' thì Metric = số điện thoại (sdt) của lead đó; type_data='DealCS' thì Metric cũng = số điện thoại (từ cs_ticket_api.requester.phone_no).
+"
+public,report_marketing_ad_cost_kn_v2,Nguon,"Nguồn: FB, GG, IB, CP... (viết hoa N)."
+public,report_marketing_ad_cost_kn_v2,Nhom_nguon,Nhóm nguồn (phân loại rộng hơn Nguon).
+public,report_marketing_ad_cost_kn_v2,account_fb,"Tên Ad Account Facebook. 'KXĐ' hoặc NULL khi không suy ra được, hoặc luôn NULL cho nguồn Google."
+public,report_marketing_ad_cost_kn_v2,actor,"Mã người thực hiện campaign — token vị trí 8 của campaign name theo convention đặt tên FB, chỉ tách được khi campaign đúng convention 9+ token và brand code hợp lệ. Luôn có giá trị (COALESCE 'KXĐ'), không bao giờ NULL.
+"
+public,report_marketing_ad_cost_kn_v2,campaign,Tên campaign Facebook. 'KXĐ' khi không join được campaign_name qua ad_id.
+public,report_marketing_ad_cost_kn_v2,chi_nhanh,Tên chi nhánh đã chuẩn hoá.
+public,report_marketing_ad_cost_kn_v2,date,Ngày của bản ghi.
+public,report_marketing_ad_cost_kn_v2,kenh,"Kênh: FB, Web, Other."
+public,report_marketing_ad_cost_kn_v2,local_k,Vị trí thô (chưa chuẩn hoá).
+public,report_marketing_ad_cost_kn_v2,nhom_dv,"Nhóm dịch vụ (từ CRM/product, không liên quan campaign name cho các nhánh DC/DS/Lead/TC/BK/HL)."
+public,report_marketing_ad_cost_kn_v2,nhom_dv_kh_quan_tam,Nhóm dịch vụ khách hàng quan tâm — lấy từ crm_line đầu tiên của khách hàng (không phải nhóm dịch vụ mới nhất).
+public,report_marketing_ad_cost_kn_v2,nhom_dv_muc_tieu,Nhóm dịch vụ mục tiêu — tra từ token vị trí 5 của campaign name qua bảng campaign_name_split.
+public,report_marketing_ad_cost_kn_v2,page,"Tên Facebook Page. 'KXĐ' khi không xác định được page qua bất kỳ path nào (ticket->service, hoặc campaign_name->page_code->ucbt_page_config) — không phải lỗi dữ liệu, là giá trị hợp lệ nghĩa là ""chưa map được page"".
+"
+public,report_marketing_ad_cost_kn_v2,page_id,"Facebook Page ID, suy ra từ campaign_name (page_code), không liên quan tới path ticket->service."
+public,report_marketing_ad_cost_kn_v2,quoc_gia,Quốc gia.
+public,report_marketing_ad_cost_kn_v2,region,Vùng bán hàng (Sales Region).
+public,report_marketing_ad_cost_kn_v2,ten_dv,Tên dịch vụ/sản phẩm.
+public,report_marketing_ad_cost_kn_v2,tinh_noi,Tỉnh/thành đã chuẩn hoá.
+public,report_marketing_ad_cost_kn_v2,type_data,"Loại bản ghi: DC, TC, Lead, DS, inbox, Cost_fb_cd/Cost_fb_th, Google_cd/Google_th, BKHL, HL, DealCS. DealCS = ticket Caresoft (Inbox Facebook/Inbox Facebook Out) có gắn FB ad attribution.
+"
+public,report_marketing_ad_cost_kn_v2,vk,Phân loại Việt Kiều / Quốc tế / trong nước.
