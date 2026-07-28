@@ -13,7 +13,7 @@ schema `public`).
 |---|---|---|
 | `stg_booking_id_co_tien_tc` | ephemeral | Danh sách `crm_id` (booking) đã "có tiền thành công": `stage_id = 4` và tổng payment > 0. Dùng làm điều kiện lọc đầu vào cho các model khác trong folder. |
 | `stg_booking_nhom_dich_vu_chinh` | ephemeral | Xác định **nhóm dịch vụ chính** của từng booking theo 3 nguồn ưu tiên (quan hệ category, custom field CS, hoặc dòng dịch vụ đầu tiên), map sang `business_line`. |
-| `stg_booking_xet_ban_cheo` | ephemeral | Gắn nhãn **`is_cross_sale`** (bán chéo) cho từng dòng dịch vụ, theo business line chính của khách hàng và mốc 6 tháng. |
+| `stg_booking_xet_ban_cheo` | **view** | Gắn nhãn **`is_cross_sale`** (bán chéo) cho từng dòng dịch vụ, theo business line chính của khách hàng và mốc 6 tháng. |
 | `stg_common_tongquan_khachhang` | table/view (không khai báo `config`) | Bảng tổng quan khách hàng chi tiết theo từng dòng dịch vụ + payment (khách, ngày đến/hẹn/tạo/thanh toán, doanh số, chi nhánh, trạng thái...) — nguồn cho các báo cáo tổng quan khách hàng. |
 | `stg_dv_khach_hang_quan_tam` | ephemeral | Nhóm dịch vụ (`product_group`, 9 nhóm cố định theo `his_service_type`/`product_category`) mà khách hàng **quan tâm đầu tiên** trong mỗi booking (dòng dịch vụ có `cline_created_date` sớm nhất). |
 
@@ -25,8 +25,11 @@ nguồn `crm_line`, `crm_lead`, `view_stag_products`, `stag_payment_transfer`, h
 
 ## Lưu ý chung
 
-- Tất cả model (trừ `stg_common_tongquan_khachhang`) đều `materialized = 'ephemeral'` — không tạo
-  bảng/view vật lý riêng, được inline thành CTE vào model nào `ref()` tới.
+- Các model còn lại (trừ `stg_common_tongquan_khachhang` và `stg_booking_xet_ban_cheo`) đều
+  `materialized = 'ephemeral'` — không tạo bảng/view vật lý riêng, được inline thành CTE vào model
+  nào `ref()` tới.
+- `stg_booking_xet_ban_cheo` được đổi sang `materialized = 'view'` để có thể query trực tiếp
+  (kiểm tra dữ liệu bán chéo theo khách hàng/booking mà không cần dựng bảng tạm `check_*`).
 - `stg_booking_nhom_dich_vu_chinh` và `stg_booking_xet_ban_cheo` là 2 model có logic phức tạp nhất
   trong folder, được xây dựng và kiểm chứng kỹ qua nhiều vòng đối chiếu dữ liệu thực tế (query
   trực tiếp DB, dựng bảng vật lý tạm `check_*` để soát từng khách hàng cụ thể) — xem lịch sử build

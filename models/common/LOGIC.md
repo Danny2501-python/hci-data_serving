@@ -35,11 +35,15 @@ khác nhau) → áp CASE business_line giống hệt mục 3 bên dưới. Categ
 về **NULL**, không ép về `'Khác'`, để phân biệt "không xác định được" với "có his_service_type
 nhưng không thuộc 5 nhóm chính".
 
-## 3. stg_booking_xet_ban_cheo.sql
+## 3. stg_booking_xet_ban_cheo.sql (materialized = `view`)
 
 Gắn nhãn **bán chéo (`is_cross_sale`)** cho từng dòng dịch vụ (cline) của khách hàng
 (`code_customer`). Chỉ tính `brand_etl = 1`, booking `type = 'opportunity'` (không tính `lead`
 chưa thành cơ hội), và chỉ các booking thuộc `stg_booking_id_co_tien_tc` (đã có tiền thành công).
+
+Model này `materialized = 'view'` (khác các model còn lại trong folder đều là `ephemeral`) để có
+thể query trực tiếp phục vụ kiểm tra dữ liệu (theo khách hàng, theo booking, tổng hợp doanh số
+theo chi nhánh/tháng...) mà không cần dựng bảng tạm.
 
 ### CTE `cline` — grain: 1 dòng dịch vụ
 
