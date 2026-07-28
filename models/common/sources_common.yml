@@ -22,3 +22,9 @@ sources:
       - name: crm_type
       - name: stag_sources
       - name: stag_crm_booking_arrival_company
+      - name: crm_lead_product_category_rel
+      - name: product_category
+      - name: cs_deal_detail_api_v2
+      - name: cs_custom_fields
+      - name: sh_medical_appointment_register_walkin
+      - name: sh_walkin_service_rel
