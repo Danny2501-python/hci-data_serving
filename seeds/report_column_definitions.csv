@@ -24,3 +24,80 @@ public,report_marketing_ad_cost_kn_v2,tinh_noi,Tỉnh/thành đã chuẩn hoá.
 public,report_marketing_ad_cost_kn_v2,type_data,"Loại bản ghi: DC, TC, Lead, DS, inbox, Cost_fb_cd/Cost_fb_th, Google_cd/Google_th, BKHL, HL, DealCS. DealCS = ticket Caresoft (Inbox Facebook/Inbox Facebook Out) có gắn FB ad attribution.
 "
 public,report_marketing_ad_cost_kn_v2,vk,Phân loại Việt Kiều / Quốc tế / trong nước.
+public,stag_products,smhcsid,Id gốc từ bảng sh_medical_health_center_service (dịch vụ y tế) bên brand xuất xứ của dòng — dùng để join lấy is_main_service/kpi_first_time.
+public,stag_products,product_id,Id sản phẩm/dịch vụ canonical (LUÔN là id bên KangNam/kn). NULL khi SKU (default_code) đó không xác định được id bên kn.
+public,stag_products,his_service_type,"Loại dịch vụ y tế: 'Laser', 'Spa', 'Card' (suy ra khi default_code bắt đầu 'TDL'), hoặc NULL."
+public,stag_products,surgery_type,"Loại phẫu thuật/thủ thuật, lấy từ sh_medical_health_center_service."
+public,stag_products,product_category,"Tên nhóm sản phẩm/dịch vụ đã chuẩn hoá khoảng trắng; fallback 'PTTM KHÁC' (có his_service_type), 'THẺ DA LIỄU' (default_code TDL*), hoặc 'SAN PHAM'."
+public,stag_products,product_category_paris,"Nhóm sản phẩm theo phân loại Paris — chỉ có giá trị cho brand kn/pr (import_product_service_analyst), NULL cho brand khác."
+public,stag_products,product_category_new,Nhóm sản phẩm theo phân loại mới — cùng nguồn với product_category_paris.
+public,stag_products,default_code,Mã SKU của sản phẩm/dịch vụ — khoá dùng để map cùng 1 sản phẩm giữa các brand ERP khác nhau.
+public,stag_products,product,Tên sản phẩm/dịch vụ (đã trim khoảng trắng).
+public,stag_products,list_price,Giá niêm yết.
+public,stag_products,group_id,"Id nhóm sản phẩm. Lưu dạng text dù nội dung là số — khớp kiểu dữ liệu của bảng thật (do ghi qua CSV/COPY, không validate kiểu chặt)."
+public,stag_products,kpi_point,Điểm KPI của sản phẩm. NULL nếu giá trị gốc = 0; được tự động điền từ điểm KPI của sản phẩm tương ứng bên KangNam (qua product_id_kn) nếu sản phẩm chưa có điểm riêng.
+public,stag_products,kpi_point_num,Hệ số nhân điểm KPI — mặc định 1 nếu gốc là 0/NULL.
+public,stag_products,product_id_kn,Chuỗi 1 hoặc nhiều product_id bên KangNam tương ứng (cách nhau dấu phẩy) — dùng để tra/điền kpi_point khi sản phẩm chưa có điểm riêng.
+public,stag_products,product_ctg_id,Id nhóm dịch vụ y tế (product_cat_id) canonical bên KangNam. NULL cùng điều kiện với product_id.
+public,stag_products,is_main_service,"Cờ đánh dấu dịch vụ chính (từ import_product_service_analyst, chỉ áp dụng brand kn/pr)."
+public,stag_products,uom_id,Id đơn vị tính.
+public,stag_products,uom,Tên đơn vị tính.
+public,stag_products,is_no_kpi,"Cờ sản phẩm không tính KPI — theo danh sách product_id cố định (case đặc thù đã biết, không suy ra từ rule chung)."
+public,stag_products,kdtc_product_ctg_id,"Id nhóm 'kế hoạch điều trị chuẩn' (KDTC) — suy từ product_category/his_service_type qua rule cứng (vd nhóm mắt=3, mũi=8, ngực/mông=5, hàm mặt=7, Laser/Spa=1...)."
+public,stag_products,create_date,Ngày tạo bản ghi sản phẩm.
+public,stag_products,write_date,Ngày cập nhật gần nhất (MAX giữa bảng product_product và sh_medical_health_center_service).
+public,stag_products,is_vip,Cờ dịch vụ VIP.
+public,stag_products,kpi_first_time,Điểm/cờ KPI cho lần sử dụng đầu tiên.
+public,stag_products,gr_bh_id,"Id nhóm 'Bảo hành DV Laser-Spa' theo cơ chế doanh thu — suy từ product_ctg_id hoặc regex trên dòng đầu tiên của tên sản phẩm (vd tàn nhang/nám=2, mụn thịt=3, xoá xăm/phun môi/điêu khắc=4, triệt lông=5, botox=6, Laser/Spa=1)."
+public,stag_products,qty_service,Số lượng dịch vụ/liệu trình tương ứng (từ import_product_service_analyst).
+public,stag_products,pr_product_id,Id sản phẩm tương ứng bên brand PR (ERP riêng của PR) cho cùng default_code. NULL nếu không map được.
+public,stag_products,hh_product_id,Id sản phẩm tương ứng bên brand HH cho cùng default_code. NULL nếu không map được.
+public,stag_products,sci_product_id,Id sản phẩm tương ứng bên brand SCI cho cùng default_code. NULL nếu không map được.
+public,stag_products,thv_product_id,Id sản phẩm tương ứng bên brand THV cho cùng default_code. NULL nếu không map được.
+public,stag_products,product_tmpl_id,Id product template canonical bên KangNam (kn).
+public,stag_products,pr_product_tmpl_id,Id product template tương ứng bên brand PR.
+public,stag_products,hh_product_tmpl_id,Id product template tương ứng bên brand HH.
+public,stag_products,sci_product_tmpl_id,Id product template tương ứng bên brand SCI.
+public,stag_products,thv_product_tmpl_id,Id product template tương ứng bên brand THV.
+public,stag_products,pr_product_ctg_id,Id nhóm dịch vụ y tế tương ứng bên brand PR.
+public,stag_products,hh_product_ctg_id,Id nhóm dịch vụ y tế tương ứng bên brand HH.
+public,stag_products,sci_product_ctg_id,Id nhóm dịch vụ y tế tương ứng bên brand SCI.
+public,stag_products,thv_product_ctg_id,Id nhóm dịch vụ y tế tương ứng bên brand THV.
+public,stag_products,pr_smhcsid,Id sh_medical_health_center_service tương ứng bên brand PR.
+public,stag_products,hh_smhcsid,Id sh_medical_health_center_service tương ứng bên brand HH.
+public,stag_products,sci_smhcsid,Id sh_medical_health_center_service tương ứng bên brand SCI.
+public,stag_products,thv_smhcsid,Id sh_medical_health_center_service tương ứng bên brand THV.
+public,stag_payment_transfer,id,Khoá chính của bản ghi thanh toán/điều chuyển — duy nhất trong toàn bảng.
+public,stag_payment_transfer,ma_phieu,Mã phiếu thanh toán/điều chuyển. Phiếu điều chuyển có tiền tố 'PDC' (dùng để tính is_priority khi sắp lũy kế).
+public,stag_payment_transfer,crm_id,Id khách hàng/hồ sơ CRM liên quan tới giao dịch.
+public,stag_payment_transfer,payment_date,Ngày thanh toán/điều chuyển.
+public,stag_payment_transfer,payment_method,Phương thức thanh toán.
+public,stag_payment_transfer,clineid,"Id dòng dịch vụ CRM (crm_line) liên quan. Có thể NULL với 1 số giao dịch cosmetic 'mồ côi' (không còn map được crm_line_product) — khi đó first_date_payment/rnk_clineid_pmdate* cũng NULL, không gộp chung 1 nhóm với các dòng NULL khác."
+public,stag_payment_transfer,product_id,"Id sản phẩm/dịch vụ liên quan tới giao dịch — đã được vá (fill) bằng product_id 'tốt nhất đã biết gần đây' theo (clineid, brand_id) nếu giá trị gốc là 0/NULL."
+public,stag_payment_transfer,quantity,Số lượng.
+public,stag_payment_transfer,uom_price,Đơn giá theo đơn vị tính.
+public,stag_payment_transfer,number_used,Số lượng đã sử dụng/tiêu thụ.
+public,stag_payment_transfer,total,"Tổng tiền của dòng dịch vụ — giá trị gốc, không bị ảnh hưởng bởi vấn đề thứ tự lũy kế (khác total_received_cumsum/total_received_recal)."
+public,stag_payment_transfer,total_received,Tổng đã thu tính đến hiện tại — baseline đầu vào trước khi tính lại lũy kế.
+public,stag_payment_transfer,total_received_cumsum,"Tổng đã thu lũy kế theo (crm_id, clineid, product_id), sắp theo (payment_date, is_priority DESC, write_date). ~0.05% dòng có thể lệch khi 2 vế điều chuyển cùng phiếu trùng tuyệt đối khoá sắp xếp (hạn chế đã biết, không phải lỗi dữ liệu)."
+public,stag_payment_transfer,total_received_recal,"Giá trị total_received_cumsum cuối cùng trong ngày, broadcast cho mọi dòng cùng nhóm (brand_id, crm_id, clineid, product_id, payment_date)."
+public,stag_payment_transfer,payment,Số tiền thanh toán của riêng dòng giao dịch này.
+public,stag_payment_transfer,payment_type,Loại thanh toán.
+public,stag_payment_transfer,stage_product,Giai đoạn/trạng thái của sản phẩm dịch vụ tại thời điểm giao dịch.
+public,stag_payment_transfer,consultants_1,Nhân sự tư vấn thứ nhất.
+public,stag_payment_transfer,consulting_role_1,Vai trò tư vấn của consultants_1.
+public,stag_payment_transfer,consultants_2,Nhân sự tư vấn thứ hai.
+public,stag_payment_transfer,consulting_role_2,Vai trò tư vấn của consultants_2.
+public,stag_payment_transfer,ho_tro,Người/bộ phận hỗ trợ giao dịch.
+public,stag_payment_transfer,price_list_id,Id bảng giá áp dụng cho giao dịch.
+public,stag_payment_transfer,orgcompany_id,Id công ty tổ chức (org) liên quan.
+public,stag_payment_transfer,company_id,Id công ty áp dụng giao dịch.
+public,stag_payment_transfer,communication,Ghi chú/nội dung liên lạc đính kèm giao dịch.
+public,stag_payment_transfer,product_type,"Loại sản phẩm của giao dịch — dịch vụ (service) hoặc mỹ phẩm (cosmetic), tương ứng 2 nhánh nguồn khác nhau khi tổng hợp bảng này."
+public,stag_payment_transfer,write_date,Ngày ghi nhận/cập nhật bản ghi.
+public,stag_payment_transfer,brand_id,Id thương hiệu của giao dịch.
+public,stag_payment_transfer,brand_etl,"Mã brand dùng cho ETL — 0 = hệ thống cũ trước khi tách brand (trước 01/08/2025, đóng băng vĩnh viễn); 1/3/4 = brand hiện hành (tính lại được từ ERP nguồn)."
+public,stag_payment_transfer,first_date_payment,"Ngày thanh toán đầu tiên của nhóm (brand_etl, clineid, product_type). NULL khi clineid NULL — mỗi dòng NULL độc lập, không gộp chung 1 nhóm."
+public,stag_payment_transfer,rnk_crm_pmdate,Thứ hạng theo ngày thanh toán trong phạm vi crm_id.
+public,stag_payment_transfer,rnk_clineid_pmdate,Thứ hạng tăng dần theo ngày thanh toán trong phạm vi clineid.
+public,stag_payment_transfer,rnk_clineid_pmdate_desc,Thứ hạng giảm dần theo ngày thanh toán trong phạm vi clineid.
