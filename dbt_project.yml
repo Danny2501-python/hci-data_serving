@@ -230,6 +230,18 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    import_dichvu_sci:
+      +tags: ["import_dichvu_sci"]
+      stg:
+        +materialized: ephemeral
+      # int is table here (not ephemeral like other groups): ported from update_import_dichvu(),
+      # which used CREATE TEMP TABLE per step because later steps re-read the same intermediate
+      # result multiple times (see LOGIC.md) - ephemeral would recompile/recompute the whole
+      # parent CTE on every ref, duplicating the exact cost the original avoided with temp tables.
+      int:
+        +materialized: table
+      mart:
+        +materialized: table
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as

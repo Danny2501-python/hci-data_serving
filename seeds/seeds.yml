@@ -1,6 +1,53 @@
 version: 2
 
 seeds:
+  - name: import_danhmuc_dichvu_sci_seed
+    config:
+      column_types:
+        stt: integer
+        id: varchar
+        "default_code cũ": varchar
+        "default_code mới": varchar
+        default_code: varchar
+        name: varchar
+        "service_category/name": varchar
+        "service_category/id": varchar
+        "institution/id": varchar
+        "service_department/id": varchar
+        "service_room/id": varchar
+        "exam_room/id": varchar
+        "categ_id/id": varchar
+        type_product_crm: varchar
+        list_price: varchar
+        price_min: varchar
+        "currency_id/id": varchar
+        is_surgeries: varchar
+        surgery_type: varchar
+        anesthetist_type: varchar
+        "uom_id/id": varchar
+        "uom_id/name": varchar
+        "uom_so_id/id": varchar
+        "uom_po_id/id": varchar
+        his_service_type: varchar
+        level_of_difficult: varchar
+        execution_time: varchar
+        recovery_time: varchar
+        warranty_period: varchar
+        "uom_guarantee/name": varchar
+        note: varchar
+        kpi_point: varchar
+        kpi_point_num: varchar
+        is_no_specialty: varchar
+        is_no_phonecall: varchar
+        is_input_num: varchar
+        "lab_type_ids/id": varchar
+        "imaging_type_ids/id": varchar
+        "ceiling_discount_ids/brand_id/id": varchar
+        "ceiling_discount_ids/ceiling_discount": varchar
+        "hướng dẫn sau dịch vụ": varchar
+        "tính hoa hồng ctv": varchar
+        ghi_chu: varchar
+        brand: varchar
   - name: ucbt_country_continent
     config:
       column_types:

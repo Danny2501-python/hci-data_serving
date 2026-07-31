@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: idvs_erp
+    schema: public
+    tables:
+      - name: import_service_brand_rh
+      - name: product_product
+      - name: product_template
+      - name: product_category
+      - name: res_currency
+      - name: uom_uom
+      - name: sh_medical_health_center_service
+      - name: sh_medical_health_center_service_category
+      - name: sh_medical_health_center_uom_guarantee
+      - name: ir_model_data
+      - name: sh_medical_health_center
+      - name: sh_medical_health_center_sh_medical_health_center_service_rel
+      - name: sh_medical_health_center_ward
+      - name: service_departments_rel
+      - name: sh_medical_health_center_ot
+      - name: service_rooms_rel
+      - name: exam_rooms_rel
+      - name: res_brand
+      - name: sh_medical_labtest_types
+      - name: sh_medical_services_labtest_types_rel
+      - name: sh_medical_imaging_test_type
+      - name: sh_medical_services_imaging_test_types_rel
