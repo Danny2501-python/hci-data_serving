@@ -240,9 +240,25 @@ models:
       # parent CTE on every ref, duplicating the exact cost the original avoided with temp tables.
       int:
         +materialized: table
+    report_convert_kangnam:
+      +tags: ["report_convert_kangnam"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
       mart:
         +materialized: table
-
+    import_banggia_sci:
+      +tags: ["import_banggia_sci"]
+      stg:
+        +materialized: ephemeral
+      # int is table here for the same reason as import_dichvu_sci: 'a', 'g' and
+      # 'ir_model_data_data' are each ref'd from multiple downstream steps (see LOGIC.md
+      # mapping table) - ephemeral would recompute the parent CTE on every ref.
+      int:
+        +materialized: table
+      mart:
+        +materialized: table
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
 # these seed CSVs instead of a separate admin UI. +column_types forces
