@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: ibgs_erp
+    schema: public
+    tables:
+      - name: product_product
+      - name: product_pricelist
+      - name: product_pricelist_item
+      - name: ir_model_data

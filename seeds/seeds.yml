@@ -1,6 +1,25 @@
 version: 2
 
 seeds:
+  - name: import_bang_gia_chi_tiet_sci_seed
+    config:
+      column_types:
+        stt: integer
+        id: varchar
+        pricelist_id: varchar
+        "pricelist_id/id": varchar
+        "product_id/id": varchar
+        product_id: varchar
+        "fixed_price - giá gốc": varchar
+        "fixed_price - giá min": varchar
+        applied_on: varchar
+        "bảng giá trong khoảng": varchar
+        max_discount_mkt: varchar
+        max_discount_increase_local: varchar
+        discount_old_customer: varchar
+        deep_discount: varchar
+        ghi_chu: varchar
+        brand: integer
   - name: import_danhmuc_dichvu_sci_seed
     config:
       column_types:
