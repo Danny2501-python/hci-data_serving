@@ -4,7 +4,7 @@ seeds:
   - name: import_danhmuc_dichvu_sci_seed
     config:
       column_types:
-        stt: integer
+        STT: integer
         id: varchar
         "default_code cũ": varchar
         "default_code mới": varchar
@@ -47,7 +47,7 @@ seeds:
         "hướng dẫn sau dịch vụ": varchar
         "tính hoa hồng ctv": varchar
         ghi_chu: varchar
-        brand: varchar
+        brand: integer
   - name: ucbt_country_continent
     config:
       column_types:

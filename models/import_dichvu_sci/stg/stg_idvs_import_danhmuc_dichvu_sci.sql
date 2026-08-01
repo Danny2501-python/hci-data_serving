@@ -5,7 +5,7 @@
 -- nhập 1 trong 3 cột default_code, suy ra 2 cột còn lại. dbt không mutate source nên áp dụng ngay khi
 -- đọc thay vì UPDATE tại chỗ; MỌI model khác trong nhóm này phải ref bảng này thay vì source()/seed trực tiếp.
 select
-    stt,
+    "STT" as stt,
     id,
     coalesce(nullif("default_code cũ", ''), "default_code") as "default_code cũ",
     coalesce(nullif("default_code mới", ''), "default_code") as "default_code mới",
