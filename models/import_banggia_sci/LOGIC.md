@@ -144,10 +144,92 @@ khác (3, 4, 7) đồng bộ/backfill sau — chưa cần chạy pipeline này c
 (`product.pricelist` 54=54, `product.pricelist.item` 24978=24978,
 `product.product` 15973 vs 15921, `product_pricelist_item` gốc 41379 vs
 29505) — **giữ nguyên `new_product` làm target**, không cần đổi
-`profiles.yml` hay backfill gì thêm cho brand 1. Nếu sau này mở rộng sang
-brand 3/4/7, cần backfill `ir_model_data` cho đúng 3 model trên trước (xem
-cách backfill theo khoá đã làm ở `import_dichvu_sci/LOGIC.md` mục "Database
-nguồn ERP" — merge theo khoá `(id, model)`, không copy nguyên bảng).
+`profiles.yml`.
+
+**Cập nhật sau khi chạy thử thật (2026-08-01, 71 dòng test, pricelist "Bảng
+giá dịch vụ Weight Loss 2026", brand 1)**: `"pricelist_id/id"` và
+`"product_id/id"` ra rỗng (không phải `NULL` — do query gốc dùng `concat()`,
+hàm này coi `NULL` là chuỗi rỗng thay vì lan truyền `NULL` như `||`, nên
+`concat(NULL,'.',NULL)` ra `'.'`, sau `trim(...,'.')` thành `''`) ở **toàn bộ**
+71 dòng. Đối chiếu tổng số dòng khớp nhau giữa 2 DB (ở trên) **không đảm bảo
+đúng những bản ghi cụ thể cần dùng đã được đồng bộ** — data mới nhất luôn là
+phần có độ trễ đồng bộ cao nhất. Kiểm tra trực tiếp cho brand 1 trên
+`new_product`:
+
+- `product_pricelist`: chỉ thiếu **đúng 1 dòng** trong `ir_model_data` — chính
+  là `id=141` "Bảng giá dịch vụ Weight Loss 2026" (bảng giá *mới nhất*,
+  `id=140` "...2025" thì có sẵn). Toàn bộ 71 dòng test đều thuộc pricelist
+  này → `"pricelist_id/id"` rỗng ở mọi dòng.
+- `product_product`: thiếu **1213/15973** dòng (~7.6%) trong `ir_model_data`
+  — đúng các sản phẩm/dịch vụ tạo gần đây (id lớn) → `"product_id/id"` rỗng ở
+  các dòng liên quan.
+- `product_pricelist_item`: thiếu **16403** dòng trong `ir_model_data` — gap
+  lớn nhất, ảnh hưởng cột `id` (external id của dòng chi tiết bảng giá).
+
+**Đây không phải lỗi của model dbt** (đã kiểm chứng: `int_ibgs_a` resolve
+đúng `id_bang_gia=141`/`id_dv`/`id_chi_tiet_bang_gia` từ bảng ERP gốc, nghĩa
+là bước join tên/`default_code` chạy đúng; chỉ bước tra `ir_model_data` để
+lấy external id là không tìm thấy).
+
+**Đã kiểm tra khả năng backfill từ `kn_erp` (đơn brand, nguồn xác thực nhất
+theo `import_dichvu_sci/LOGIC.md`) — kết quả: không backfill được, vì `kn_erp`
+cũng không có 3 bản ghi này**. Đã thử qua 2 kết nối khác nhau tới cùng DB
+`kn_erp` — `report_user@10.10.10.221:54306` và `reader@10.10.10.211:54321`
+(2026-08-01) — cho **kết quả giống hệt nhau** (`product_pricelist`=23,
+`product_product`=11367, `product_pricelist_item`=6572, `ir_model_data`≈6.2M
+ở cả 2 kết nối) → gần như chắc chắn cùng 1 database vật lý, chỉ khác
+cổng/user (có thể 1 bên proxy qua bên kia), không phải nguồn độc lập nên
+không cung cấp thêm dữ liệu để đối chiếu:
+
+- `id` khớp 1:1 giữa `kn_erp` và `new_product` (đã xác nhận: cùng 1 nguồn dữ
+  liệu — `product_pricelist.id=141` cùng tên "Bảng giá dịch vụ Weight Loss
+  2026" ở cả 2 nơi), nhưng `ir_model_data` cho `res_id=141`
+  (`product.pricelist`), `res_id=39748` (`product.product`),
+  `res_id=104247` (`product.pricelist.item`) đều **không tồn tại trên
+  `kn_erp`**, không riêng gì `new_product`.
+- Nguyên nhân: `product_pricelist id=141` được tạo **2026-07-12**, trong khi
+  pricelist *mới nhất* có `ir_model_data` trên `kn_erp` được tạo từ
+  **2025-11-22** (hơn 7 tháng trước) — không pricelist nào tạo sau mốc đó có
+  external id, kể cả ở nguồn gốc. Tỷ lệ thiếu trên toàn `kn_erp`:
+  `product_pricelist` 2/23, `product_product` 313/11367,
+  `product_pricelist_item` **5964/6572 (90.8%)**.
+- Kết luận: đây là **gap vận hành ở tầng ERP** (nhiều khả năng do cơ chế gán
+  external id/XML ID của Odoo — thường chỉ chạy khi record được tạo qua
+  import/data file — không áp dụng cho các bản ghi tạo trực tiếp qua UI sau
+  ~2025-11-22), không phải gap đồng bộ giữa các database, và **không có gì để
+  copy/backfill** cho các bản ghi này ở bất kỳ database nào đã kiểm tra.
+
+**Cập nhật quan trọng (2026-08-01, sau khi người dùng tự export thử từ UI
+Odoo)**: cờ `"Cần kéo dữ liệu bảng ir_model_data"` **có cách khắc phục cụ
+thể**, không phải bế tắc như đánh giá ban đầu ở trên. Khi export 1 bản ghi từ
+UI Odoo với cột External ID (`pricelist_id/id`/`product_id/id`), Odoo **tự
+ghi vĩnh viễn** 1 dòng vào `ir_model_data` với `module = '__export__'`, dạng
+`__export__.<table>_<res_id>_<hash>` (đã xác nhận trực tiếp trên `kn_erp`:
+export pricelist `id=141` và sản phẩm `id=39753` từ UI xong, query lại
+`ir_model_data` thấy ngay 2 dòng `('141','product_pricelist_141_22f8fa0d',
+'__export__','product.pricelist')` và tương tự cho product — khớp chính xác
+giá trị hiển thị trên UI). Đây **không phải** ID ảo tính runtime — nó được
+Odoo persist thật vào `ir_model_data`, và `int_ibgs_ir_model_data_data`/
+`extenal_data` (đã `concat(module,'.',name)` không loại trừ `module` nào) **tự
+động nhặt được**, không cần sửa gì ở tầng dbt.
+
+Quy trình khắc phục cho các dòng bị flag: **export bản ghi liên quan từ UI
+Odoo (kn_erp) → Odoo tự ghi `ir_model_data` (`module='__export__'`) → chờ job
+đồng bộ định kỳ đẩy dòng đó từ `kn_erp` sang `new_product` → chạy lại
+pipeline sẽ tự nhặt được**, không cần backfill thủ công. Lưu ý: `new_product`
+là bản sao đồng bộ **định kỳ, không phải live** — đã kiểm chứng ngay sau khi
+export, dòng `__export__.product_pricelist_141_...` có trên `kn_erp` nhưng
+**chưa có** trên `new_product` (tổng thể `new_product` vẫn có ~4.3 triệu dòng
+`module='__export__'` từ các lần export trước, chỉ riêng dòng vừa tạo là chưa
+kịp đồng bộ) — cần biết chu kỳ job đồng bộ `ir_model_data` giữa 2 DB này (hoặc
+trigger chạy tay) trước khi mong đợi pipeline thấy được dòng vừa export.
+
+Với gap tồn đọng lớn (`product_pricelist_item` 90.8% ở `kn_erp` chưa từng
+export lần nào) — không thực tế để business user export tay từng dòng; nên hỏi
+đội ERP/QTDL xem có cách export hàng loạt (bulk export tất cả dòng của 1
+pricelist, hoặc 1 action chạy `_export_xml_id` cho cả tập bản ghi) thay vì
+từng dòng một. Nếu sau này mở rộng sang brand 3/4/7, áp dụng quy trình tương
+tự — `ir_model_data` ở các brand đó thiếu nhiều hơn (xem bảng trên).
 
 ## Cutover — kế hoạch chuyển từ function sang dbt
 
