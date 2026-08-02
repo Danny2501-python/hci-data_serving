@@ -230,3 +230,33 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table   
+        +materialized: table
+      stag:
+        +materialized: ephemeral
+    report_convert_kangnam:
+      +tags: ["report_convert_kangnam"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+
+# report_table_definitions/report_column_definitions: business context for
+# dwh_chat_app's LLM (chat over report data), maintained by the data team as
+# these seed CSVs instead of a separate admin UI. +column_types forces
+# `description` to text (unbounded) instead of dbt inferring a varchar(n)
+# sized off today's longest row, which would silently truncate future edits.
+seeds:
+  data_serving:
+    report_table_definitions:
+      +column_types:
+        schema_name: varchar(63)
+        table_name: varchar(63)
+        description: text
+    report_column_definitions:
+      +column_types:
+        schema_name: varchar(63)
+        table_name: varchar(63)
+        column_name: varchar(63)
+        description: text
