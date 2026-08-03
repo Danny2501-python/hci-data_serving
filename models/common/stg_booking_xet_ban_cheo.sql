@@ -158,16 +158,13 @@ select
     mbw.main_bl_walkin_done,
     mbw.main_bl_booking_org,
     case
-        -- Main BL của khách hàng phải đã hoàn thành (có main_bl_completed_date) mới xét bán chéo
-        when mbw.main_bl_completed_date is null then false
         -- Dịch vụ thuộc main BL của khách hàng => không phải bán chéo
         when lb.business_line = lb.main_bl_customer then false
-        -- Dòng dịch vụ tự nó phải có payment > 0 ("bán thành công") mới được gắn nhãn bán chéo
-        when coalesce(lb.cline_total_payment, 0) <= 0 then false
         -- Trong cùng booking (crm_id) và cùng BL này, chỉ cần TỒN TẠI 1 dòng "kích hoạt" bán chéo
         -- (có payment > 0, và là lần mua đầu tiên của BL đó hoặc cách lần mua liền trước của BL đó
-        -- > 6 tháng) thì MỌI dòng dịch vụ có payment > 0 của cùng BL trong cùng booking đó đều được
-        -- tính là bán chéo (không chỉ riêng dòng kích hoạt) — vì cùng thuộc 1 lần bán bán chéo.
+        -- > 6 tháng) thì MỌI dòng dịch vụ của cùng BL trong cùng booking đó đều được tính là bán
+        -- chéo (kể cả dòng chưa có payment/payment = 0 — lọc theo payment để báo cáo là việc của
+        -- Tableau, không phải của cờ is_cross_sale).
         when bool_or(
                 coalesce(lb.cline_total_payment, 0) > 0
                 and (lb.cus_bl_paid_order = 1 or lb.is_line_over_6_months_in_bl = true)

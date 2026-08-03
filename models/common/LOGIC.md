@@ -108,24 +108,36 @@ Liên hệ: `sh_medical_appointment_register_walkin.booking_id = crm_lead.id` �
 ### Quy tắc `is_cross_sale` (final SELECT)
 
 ```
-1. main_bl_completed_date IS NULL                         → false (chưa hoàn thành main BL)
-2. business_line = main_bl_customer                        → false (thuộc main BL, không phải bán chéo)
-3. cline_total_payment <= 0 (dòng này không có payment)     → false ("bán thành công" là điều kiện bắt buộc)
-4. EXISTS (trong cùng booking crm_id + cùng business_line) ít nhất 1 dòng khác thỏa:
+1. business_line = main_bl_customer                        → false (thuộc main BL, không phải bán chéo)
+2. EXISTS (trong cùng booking crm_id + cùng business_line) ít nhất 1 dòng khác thỏa:
        cline_total_payment > 0
        AND (cus_bl_paid_order = 1 OR is_line_over_6_months_in_bl = true)
    (tính bằng bool_or(...) OVER (PARTITION BY crm_id, business_line))
                                                              → true
-5. else                                                     → false
+3. else                                                     → false
 ```
+
+`main_bl_completed_date IS NULL` **không còn** chặn `is_cross_sale` (bỏ theo yêu cầu 2026-08-03) —
+cột này vẫn được SELECT ra (`mbw.main_bl_completed_date`) để tầng Tableau tự lọc nếu cần, nhưng bản
+thân cờ `is_cross_sale` không phụ thuộc vào việc main BL đã "hoàn thành" (có walkin Completed) hay
+chưa. Vd khách CUS712615: dòng Nha khoa đã trả 28.000.000, đủ điều kiện kích hoạt (lần mua đầu của
+BL Nha khoa) → `is_cross_sale = true`, dù khách chưa có walkin PTTM (main BL) nào Completed.
 
 Diễn giải: một booking (`crm_id`) được coi là "lần bán bán chéo" cho 1 business_line khác main BL
 nếu nó chứa ít nhất 1 dòng dịch vụ "kích hoạt" — có payment thật, và (a) là lần mua có payment đầu
 tiên của BL đó, hoặc (b) cách lần mua có payment liền trước của BL đó > 6 tháng. Khi booking đó đã
-được kích hoạt, **toàn bộ** các dòng dịch vụ có payment > 0 của cùng BL đó trong cùng booking đều
-được gắn `is_cross_sale = true`, không chỉ riêng dòng kích hoạt (vd khách mua 2 dịch vụ Beauty &
-Spa trong cùng 1 booking bán chéo → cả 2 dòng đều tính, dù chỉ dòng có `cline_created_date` sớm
-hơn mới thỏa `cus_bl_paid_order = 1`).
+được kích hoạt, **toàn bộ** các dòng dịch vụ của cùng BL đó trong cùng booking đều được gắn
+`is_cross_sale = true`, không chỉ riêng dòng kích hoạt và **không yêu cầu bản thân dòng đó đã có
+payment** (kể cả payment = 0/NULL cũng được gắn true — lọc theo payment cho mục đích báo cáo là
+việc của tầng Tableau, không phải của cờ `is_cross_sale` trong model này). Vd khách mua 2 dịch vụ
+Beauty & Spa trong cùng 1 booking bán chéo, dù mới chỉ 1 dòng đã thanh toán → cả 2 dòng đều tính
+`true`, kể cả dòng chưa trả tiền.
+
+**Lưu ý:** điều kiện *xác định dòng nào là "dòng kích hoạt"* (`cus_bl_paid_order = 1` hoặc
+`is_line_over_6_months_in_bl`) vẫn chỉ tính trên các dòng **đã có payment** (`paid_bl_cline` CTE
+lọc `cline_total_payment > 0`) — vì thứ tự "lần mua đầu tiên"/khoảng cách 6 tháng chỉ có ý nghĩa
+dựa trên giao dịch thật. Thay đổi ở đây chỉ là: một khi đã xác định được booking/BL có kích hoạt,
+nhãn `true` áp cho MỌI dòng của BL đó trong booking, không giới hạn ở dòng đã trả tiền.
 
 Mua lại trong vòng 6 tháng (ở 1 booking khác, sau này) không tính lại — kể cả khi khách quay lại
 nhiều lần liên tiếp trong nhiều tháng, miễn mỗi khoảng cách giữa 2 lần liên tiếp đều < 6 tháng thì
