@@ -91,15 +91,25 @@ Liên hệ: `sh_medical_appointment_register_walkin.booking_id = crm_lead.id` �
 ```
 1. main_bl_completed_date IS NULL                         → false (chưa hoàn thành main BL)
 2. business_line = main_bl_customer                        → false (thuộc main BL, không phải bán chéo)
-3. business_line != main_bl_customer
-   AND cline_total_payment > 0
-   AND (cus_bl_paid_order = 1 OR is_line_over_6_months_in_bl = true)
+3. cline_total_payment <= 0 (dòng này không có payment)     → false ("bán thành công" là điều kiện bắt buộc)
+4. EXISTS (trong cùng booking crm_id + cùng business_line) ít nhất 1 dòng khác thỏa:
+       cline_total_payment > 0
+       AND (cus_bl_paid_order = 1 OR is_line_over_6_months_in_bl = true)
+   (tính bằng bool_or(...) OVER (PARTITION BY crm_id, business_line))
                                                              → true
-4. else                                                     → false
+5. else                                                     → false
 ```
 
-Diễn giải: dịch vụ thuộc BL khác main BL được tính bán chéo nếu có payment thật, và (a) là lần
-mua có payment đầu tiên của BL đó, hoặc (b) cách lần mua có payment liền trước của BL đó > 6
-tháng. Mua lại trong vòng 6 tháng không tính lại — kể cả khi khách quay lại nhiều lần liên tiếp
-trong nhiều tháng, miễn mỗi khoảng cách giữa 2 lần liên tiếp đều < 6 tháng thì chỉ tính bán chéo
-đúng 1 lần cho cả chuỗi.
+Diễn giải: một booking (`crm_id`) được coi là "lần bán bán chéo" cho 1 business_line khác main BL
+nếu nó chứa ít nhất 1 dòng dịch vụ "kích hoạt" — có payment thật, và (a) là lần mua có payment đầu
+tiên của BL đó, hoặc (b) cách lần mua có payment liền trước của BL đó > 6 tháng. Khi booking đó đã
+được kích hoạt, **toàn bộ** các dòng dịch vụ có payment > 0 của cùng BL đó trong cùng booking đều
+được gắn `is_cross_sale = true`, không chỉ riêng dòng kích hoạt (vd khách mua 2 dịch vụ Beauty &
+Spa trong cùng 1 booking bán chéo → cả 2 dòng đều tính, dù chỉ dòng có `cline_created_date` sớm
+hơn mới thỏa `cus_bl_paid_order = 1`).
+
+Mua lại trong vòng 6 tháng (ở 1 booking khác, sau này) không tính lại — kể cả khi khách quay lại
+nhiều lần liên tiếp trong nhiều tháng, miễn mỗi khoảng cách giữa 2 lần liên tiếp đều < 6 tháng thì
+chỉ tính bán chéo đúng 1 lần cho cả chuỗi (`cus_bl_paid_order`/`is_line_over_6_months_in_bl` vẫn
+tính theo trình tự **toàn bộ lịch sử khách hàng** trong BL đó, không giới hạn theo từng booking —
+việc "lan" nhãn sang các dòng khác chỉ xảy ra **trong phạm vi 1 booking**).

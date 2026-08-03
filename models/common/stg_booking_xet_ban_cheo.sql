@@ -128,12 +128,16 @@ select
         when mbw.main_bl_completed_date is null then false
         -- Dịch vụ thuộc main BL của khách hàng => không phải bán chéo
         when lb.business_line = lb.main_bl_customer then false
-        -- Dịch vụ thuộc BL khác main BL: tính bán chéo nếu dịch vụ đó có payment > 0, và là lần
-        -- mua đầu tiên của BL đó (không cần xét khoảng cách) hoặc cách lần mua liền trước của BL
-        -- đó > 6 tháng (< 6 tháng thì không tính lại là bán chéo)
-        when lb.business_line != lb.main_bl_customer
-            and coalesce(lb.cline_total_payment, 0) > 0
-            and (lb.cus_bl_paid_order = 1 or lb.is_line_over_6_months_in_bl = true)
+        -- Dòng dịch vụ tự nó phải có payment > 0 ("bán thành công") mới được gắn nhãn bán chéo
+        when coalesce(lb.cline_total_payment, 0) <= 0 then false
+        -- Trong cùng booking (crm_id) và cùng BL này, chỉ cần TỒN TẠI 1 dòng "kích hoạt" bán chéo
+        -- (có payment > 0, và là lần mua đầu tiên của BL đó hoặc cách lần mua liền trước của BL đó
+        -- > 6 tháng) thì MỌI dòng dịch vụ có payment > 0 của cùng BL trong cùng booking đó đều được
+        -- tính là bán chéo (không chỉ riêng dòng kích hoạt) — vì cùng thuộc 1 lần bán bán chéo.
+        when bool_or(
+                coalesce(lb.cline_total_payment, 0) > 0
+                and (lb.cus_bl_paid_order = 1 or lb.is_line_over_6_months_in_bl = true)
+             ) over (partition by lb.crm_id, lb.business_line)
             then true
         else false
     end as is_cross_sale
