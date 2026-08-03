@@ -12,8 +12,10 @@ WITH cline as (
         cln.brand_etl,
         cln.id as cline_id,
         cln.stage,
+        cln.product_id as product_id,
         sp.product as cline_service_name,
         sp.product_category as cline_product_category,
+        sp.product_ctg_id as cline_product_category_id,
         CASE
             WHEN cl.customer_come = 'yes' then cl.arrival_date + interval '7 hours'
             else cl.booking_date + interval '7 hours'
@@ -54,12 +56,18 @@ WITH cline as (
     -- Chỉ các dòng có payment > 0, đánh số thứ tự riêng theo (business_line, code_customer) để
     -- xác định "lần mua có payment đầu tiên" và tính khoảng cách 6 tháng, bỏ qua các dòng không
     -- phát sinh payment (hủy/chưa thanh toán) khi đếm thứ tự và khi tìm dòng liền trước.
+    -- Sắp theo cline_payment_date (không phải cline_created_date) để nhất quán với giá trị dùng
+    -- so sánh khoảng cách 6 tháng bên dưới (is_line_over_6_months_in_bl/diff_date_order_bl cũng so
+    -- sánh cline_payment_date) -- nếu lệch tiêu chí sắp xếp/so sánh, diff_date_order_bl có thể ra
+    -- số âm khi dòng tạo sau lại thanh toán trước dòng liền trước theo thứ tự tạo.
     select
         cline_id,
+        crm_id,
+        code_booking,
         code_customer,
         business_line,
         cline_payment_date,
-        ROW_NUMBER() OVER (PARTITION BY business_line, code_customer ORDER BY cline_created_date, cline_id) as cus_bl_paid_order
+        ROW_NUMBER() OVER (PARTITION BY business_line, code_customer ORDER BY cline_payment_date, cline_id) as cus_bl_paid_order
     from rnk_bl_cline
     where coalesce(cline_total_payment, 0) > 0
 ), labeling_1 as (
@@ -73,7 +81,13 @@ SELECT
         else rbc.cline_payment_date > prev_pbc.cline_payment_date + interval '6 months'
     end) as is_line_over_6_months_in_bl,
     first_value(rbc.business_line) over (partition by rbc.code_customer order by rbc.cline_created_date, rbc.cline_id) as main_bl_customer,
-    first_value(rbc.business_line) over (partition by rbc.crm_id order by rbc.cline_created_date, rbc.cline_id) as main_bl_bk
+    first_value(rbc.business_line) over (partition by rbc.crm_id order by rbc.cline_created_date, rbc.cline_id) as main_bl_bk,
+    first_value(rbc.cline_product_category_id) over (partition by rbc.code_customer order by rbc.cline_created_date, rbc.cline_id) as main_product_category_id,
+    first_value(rbc.cline_product_category) over (partition by rbc.code_customer order by rbc.cline_created_date, rbc.cline_id) as main_product_category,
+    prev_pbc.cline_payment_date as prev_bl_order_date,
+    (date(rbc.cline_payment_date) - date(prev_pbc.cline_payment_date)) as diff_date_order_bl,
+    prev_pbc.crm_id as prev_bl_crm_id,
+    prev_pbc.code_booking as prev_bl_booking
 FROM rnk_bl_cline rbc
     left join paid_bl_cline pbc on pbc.cline_id = rbc.cline_id
     left join paid_bl_cline prev_pbc
@@ -84,21 +98,30 @@ FROM rnk_bl_cline rbc
     SELECT DISTINCT code_customer, main_bl_customer
     FROM labeling_1
 
-), main_bl_walkin as (
-    -- Ngày hoàn thành (service_date_start) của phiếu khám (walkin) đầu tiên thuộc dịch vụ có
-    -- business line = business line chính (main_bl_customer) của khách hàng, gán chung cho toàn
-    -- bộ code_customer đó.
+), main_bl_walkin_ranked as (
+    -- Phiếu khám (walkin) đầu tiên đã hoàn thành (Completed, service_date_start sớm nhất) thuộc
+    -- dịch vụ có business line = business line chính (main_bl_customer) của khách hàng.
     -- Liên hệ: sh_medical_appointment_register_walkin (phiếu khám) <- sh_walkin_service_rel
     -- (walkin_id, service_id) -> service_id = view_stag_products.service_id (view_stag_products có
     -- CẢ product_id lẫn service_id, là 2 cột khác nhau -> phải nối đúng service_id, không phải
     -- product_id).
-    -- Phiếu khám nối tới booking qua w.booking_id = crm_lead.id.
+    -- Phiếu khám nối tới booking qua w.booking_id = crm_lead.id -> cl.name = mã booking gốc chứa
+    -- phiếu khám đó (main_bl_booking_org).
     -- LƯU Ý: các cột id (crm_lead.id, sh_medical_appointment_register_walkin.id, product_id...) có
     -- thể trùng giữa nhiều brand_etl khác nhau -> mọi join đều phải kèm điều kiện brand_etl khớp
     -- đúng cặp bảng (không chỉ join theo id) để tránh dính chéo dữ liệu giữa các brand.
+    -- Dùng ROW_NUMBER() (kèm w.id tie-break) thay vì MIN() để lấy đúng 1 bản ghi walkin cụ thể,
+    -- từ đó lấy kèm được sale_order_id/booking gốc của đúng bản ghi đó (MIN() không cho phép).
     SELECT
         cl.code_customer,
-        MIN(w.service_date_start) as main_bl_completed_date
+        w.service_date_start,
+        w.sale_order_id,
+        w.name as code_walkin,
+        cl.name as code_booking_org,
+        ROW_NUMBER() OVER (
+            PARTITION BY cl.code_customer
+            ORDER BY w.service_date_start, w.id
+        ) as rn
     FROM customer_main_bl cmb
         INNER JOIN {{ source('crm_base', 'crm_lead') }} cl
             ON cl.code_customer = cmb.code_customer AND cl.brand_etl = 1
@@ -118,11 +141,22 @@ FROM rnk_bl_cline rbc
             WHEN sp.his_service_type = 'weight_loss' then 'Weight Loss'
             ELSE 'Khác'
         END
-    GROUP BY cl.code_customer
+), main_bl_walkin as (
+    SELECT
+        code_customer,
+        service_date_start as main_bl_completed_date,
+        sale_order_id as main_bl_order_id,
+        code_walkin as main_bl_walkin_done,
+        code_booking_org as main_bl_booking_org
+    FROM main_bl_walkin_ranked
+    WHERE rn = 1
 )
 select
     lb.*,
     mbw.main_bl_completed_date,
+    mbw.main_bl_order_id,
+    mbw.main_bl_walkin_done,
+    mbw.main_bl_booking_org,
     case
         -- Main BL của khách hàng phải đã hoàn thành (có main_bl_completed_date) mới xét bán chéo
         when mbw.main_bl_completed_date is null then false

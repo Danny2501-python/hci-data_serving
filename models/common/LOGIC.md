@@ -63,7 +63,10 @@ theo chi nhánh/tháng...) mà không cần dựng bảng tạm.
   cline_id` (kèm `cline_id` để tie-break — xem `knowledge.md`).
 - `paid_bl_cline`: đánh số **`cus_bl_paid_order`** — chỉ tính trên các dòng có
   `cline_total_payment > 0`, bỏ qua dòng hủy/chưa thanh toán khi xác định "lần mua đầu tiên" và
-  khi tìm dòng liền trước để tính khoảng cách 6 tháng.
+  khi tìm dòng liền trước để tính khoảng cách 6 tháng. Sắp theo **`cline_payment_date`** (không
+  phải `cline_created_date`) — nhất quán với giá trị dùng so sánh khoảng cách 6 tháng bên dưới, để
+  tránh trường hợp dòng tạo sau nhưng thanh toán trước dòng liền trước theo thứ tự tạo (từng gây
+  `diff_date_order_bl` âm khi còn sắp theo `cline_created_date`).
 
 ### CTE `labeling_1`
 
@@ -75,12 +78,28 @@ theo chi nhánh/tháng...) mà không cần dựng bảng tạm.
   cline_id)`) — không phụ thuộc payment/stage, chỉ theo ngày tạo sớm nhất.
 - `main_bl_bk`: tương tự nhưng theo từng booking (`crm_id`) riêng — hiện **không còn dùng** trong
   `is_cross_sale` (đã đơn giản hóa), chỉ giữ lại để tham khảo.
+- `main_product_category_id` / `main_product_category`: `product_ctg_id`/`product_category`
+  (`view_stag_products`) của dòng dịch vụ **đầu tiên** trong lịch sử khách hàng — cùng cách tính
+  (cùng window) với `main_bl_customer`, chỉ khác lấy category thay vì business_line. Đại diện cho
+  nhóm dịch vụ khách quan tâm ban đầu.
+- `prev_bl_order_date` / `diff_date_order_bl` / `prev_bl_crm_id` / `prev_bl_booking`: thông tin
+  của dòng liền trước cùng `(business_line, code_customer)` đã có payment (`prev_pbc`) — chính là
+  dữ liệu dùng để tính `is_line_over_6_months_in_bl`. `diff_date_order_bl` = số ngày giữa
+  `cline_payment_date` hiện tại và `prev_bl_order_date` (NULL nếu là lần mua đầu tiên của BL đó,
+  tức không có `prev_pbc`).
 
 ### CTE `main_bl_walkin` — điều kiện tiên quyết
 
-Ngày hoàn thành (`service_date_start`) của phiếu khám (`sh_medical_appointment_register_walkin`,
-`state='Completed'`) **đầu tiên** thuộc dịch vụ có business_line = `main_bl_customer` của khách
-hàng, gán chung cho toàn bộ `code_customer` đó (`main_bl_completed_date`, lấy `MIN`).
+Phiếu khám (`sh_medical_appointment_register_walkin`, `state='Completed'`) **đầu tiên** (theo
+`service_date_start`, tie-break bằng `w.id`) thuộc dịch vụ có business_line = `main_bl_customer`
+của khách hàng, gán chung cho toàn bộ `code_customer` đó: `main_bl_completed_date`
+(`service_date_start`), `main_bl_order_id` (`sale_order_id` của đúng bản ghi walkin đó),
+`main_bl_walkin_done` (mã phiếu khám — `sh_medical_appointment_register_walkin.name` — của đúng
+bản ghi walkin đó), `main_bl_booking_org` (mã booking gốc — `crm_lead.name` — chứa bản ghi walkin
+đó).
+
+Dùng `ROW_NUMBER()` (không phải `MIN()`) để chốt đúng 1 bản ghi walkin cụ thể, nhờ đó lấy kèm
+được `sale_order_id`/booking gốc của chính bản ghi đó.
 
 Liên hệ: `sh_medical_appointment_register_walkin.booking_id = crm_lead.id` →
 `sh_walkin_service_rel.walkin_id = walkin.id` → `service_id` → **`view_stag_products.service_id`**
