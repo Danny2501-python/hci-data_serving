@@ -55,7 +55,21 @@ WITH x AS (
         END                                                  AS local_k,
         rc.name                                              AS quoc_gia,
         cl.ticket_id, SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id,
-        dkq.first_product_group AS nhom_dv_KH_quan_tam
+        dkq.first_product_group AS nhom_dv_KH_quan_tam,
+        CASE
+            WHEN sbn.nhom_dich_vu_chinh IS NULL THEN NULL
+            WHEN sbn.nhom_dich_vu_chinh = 'BEAUTY & SPA' THEN '8.BEAUTY & SPA'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM HÀM MẶT' THEN '3.HÀM MẶT/NHA KHOA'
+            WHEN sbn.nhom_dich_vu_chinh = 'WELLNESS' THEN '9.WELLNESS'
+            WHEN sbn.nhom_dich_vu_chinh = 'BÉO ĐA CHUYÊN KHOA' THEN '7.BÉO ĐA CHUYÊN KHOA'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM MẮT' THEN '1.MẮT'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM MŨI' THEN '2.MŨI'
+            WHEN sbn.nhom_dich_vu_chinh = 'CẤY MỠ' THEN '5.CẤY MỠ'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM NGỰC/MÔNG' THEN '4.NGỰC/MÔNG'
+            ELSE '6.DỊCH VỤ KHÁC'
+        END AS nhom_dv_chinh_booking,
+        us.name AS nguon_moi_v2,
+        cat.name AS nhom_nguon_moi_v2
     FROM {{ ref('stg_common_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
       ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL
@@ -67,6 +81,12 @@ WITH x AS (
       ON cta.ticket_id  = cl.ticket_id AND cta.brand_id = 1
      LEFT JOIN {{ ref('stg_dv_khach_hang_quan_tam') }} dkq
       ON dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl
+     LEFT JOIN {{ ref('stg_booking_nhom_dich_vu_chinh') }} sbn
+      ON sbn.crm_id = cl.id AND sbn.brand_etl = cl.brand_etl
+     LEFT JOIN {{ source('kangnam', 'utm_source') }} us
+      ON us.id = cl.new_source_id AND us.brand_id = cl.brand_etl
+     LEFT JOIN {{ source('kangnam', 'crm_category_source') }} cat
+      ON cat.id = us.category_id AND cat.brand_etl = cl.brand_etl
 ),
 kh AS (
     SELECT x.*,

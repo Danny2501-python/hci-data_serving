@@ -29,7 +29,21 @@ WITH a AS (
         END                                            AS local_k,
         rc.name                                        AS quoc_gia,
         cl3.ticket_id,
-        dkq.first_product_group                        AS nhom_dv_KH_quan_tam
+        dkq.first_product_group                        AS nhom_dv_KH_quan_tam,
+        CASE
+            WHEN sbn.nhom_dich_vu_chinh IS NULL THEN NULL
+            WHEN sbn.nhom_dich_vu_chinh = 'BEAUTY & SPA' THEN '8.BEAUTY & SPA'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM HÀM MẶT' THEN '3.HÀM MẶT/NHA KHOA'
+            WHEN sbn.nhom_dich_vu_chinh = 'WELLNESS' THEN '9.WELLNESS'
+            WHEN sbn.nhom_dich_vu_chinh = 'BÉO ĐA CHUYÊN KHOA' THEN '7.BÉO ĐA CHUYÊN KHOA'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM MẮT' THEN '1.MẮT'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM MŨI' THEN '2.MŨI'
+            WHEN sbn.nhom_dich_vu_chinh = 'CẤY MỠ' THEN '5.CẤY MỠ'
+            WHEN sbn.nhom_dich_vu_chinh = 'PTTM NGỰC/MÔNG' THEN '4.NGỰC/MÔNG'
+            ELSE '6.DỊCH VỤ KHÁC'
+        END                                              AS nhom_dv_chinh_booking,
+        us.name                                         AS nguon_moi_v2,
+        cat.name                                        AS nhom_nguon_moi_v2
     FROM {{ source('kangnam', 'stag_payment_transfer') }} std
     LEFT JOIN {{ source('kangnam', 'crm_lead') }} cl3
            ON std.crm_id = cl3.id AND std.brand_etl = cl3.brand_etl
@@ -45,6 +59,12 @@ WITH a AS (
            ON mrc.id = std.company_id AND mrc.brand_etl = 1
     LEFT JOIN {{ ref('stg_dv_khach_hang_quan_tam') }} dkq
            ON dkq.crm_id = cl3.id AND dkq.brand_etl = cl3.brand_etl
+    LEFT JOIN {{ ref('stg_booking_nhom_dich_vu_chinh') }} sbn
+           ON sbn.crm_id = cl3.id AND sbn.brand_etl = cl3.brand_etl
+    LEFT JOIN {{ source('kangnam', 'utm_source') }} us
+           ON us.id = cl3.new_source_id AND us.brand_id = cl3.brand_etl
+    LEFT JOIN {{ source('kangnam', 'crm_category_source') }} cat
+           ON cat.id = us.category_id AND cat.brand_etl = cl3.brand_etl
     WHERE std.brand_etl = 1
       AND std.payment_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
 )
@@ -76,7 +96,10 @@ SELECT
     a.doanh_so::text          AS metric,
     'DS'::text                AS type_data,
     a.ticket_id,SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id,
-    a.nhom_dv_KH_quan_tam
+    a.nhom_dv_KH_quan_tam,
+    a.nhom_dv_chinh_booking,
+    a.nguon_moi_v2,
+    a.nhom_nguon_moi_v2
 FROM a
 LEFT JOIN {{ source('kangnam', 'cs_ticket_api')}} cta
        ON cta.ticket_id = a.ticket_id AND cta.brand_id = 1

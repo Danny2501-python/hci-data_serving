@@ -69,7 +69,10 @@ SELECT
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    cbwp.nguon_moi_v2::text as nguon_moi_v2,
+    cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -88,7 +91,10 @@ SELECT
     pwp.actor_code::text as actor_code,
     pwp.account_fb::text as account_fb,
     pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    pwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    pwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    pwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    pwp.nguon_moi_v2::text as nguon_moi_v2,
+    pwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM payment_with_page pwp
   left join {{source('kangnam','ucbt_page_config')}} upc on pwp.page_code = upc.page_code
 
@@ -105,7 +111,10 @@ SELECT
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    cbwp.nguon_moi_v2::text as nguon_moi_v2,
+    cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -120,7 +129,10 @@ SELECT
     actor_code::text as actor_code,
     account_fb::text as account_fb,
     nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    null::text as nhom_dv_KH_quan_tam
+    null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_chinh_booking,
+    null::text as nguon_moi_v2,
+    null::text as nhom_nguon_moi_v2
 FROM {{ ref('stg_frmack_inbox') }}
 
 UNION ALL
@@ -136,7 +148,10 @@ SELECT
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    cbwp.nguon_moi_v2::text as nguon_moi_v2,
+    cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -152,7 +167,10 @@ SELECT
     null as actor_code,
     null as account_fb,
     null as nhom_dv_muc_tieu_code,
-    null::text as nhom_dv_KH_quan_tam
+    null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_chinh_booking,
+    null::text as nguon_moi_v2,
+    null::text as nhom_nguon_moi_v2
 FROM {{ ref('stg_frmack_google') }}
 
 UNION ALL
@@ -168,7 +186,10 @@ SELECT
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    cbwp.nguon_moi_v2::text as nguon_moi_v2,
+    cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -188,7 +209,10 @@ SELECT
     cbwp.actor_code::text as actor_code,
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
-    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam
+    cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
+    cbwp.nguon_moi_v2::text as nguon_moi_v2,
+    cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
   left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
 WHERE ngay_hl >= '{{ var("start_date", "2025-08-01") }}'::date
@@ -202,5 +226,8 @@ SELECT
     nhom_dv, chi_nhanh, local_k, quoc_gia, metric,
     type_data, ticket_id, campaign, page_name, page_id_from_camp,
     actor_code, account_fb, nhom_dv_muc_tieu_code,
-    null::text as nhom_dv_KH_quan_tam
+    null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_chinh_booking,
+    null::text as nguon_moi_v2,
+    null::text as nhom_nguon_moi_v2
 FROM {{ ref('stg_frmack_deal') }}

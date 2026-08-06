@@ -290,10 +290,21 @@ token 5 không khớp guard, hoặc khớp guard nhưng không có dòng nào tr
 ## 11. Chiều `nhom_dv_KH_quan_tam` — nhóm dịch vụ khách hàng quan tâm (từ `crm_line` đầu tiên)
 
 Tách thêm cột `nhom_dv_KH_quan_tam`, lấy từ
-`stg_dv_khach_hang_quan_tam.first_product_group` — `product_group` (nhóm
-dịch vụ, phân loại theo `his_service_type`/`product_category`) của bản ghi
+`stg_dv_khach_hang_quan_tam.first_product_group` — `product_group` của bản ghi
 `crm_line` **đầu tiên** (`cus_bk_line_order = 1`, sắp theo
-`cline_created_date`) của khách hàng đó, không phải nhóm dịch vụ mới nhất.
+`cline_created_date`, tie-break `cline_id`) của khách hàng đó, không phải
+nhóm dịch vụ mới nhất.
+
+**[Đổi 2026-08-05]** `product_group` giờ lấy **trực tiếp từ
+`view_stag_products.product_group`** (đã bake sẵn CASE WHEN trong view, khớp
+100% với DB sandbox `staging_sci` — xem `common/knowledge.md` mục 8), thay vì
+`stg_dv_khach_hang_quan_tam` tự tính CASE WHEN riêng. Nhãn đổi từ dạng cũ có
+tiền tố số (`1.MẮT`, `8.BEAUTY & SPA`...) sang đúng nhãn `view_stag_products`:
+`PTTM MẮT`, `PTTM MŨI`, `PTTM HÀM MẶT`, `PTTM NGỰC/MÔNG`, `CẤY MỠ`,
+`BEAUTY & SPA`, `BÉO ĐA CHUYÊN KHOA`, `WELLNESS`, `DỊCH VỤ KHÁC`, `SẢN PHẨM`
+(nhóm mới, trước đây không có — sản phẩm vật lý thay vì dịch vụ). Điều kiện
+phụ `category_source_code='MBS'` (định tuyến theo nguồn khách) đã **bỏ** —
+sandbox không dùng điều kiện này.
 
 ```
 stg_dv_khach_hang_quan_tam (ref, ephemeral)
@@ -440,3 +451,138 @@ phải lỗi của thay đổi này, mà là giới hạn dữ liệu nguồn �
 Cột `page_id` (khác với `page_name`) **không đổi** — vẫn chỉ lấy từ
 `page_code` (path campaign_name), path ticket không có khái niệm `page_id`
 tương ứng để expose (chỉ có `service_name`, không có ID Facebook Page thô).
+
+## 14. Chiều `nhom_dv_chinh_booking` — nhóm dịch vụ chính của booking (từ `common/stg_booking_nhom_dich_vu_chinh`)
+
+Thêm cột `nhom_dv_chinh_booking`, nguồn lấy từ model dùng chung
+`{{ ref('stg_booking_nhom_dich_vu_chinh') }}` (`data_serving/models/common/`
+— xem `LOGIC.md`/`knowledge.md` ở đó).
+
+**[Đổi 2026-08-05] Model common đã khớp lại logic theo `view_stag_crm_lead_first_product_group`
+bên DB sandbox** (`staging_sci` — xem `common/knowledge.md` mục 8): bỏ 3 tầng
+ưu tiên cũ, chuyển sang **1 nguồn duy nhất** (cline có `cln.id` nhỏ nhất
+trong booking), `nhom_dich_vu_chinh` = `view_stag_products.product_group`
+(nhãn **đã phân nhóm sẵn**: `PTTM MẮT`, `PTTM MŨI`, `PTTM HÀM MẶT`,
+`PTTM NGỰC/MÔNG`, `CẤY MỠ`, `BEAUTY & SPA`, `BÉO ĐA CHUYÊN KHOA`, `WELLNESS`,
+`DỊCH VỤ KHÁC`, `SẢN PHẨM`).
+
+Vì giá trị đã là nhãn phân nhóm sẵn, CASE ở `stg_frmack_crm_base`/
+`stg_frmack_doanh_so` giờ chỉ cần **so trực tiếp**, không cần `his_service_type`
+hay ILIKE nữa:
+
+```sql
+CASE
+    WHEN sbn.nhom_dich_vu_chinh IS NULL THEN NULL
+    WHEN sbn.nhom_dich_vu_chinh = 'BEAUTY & SPA' THEN '8.BEAUTY & SPA'
+    WHEN sbn.nhom_dich_vu_chinh = 'PTTM HÀM MẶT' THEN '3.HÀM MẶT/NHA KHOA'
+    WHEN sbn.nhom_dich_vu_chinh = 'WELLNESS' THEN '9.WELLNESS'
+    WHEN sbn.nhom_dich_vu_chinh = 'BÉO ĐA CHUYÊN KHOA' THEN '7.BÉO ĐA CHUYÊN KHOA'
+    WHEN sbn.nhom_dich_vu_chinh = 'PTTM MẮT' THEN '1.MẮT'
+    WHEN sbn.nhom_dich_vu_chinh = 'PTTM MŨI' THEN '2.MŨI'
+    WHEN sbn.nhom_dich_vu_chinh = 'CẤY MỠ' THEN '5.CẤY MỠ'
+    WHEN sbn.nhom_dich_vu_chinh = 'PTTM NGỰC/MÔNG' THEN '4.NGỰC/MÔNG'
+    ELSE '6.DỊCH VỤ KHÁC'
+END AS nhom_dv_chinh_booking
+```
+
+(`'SẢN PHẨM'` rơi vào `ELSE → '6.DỊCH VỤ KHÁC'`, không có bucket riêng ở đây.)
+
+**[Lịch sử]** 2 bản trước đó (không còn dùng, chỉ ghi lại để hiểu quá trình):
+(1) bản đầu dùng `business_line` tính sẵn qua text-match `UPPER(TRIM(product_category))`
+— sai vì text-match fail với nhiều category hợp lệ; (2) bản thứ 2 sửa
+`business_line`/`his_service_type` sang join theo ID
+(`product_category_id → stag_products_dbt.product_ctg_id`) nhưng vẫn giữ 3
+tầng ưu tiên cũ + ILIKE trên text — đã bỏ hẳn khi khớp lại theo sandbox (bản
+hiện tại), vì sandbox chỉ dùng 1 nguồn duy nhất và không cần ILIKE (giá trị
+đã là nhãn phân nhóm sẵn).
+
+Đã verify khớp sandbox trên dữ liệu thật (doanh số tháng 7/2026, so theo
+`stg_dv_khach_hang_quan_tam` — cùng cơ chế `product_group`, xem
+`common/knowledge.md` mục 8): DỊCH VỤ KHÁC và WELLNESS khớp tuyệt đối 100%,
+các nhóm còn lại trong khoảng 99.8–101.9%.
+
+Join **cùng cơ chế** với `nhom_dv_KH_quan_tam` (mục 11) — theo `crm_id`/
+`brand_etl` — vào `stg_frmack_crm_base` (DC/Lead/TC/BK/HL, qua `cl.id`) và
+riêng vào `stg_frmack_doanh_so` (DS, qua `cl3.id`, không qua
+`stg_frmack_crm_base`), rồi propagate qua `int_frmack_union` →
+`int_frmack_region` (`r.*`, không đụng) → `mart`.
+
+**Không nhầm với `nhom_dv_chinh_cs`** (mục 12, `stg_frmack_cs_tickets`, hiện
+vẫn đang comment out/chưa dùng): tuy cùng khai thác custom field id=9794,
+`nhom_dv_chinh_cs` lấy từ `cs_ticket_api` (grain **ticket** Caresoft, chỉ
+scope `ticket_source IN ('Inbox Facebook','Inbox Facebook Out')`,
+`updated_at >= 2025-01-01`, không có tầng fallback nào), còn
+`nhom_dv_chinh_booking` lấy từ `cs_deal_detail_api_v2` (bảng khác) với grain
+**booking**, có đủ 3 tầng ưu tiên, áp dụng cho toàn bộ booking `brand_etl=1`
+không giới hạn theo ticket.
+
+| Nguồn | `nhom_dv_chinh_booking` ở `int_frmack_union` | Lý do |
+|---|---|---|
+| DC/Lead/TC/BK/HL | `cbwp.nhom_dv_chinh_booking` (từ `crm_base_with_page`, join qua `stg_frmack_crm_base`) | Có `crm_id`/`brand_etl` (từ `crm_lead` đã JOIN trong `stg_frmack_crm_base.x`) |
+| DS | `pwp.nhom_dv_chinh_booking` (từ `payment_with_page`, join qua `stg_frmack_doanh_so`) | Có `crm_id`/`brand_etl` (từ `crm_lead` đã JOIN trực tiếp trong `stg_frmack_doanh_so.a`) |
+| Inbox / GG / DealCS | `NULL` | Không có liên kết CRM |
+
+Ở `mart`: Stream 1 (FB Cost) expose `NULL::text` cứng (không liên quan
+`crm_base`). Stream 2 expose raw (`m.nhom_dv_chinh_booking`, có thể `NULL`).
+Stream 3 dùng `COALESCE(m.nhom_dv_chinh_booking, 'KXĐ')` — đồng nhất cách xử
+lý `page`/`account_fb`/`nhom_dv_muc_tieu` (chỉ coalesce ở Stream 3, khác với
+`actor`/`nhom_dv_KH_quan_tam` vốn coalesce ở cả 2 stream 2 & 3).
+
+## 15. Chiều `nguon_moi_v2` / `nhom_nguon_moi_v2` — bộ nguồn mới (`crm_lead.new_source_id`), KHÔNG PHẢI `stag_sources`
+
+Thêm 2 cột lấy từ hệ "nguồn mới" của `crm_lead.new_source_id` — **quan
+trọng: không join vào `stag_sources`** (bảng đang dùng cho cột `nguon`/
+`Nguon` cũ qua `crm_lead.source_id`). Đã test trực tiếp trên dữ liệu thật:
+
+- `stag_sources.old_id = crm_lead.new_source_id` → **0 dòng khớp**
+- `stag_sources.id = crm_lead.new_source_id` → **0 dòng khớp**
+
+Bảng đúng chứa "bộ nguồn mới" là **`utm_source`** (khác hẳn `stag_sources`,
+2 hệ bảng độc lập nhau):
+
+```
+crm_lead.new_source_id
+  → utm_source.id  (kèm utm_source.brand_id = crm_lead.brand_etl)
+        → nguon_moi_v2 = utm_source.name
+              (vd: Facebook, Zalo, Google_Ads, Tiktok, Hotline,
+               Return_Customer, Referral_Customer, Partner_CTV...)
+  → utm_source.category_id → crm_category_source.id
+        (kèm crm_category_source.brand_etl = crm_lead.brand_etl)
+        → nhom_nguon_moi_v2 = crm_category_source.name
+              (Online / Offline / Partner / Referral / CRM/Return / Khác)
+```
+
+Đã verify trên dữ liệu thật (`crm_lead.brand_etl = 1`, 34,614 lead có
+`new_source_id`):
+- Join `utm_source.id = new_source_id AND utm_source.brand_id = brand_etl` →
+  khớp đúng **34,614/34,614** (100%).
+- **Gotcha `crm_category_source.id` trùng chéo giữa `brand_etl`** (đúng
+  pattern đã ghi ở `common/knowledge.md` mục 1 — không riêng bảng nào, áp
+  dụng cho mọi bảng mới join): vd `id=121` vừa là `Online` (`brand_etl=1`)
+  vừa là `Partner` (`brand_etl=8`). Thiếu điều kiện `cat.brand_etl =
+  cl.brand_etl` sẽ fan-out 2x và lấy nhầm nhóm của brand khác. Đã verify:
+  không có điều kiện này → fan-out; có điều kiện này → khớp đúng 34,614,
+  không nhân bản.
+
+Join **cùng cơ chế** với `nhom_dv_KH_quan_tam`/`nhom_dv_chinh_booking` — theo
+`crm_id`/`brand_etl`, thực chất join trực tiếp `cl.new_source_id`/
+`cl.brand_etl` (không cần `crm_id` trung gian vì đã có sẵn `crm_lead` trong
+CTE) — vào `stg_frmack_crm_base` (`cl.id`, DC/Lead/TC/BK/HL) và riêng vào
+`stg_frmack_doanh_so` (`cl3.id`, DS), rồi propagate qua `int_frmack_union` →
+`int_frmack_region` (`r.*`, không đụng) → `mart`.
+
+| Nguồn | `nguon_moi_v2`/`nhom_nguon_moi_v2` ở `int_frmack_union` | Lý do |
+|---|---|---|
+| DC/Lead/TC/BK/HL | `cbwp.nguon_moi_v2`/`cbwp.nhom_nguon_moi_v2` (từ `crm_base_with_page`) | Có `crm_lead` đã JOIN trong `stg_frmack_crm_base.x` |
+| DS | `pwp.nguon_moi_v2`/`pwp.nhom_nguon_moi_v2` (từ `payment_with_page`) | Có `crm_lead` đã JOIN trực tiếp trong `stg_frmack_doanh_so.a` |
+| Inbox / GG / DealCS | `NULL` | Không có liên kết CRM |
+
+Ở `mart`: Stream 1 (FB Cost) expose `NULL::text` cứng. Stream 2 expose raw
+(có thể `NULL`). Stream 3 dùng `COALESCE(..., 'KXĐ')` cho cả 2 cột — đồng
+nhất cách xử lý `nhom_dv_chinh_booking`.
+
+Có 2 dòng `new_source_id` (772 `K_CBNV`, 773 `K_Người nhà CBNV`) map sang
+`category_id=108` ("Khác") nhưng không có bản ghi `crm_category_source`
+tương ứng cho `brand_etl=1` → `nhom_nguon_moi_v2` ra `NULL`/`'KXĐ'` dù
+`nguon_moi_v2` vẫn có giá trị — đây là giới hạn dữ liệu nguồn, không phải
+lỗi join.
