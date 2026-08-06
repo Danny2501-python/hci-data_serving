@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: rck_base
+    schema: public
+    tables:
+      - name: cs_chat_api
+      - name: cs_ticket_api
+      - name: cs_contact_api
+      - name: cs_deal_detail_api_v2
+      - name: cs_agents_api
+      - name: cs_custom_fields
+      - name: crm_lead
+      - name: dim_page
