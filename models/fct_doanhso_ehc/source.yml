@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: ehc
+    schema: public
+    tables:
+      # 5 bảng Hồng Hà: trên sandbox trỏ sang bản "_v2" (copy riêng từ new_product, không đụng
+      # bảng gốc cũ đã có sẵn trên sandbox — xem knowledge.md mục "Migrate sang sandbox").
+      - name: ehc_tb_invoice
+        identifier: "{{ 'ehc_tb_invoice_v2' if target.name == 'sandbox' else 'ehc_tb_invoice' }}"
+      - name: ehc_tb_invoicerequest
+        identifier: "{{ 'ehc_tb_invoicerequest_v2' if target.name == 'sandbox' else 'ehc_tb_invoicerequest' }}"
+      - name: ehc_tb_patientrecord
+        identifier: "{{ 'ehc_tb_patientrecord_v2' if target.name == 'sandbox' else 'ehc_tb_patientrecord' }}"
+      - name: ehc_tb_nguoigioithieu
+        identifier: "{{ 'ehc_tb_nguoigioithieu_v2' if target.name == 'sandbox' else 'ehc_tb_nguoigioithieu' }}"
+      - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu
+        identifier: "{{ 'ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_v2' if target.name == 'sandbox' else 'ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu' }}"
+      - name: ehc_tb_servicedata
+      - name: ehc_tb_room
+      # 5 bảng VDE (_thv): chưa tồn tại sẵn trên sandbox trước khi migrate nên dùng thẳng tên gốc,
+      # không cần đổi tên theo target.
+      - name: ehc_tb_invoice_thv
+      - name: ehc_tb_invoicerequest_thv
+      - name: ehc_tb_patientrecord_thv
+      - name: ehc_tb_nguoigioithieu_thv
+      - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_thv

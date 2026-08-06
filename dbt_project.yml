@@ -238,6 +238,12 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    fct_doanhso_ehc:
+      +tags: ["fct_doanhso_ehc"]
+      +materialized: table
+    report_doanh_so_tap_doan_HCI:
+      +tags: ["report_doanh_so_tap_doan_hci"]
+      +materialized: table
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
