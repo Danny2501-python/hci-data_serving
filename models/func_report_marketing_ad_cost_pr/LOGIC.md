@@ -23,6 +23,29 @@ Xem chi tiết tại LOGIC.md của `func_bc_sales_paris`.
 
 ---
 
+## Sự cố — source `view_ggs_paris_sm_target_daily` bị mất (2026-08-07)
+
+`stg_frmacpr_targets` (PASS 7 & 8 — Mục tiêu Lead/Chi phí) đọc từ
+`source('paris', 'view_ggs_paris_sm_target_daily')`. View này **không do dbt
+quản lý** — được sync từ Google Sheet "SM Target Daily" bởi job bên ngoài repo.
+Ngày 2026-08-07 phát hiện view không còn tồn tại trong DB `new_product`
+(10.10.10.214) → lỗi `relation does not exist` làm sập toàn bộ
+`mart_report_marketing_ad_cost_pr` (model `table` duy nhất trong pipeline,
+union tất cả nguồn `ephemeral` trong 1 câu query — 1 nguồn lỗi là cả report
+không được refresh).
+
+**Fix tạm/graceful degradation đã áp dụng** trong `stg_frmacpr_targets.sql`:
+dùng `adapter.get_relation()` kiểm tra view có tồn tại không trước khi query.
+Nếu KHÔNG tồn tại → trả về tập rỗng (đúng cấu trúc cột) thay vì lỗi, kèm
+cảnh báo `log(..., info=True)` in ra mỗi lần `dbt run`. Kết quả: report vẫn
+build được bình thường, nhưng **không có dòng `type_data = target_lead` /
+`target_cost`** nào cho đến khi view được khôi phục lại trong DB.
+
+Pattern này **chỉ áp dụng cho model này**, chưa áp dụng cho các source
+`view_ggs_*` khác trong `sources.yml` (ví dụ `ggs_google_campaign_ads_list`).
+
+---
+
 ## Nguồn dữ liệu chính (`stg_frmacpr_leads_lines`)
 
 ```
