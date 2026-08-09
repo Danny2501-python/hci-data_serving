@@ -22,6 +22,12 @@ FROM {{ ref('stg_frmacpr_google') }}
 
 UNION ALL
 
+-- TikTok Ads cost
+SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data
+FROM {{ ref('stg_frmacpr_tiktok') }}
+
+UNION ALL
+
 -- Inbox Facebook
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data
 FROM {{ ref('stg_frmacpr_inbox') }}

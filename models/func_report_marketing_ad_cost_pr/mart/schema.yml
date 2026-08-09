@@ -21,4 +21,4 @@ models:
       - name: Metric
         description: Giá trị đo lường (chi phí, số lượng, doanh số – dạng text)
       - name: type_data
-        description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / ib / target_lead / target_cost)
+        description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / tiktok / ib / target_lead / target_cost)

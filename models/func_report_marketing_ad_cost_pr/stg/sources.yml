@@ -23,6 +23,8 @@ sources:
       # Google
       - name: google_ad_paris
       - name: ggs_google_campaign_ads_list
+      # TikTok
+      - name: tiktok_raw_ad
       # CRM
       - name: crm_lead
       - name: crm_line
@@ -37,4 +39,4 @@ sources:
       - name: local_paris_adnet
       - name: m_nhom_dv_adnet_paris
       # Targets
-      - name: view_ggs_paris_sm_target_daily
+      - name: ggs_paris_sm_target
