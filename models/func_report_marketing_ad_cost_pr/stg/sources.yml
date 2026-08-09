@@ -39,4 +39,4 @@ sources:
       - name: local_paris_adnet
       - name: m_nhom_dv_adnet_paris
       # Targets
-      - name: view_ggs_paris_sm_target_daily
+      - name: ggs_paris_sm_target

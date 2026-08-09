@@ -15,5 +15,5 @@ SELECT
         WHEN type = 'Chi phí'   THEN 'target_cost'
         ELSE type
     END                         AS type_data
-FROM {{ source('paris', 'view_ggs_paris_sm_target_daily') }}
+FROM {{ ref('stg_frmacpr_target_daily_view') }}
 WHERE type IN ('Lead', 'Chi phí')

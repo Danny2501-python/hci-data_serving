@@ -47,7 +47,8 @@ stg/
   stg_frmacpr_inbox           ← Inbox Facebook
   stg_frmacpr_doanh_so        ← Doanh số (stag_payment_transfer)
   stg_frmacpr_deal_cs         ← Caresoft deal
-  stg_frmacpr_targets         ← KPI targets
+  stg_frmacpr_target_daily_view ← Materialize view_ggs_paris_sm_target_daily (materialized='view')
+  stg_frmacpr_targets         ← KPI targets (ref stg_frmacpr_target_daily_view)
 int/
   int_frmacpr_erp_conv        ← Xử lý trung gian
   int_frmacpr_union           ← UNION ALL các stream
@@ -154,8 +155,52 @@ lại thành công tới `report_marketing_ad_cost_pr_v2`. `PRFB001` = 0 dòng. 
 485 dòng còn lại → `KHAC` (giá trị thật ở vị trí 5 là `khac`, không khớp category
 nào — không còn là lỗi parse, là service chưa phân loại thật sự).
 
-**Việc còn tồn (chưa xử lý, chỉ để theo dõi):** kiểm tra toàn bộ campaign_id Paris
-trong `cs_facebook_insight` bằng "tên mới nhất theo campaign_id" cho thấy **420/487
+---
+
+## `view_ggs_paris_sm_target_daily` — chuyển thành dbt model (materialized view) — 2026-08-09
+
+**Vấn đề:** view `public.view_ggs_paris_sm_target_daily` (nguồn cho `stg_frmacpr_targets`)
+trước đây được tạo tay ngoài DB, không do dbt/code nào trong repo quản lý. Bảng gốc
+`ggs_paris_sm_target` là bảng ingest kiểu Google Sheet (có
+`snapshot_date`/`ingestion_timestamp`/`source_server`, cùng dạng `tiktok_raw_ad`) —
+nghi ngờ job sync định kỳ DROP + tạo lại bảng, kéo theo view phụ thuộc bị drop
+theo. Đã gặp thực tế 2026-08-09: `dbt run` báo lỗi `relation
+"view_ggs_paris_sm_target_daily" does not exist`, sau đó view tự nhiên tồn tại
+lại mà không rõ ai/job nào tạo.
+
+**Fix:** thêm model mới `stg_frmacpr_target_daily_view.sql`, port y hệt định
+nghĩa view gốc (lấy từ `pg_get_viewdef()`), đọc trực tiếp từ
+`source('paris', 'ggs_paris_sm_target')`, cấu hình:
+```sql
+{{ config(materialized = 'view', alias = 'view_ggs_paris_sm_target_daily') }}
+```
+`alias` giữ nguyên tên object cũ (`view_ggs_paris_sm_target_daily`) để báo cáo/
+dashboard khác đang query trực tiếp view này (ngoài phạm vi dbt) không bị ảnh
+hưởng. `stg_frmacpr_targets.sql` đổi từ `source('paris', 'view_ggs_paris_sm_target_daily')`
+sang `ref('stg_frmacpr_target_daily_view')`. `sources.yml` đổi entry Targets từ
+view sang bảng gốc `ggs_paris_sm_target`.
+
+**Hiệu quả:** mỗi lần `dbt run --select tag:report_pr` (Airflow DAG
+`data_serving_pr_etl`, chạy hằng ngày) sẽ tự `CREATE OR REPLACE VIEW` lại object
+này — không còn phụ thuộc ai tạo tay ngoài DB nữa, miễn bảng gốc
+`ggs_paris_sm_target` còn tồn tại đúng schema (`date_from`, `date_to`, `type`,
+`product_category`, `value`).
+
+**Verify (2026-08-09):** `dbt run --select func_report_marketing_ad_cost_pr` chạy
+thành công (4/4 model, gồm `view_ggs_paris_sm_target_daily` materialize kiểu
+`CREATE VIEW`). View vẫn ra đúng 184 dòng, mart vẫn ra 92 `target_lead` +
+92 `target_cost` — khớp số liệu trước khi chuyển.
+
+**Script chạy tay dự phòng** (nếu cả bảng gốc `ggs_paris_sm_target` bị drop, cần
+đợi job ingest tạo lại bảng trước khi dbt chạy được):
+`analyses/func_report_marketing_ad_cost_pr/create_view_ggs_paris_sm_target_daily.sql`.
+
+---
+
+## Việc còn tồn (chưa xử lý, chỉ để theo dõi)
+
+Kiểm tra toàn bộ campaign_id Paris trong `cs_facebook_insight` bằng "tên mới nhất
+theo campaign_id" cho thấy **420/487
 campaign_id** vẫn chưa đổi tên theo convention mới, nhưng đa số đã ngừng chạy (data
 cuối từ 2026-07-21 trở về trước). Chỉ **4 campaign_id còn phát sinh chi phí đến hôm
 nay (2026-08-08)** vẫn dùng tên cũ: `120246226473180478`, `120250915229370478`
