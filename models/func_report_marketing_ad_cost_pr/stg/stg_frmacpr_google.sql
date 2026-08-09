@@ -51,5 +51,10 @@ SELECT
         ELSE chi_nhanh_raw
     END                                                             AS chi_nhanh,
     chi_phi                                                         AS metric,
-    'google'::text                                                  AS type_data
+    'google'::text                                                  AS type_data,
+    -- Không có liên kết CRM, nhưng nhánh này là chi phí quảng cáo Google Ads
+    -- -> mặc định cứng theo catalog utm_source thật của Paris (id=735
+    -- 'Google_Ads', category 'Online').
+    'Google_Ads'::text                                              AS nguon_moi_v2,
+    'Online'::text                                                  AS nhom_nguon_moi_v2
 FROM a

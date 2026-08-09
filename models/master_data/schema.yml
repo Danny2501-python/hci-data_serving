@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: m_utm_source_old_new_map
+    description: >
+      Mapping "nguồn cũ" -> "nguồn mới" theo từng brand_etl, dựa trên bảng cầu
+      `utm_source_old_source_rel` (source_id = nguồn mới, old_source_id = nguồn
+      cũ). 1 nguồn mới có thể gộp nhiều nguồn cũ (không phải quan hệ 1-1).
+      Coverage: có dữ liệu cho brand_etl 1 (Kangnam), 3 (Paris), 4 (Hồng Hà),
+      8 (THV). brand_etl = 7 chưa có dòng nào trong `utm_source_old_source_rel`.
+    columns:
+      - name: brand_etl
+        description: >
+          Mã thương hiệu, lấy từ `utm_source_old_source_rel.brand_etl` (dùng
+          làm mốc join sang `utm_source` cho cả 2 phía cũ/mới — xem gotcha
+          "id trùng chéo giữa brand_etl" ở `common/knowledge.md` mục 1).
+      - name: old_source_id
+        description: "utm_source.id của nguồn cũ (utm_source_old_source_rel.old_source_id)."
+      - name: old_source_name
+        description: >
+          utm_source.name của nguồn cũ, join theo old_source_id + brand_etl.
+          Ví dụ: "MD - Facebook", "K - Vãng lai", "MBS - Tiktok".
+      - name: new_source_id
+        description: "utm_source.id của nguồn mới (utm_source_old_source_rel.source_id)."
+      - name: new_source_name
+        description: >
+          utm_source.name của nguồn mới, join theo new_source_id + brand_etl.
+          Ví dụ: "Facebook", "Tiktok", "Return_Customer (KH cũ quay lại)".
+          **Gap đã biết:** NULL 100% (0/38) cho brand_etl = 4 (Hồng Hà) —
+          source_id phía "nguồn mới" của các dòng này không tồn tại trong
+          utm_source ở brand_etl=4 (toàn bộ utm_source brand_etl=4 có cờ
+          is_new_source/is_old_source NULL, có thể ERP Hồng Hà chưa có/chưa
+          đồng bộ hệ "nguồn mới" riêng). Đã thử join sang utm_source.brand_etl=8
+          (THV) — khớp 100% nhưng **đã xác nhận với người dùng đây là 2
+          thương hiệu khác nhau**, match đó chỉ là trùng id ngẫu nhiên (gotcha
+          "id trùng chéo giữa brand_etl", `common/knowledge.md` mục 1) —
+          KHÔNG áp dụng. Cố ý giữ NULL cho tới khi có nguồn dữ liệu đúng.
+      - name: new_source_category_id
+        description: >
+          utm_source.category_id của nguồn mới — id nhóm nguồn cấp cao hơn
+          (join sang crm_category_source.name để lấy tên nhóm, vd Online/
+          Offline/Partner/Referral/CRM/Return/Khác — xem nhom_nguon_moi_v2 ở
+          func_report_marketing_ad_cost_kn/mart/schema.yml). **Lưu ý:**
+          category_id KHÔNG unique toàn cục giữa brand_etl (id trùng chéo,
+          gotcha mục 1) — muốn resolve tên nhóm phải join kèm brand_etl.

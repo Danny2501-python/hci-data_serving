@@ -22,3 +22,44 @@ models:
         description: Giá trị đo lường (chi phí, số lượng, doanh số – dạng text)
       - name: type_data
         description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / tiktok / ib / target_lead / target_cost)
+      - name: nguon_moi_v2
+        description: >
+          "Nguồn mới": tên nguồn từ hệ nguồn mới, lấy `crm_lead.new_source_id`
+          → `utm_source.name` (join theo `utm_source.id = crm_lead.new_source_id
+          AND utm_source.brand_id = crm_lead.brand_etl`). Cùng cơ chế đã dùng ở
+          `func_report_marketing_ad_cost_kn` (xem mart/schema.yml bên đó, cột
+          `nguon_moi_v2`). **Khác** cột `nguon` (hệ nguồn cũ, từ `stag_sources`
+          qua `crm_lead.source_id` — 2 hệ nguồn độc lập, không suy ra lẫn nhau).
+          Với các type_data có liên kết CRM (Lead/BK/BKHL/DC/TC/DS): ưu tiên
+          `crm_lead.new_source_id`, nếu NULL thì fallback suy ra từ nguồn cũ
+          `crm_lead.source_id` qua bảng mapping `m_utm_source_old_new_map`
+          (`master_data`, xem `LOGIC.md`) — `old_source_id = source_id` kèm
+          `brand_etl`. Sau
+          fallback, coverage tăng mạnh: BK 98.7%, BKHL 98.7%, DC 98.8%, Lead
+          98.8%, TC 99.4% (trước fallback chỉ ~53-66%); riêng DS chỉ ~29.9%
+          — root cause: KHÔNG phải lỗi join, mà backlog đồng bộ `crm_lead`
+          brand Paris trong `new_product` (69% dòng DS nằm trong khoảng
+          2025-08 → 2026-04 có ~0% match `crm_lead`; từ tháng 6/2026 trở đi
+          match ~100%, coverage nguồn ~98% — tương đương các nhánh khác. Xem
+          `LOGIC.md` để biết chi tiết funnel). LATERAL +
+          `ORDER BY new_source_id LIMIT 1` trong join tránh fan-out — 1 số
+          `old_source_id` trong bảng mapping ứng với >1 `new_source_id`.
+
+          Với các type_data KHÔNG có liên kết CRM nhưng nguồn kênh đã biết rõ
+          từ chính loại dữ liệu (không cần tra CRM để xác định), mặc định
+          cứng theo tên thật trong catalog utm_source của Paris thay vì để
+          NULL: `Cost_fb_cd`/`Cost_fb_th`/`ib` (Facebook, Inbox Facebook) →
+          `'Facebook'`; `google`/`Deal_cs` (Deal Caresoft nguồn Google Search)
+          → `'Google_Ads'`; `tiktok` → `'Tiktok'`. Chỉ `target_lead`/
+          `target_cost` (`type_data` "Mục tiêu", không phải traffic thật, xem
+          `stg_frmacpr_targets.sql`) vẫn để NULL vì không gắn với 1 kênh cụ
+          thể.
+      - name: nhom_nguon_moi_v2
+        description: >
+          "Nhóm nguồn mới": nhóm nguồn cấp cao hơn của nguon_moi_v2, lấy
+          `utm_source.category_id` → `crm_category_source.name` (join kèm
+          `crm_category_source.brand_etl = crm_lead.brand_etl` — category_id
+          KHÔNG unique toàn cục giữa brand_etl, xem gotcha
+          `common/knowledge.md` mục 1). Cùng population/mặc định cứng như
+          nguon_moi_v2 (Facebook/Google_Ads/Tiktok đều thuộc nhóm `'Online'`
+          trong catalog utm_source của Paris).
