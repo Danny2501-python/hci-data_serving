@@ -11,8 +11,10 @@ SELECT
     CASE
         WHEN ss2.org_source LIKE '%Facebook%' THEN 'FB'
         WHEN ss2.org_source LIKE '%Seo%'      THEN 'Web'
-        WHEN (ss2.org_source ilike '%display%' OR ss2.org_source ilike '%search%') AND ctsda.utm_source ilike '%Google_Search%' THEN 'Google'
+        WHEN (ss2.org_source ilike '%display%' OR ss2.org_source ilike '%search%') 
+              AND ctsda.utm_source ilike '%Google_Search%' THEN 'Google'
         WHEN ss2.org_source LIKE '%Hotline%'  THEN 'Web'
+        WHEN ss2.org_source LIKE '%Tiktok%'  THEN 'TikTok'
         ELSE 'Khác'
     END                                                             AS kenh,
     spt.payment_date::date                                          AS ngay,

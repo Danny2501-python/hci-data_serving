@@ -23,8 +23,20 @@ WITH fb_new AS (
             ELSE 'Cost_fb_cd' 
         END                                                          AS type_data_check,
         lpa.branch                                                   AS chi_nhanh_raw,
-        SPLIT_PART(f.ad_campaign_name, '_', 2)                       AS nhom_dv_p2,
-        SPLIT_PART(f.ad_campaign_name, '_', 3)                       AS nhom_dv_p3
+        -- Quy ước đặt tên campaign chung tập đoàn (giống func_report_marketing_ad_cost_kn):
+        -- token 1 nằm trong whitelist var('all_brand_mkt_camp') -> campaign đã đổi tên theo
+        -- convention 9+ token mới, nhom_dv nằm ở vị trí 5. Campaign chưa đổi tên (token 1 không
+        -- thuộc whitelist) vẫn dùng vị trí 2/3 như logic cũ. Xem LOGIC.md.
+        CASE
+            WHEN SPLIT_PART(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+                THEN SPLIT_PART(f.ad_campaign_name, '_', 5)
+            ELSE SPLIT_PART(f.ad_campaign_name, '_', 2)
+        END                                                          AS nhom_dv_p2,
+        CASE
+            WHEN SPLIT_PART(f.ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+                THEN SPLIT_PART(f.ad_campaign_name, '_', 5)
+            ELSE SPLIT_PART(f.ad_campaign_name, '_', 3)
+        END                                                          AS nhom_dv_p3
     FROM {{ source('paris', 'cs_facebook_insight') }} f
     LEFT JOIN {{ source('paris', 'local_paris_adnet') }} lpa
            ON lpa.province = f.region
