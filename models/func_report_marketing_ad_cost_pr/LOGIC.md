@@ -333,6 +333,47 @@ DS thấp hơn hẳn các nhánh khác kể cả sau fallback — nhiều dòng
 `crm_lead`, giới hạn dữ liệu nguồn chứ không phải lỗi join (đã kiểm tra
 join logic giống hệt các nhánh khác).
 
+### Đào sâu nguyên nhân DS coverage thấp (29.9%) — 2026-08-09
+
+Tách funnel để tìm bước rớt dữ liệu (brand_etl=3, `start_date=2025-08-01`,
+30,267 dòng `stag_payment_transfer`):
+
+| Bước | Số dòng | Tỷ lệ |
+|---|---|---|
+| Match `crm_lead` (`spt.crm_id = cl.id AND cl.brand_etl = spt.brand_etl`) | 9,111 | 30.1% |
+| → có `new_source_id` trực tiếp | 5,806 | — |
+| → chỉ có `source_id` (cũ), cần fallback | 3,305 | — |
+| → không có nguồn nào (cả 2 đều NULL) | 0 | — |
+
+**Kết luận: nút thắt nằm hoàn toàn ở bước match `crm_lead`, không phải ở
+logic `new_source_id`/fallback** — một khi lead đã match được, gần như
+100% có nguồn (trực tiếp hoặc qua fallback).
+
+**Root cause — backlog đồng bộ `crm_lead`, không phải lỗi join:** tách theo
+tháng `payment_date`:
+
+| Tháng | Số dòng | % match `crm_lead` |
+|---|---|---|
+| 2025-08 → 2026-04 | 21,017 | ~0% |
+| 2026-05 | 970 | 82.0% |
+| 2026-06 → 2026-08 | 8,280 | 100% |
+
+Đây là **cùng hiện tượng đã ghi nhận cho `brand_etl=1`** ở
+`common/knowledge.md` mục 8 ("Coverage gap `new_product` vs `staging_sci`
+cho `crm_lead`... tháng 1–5/2026 chỉ đạt 19.6–49.2%, tháng 6/2026 trở đi
+100%") — lần này xảy ra ở `brand_etl=3` (Paris), với ranh giới rõ hơn: gần
+như 0% trước tháng 5/2026, 100% từ tháng 6/2026. `crm_lead` brand Paris
+trong `new_product` chỉ được đồng bộ đầy đủ dữ liệu lịch sử từ ~tháng
+6/2026 — dữ liệu payment cũ hơn (69% tổng số dòng DS trong scope
+`start_date` mặc định) hầu như không map được lead nào, kéo tổng coverage
+xuống thấp dù coverage riêng tháng 6-8/2026 đã tốt (~98%, tương đương các
+nhánh khác).
+
+**Hệ quả thực tế:** `nguon_moi_v2`/`nhom_nguon_moi_v2` cho `DS` chỉ đáng tin
+cậy với dữ liệu **từ tháng 6/2026 trở đi**; báo cáo dùng dữ liệu lịch sử xa
+hơn (2025-08 → 2026-04) sẽ thấy coverage rất thấp cho nhánh này — đây là
+giới hạn dữ liệu nguồn ERP, không sửa được ở tầng dbt model.
+
 ---
 
 ## Việc còn tồn (chưa xử lý, chỉ để theo dõi)

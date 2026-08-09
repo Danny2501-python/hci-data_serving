@@ -37,8 +37,11 @@ models:
           `brand_etl`. Sau
           fallback, coverage tăng mạnh: BK 98.7%, BKHL 98.7%, DC 98.8%, Lead
           98.8%, TC 99.4% (trước fallback chỉ ~53-66%); riêng DS chỉ ~29.9%
-          (thấp hơn hẳn — nhiều payment không map được `crm_id`/`source_id`
-          hợp lệ, giới hạn dữ liệu nguồn chứ không phải lỗi join). LATERAL +
+          — root cause: KHÔNG phải lỗi join, mà backlog đồng bộ `crm_lead`
+          brand Paris trong `new_product` (69% dòng DS nằm trong khoảng
+          2025-08 → 2026-04 có ~0% match `crm_lead`; từ tháng 6/2026 trở đi
+          match ~100%, coverage nguồn ~98% — tương đương các nhánh khác. Xem
+          `LOGIC.md` để biết chi tiết funnel). LATERAL +
           `ORDER BY new_source_id LIMIT 1` trong join tránh fan-out — 1 số
           `old_source_id` trong bảng mapping ứng với >1 `new_source_id`.
 
