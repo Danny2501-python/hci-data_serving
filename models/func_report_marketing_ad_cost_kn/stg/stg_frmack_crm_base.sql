@@ -68,7 +68,7 @@ WITH x AS (
             WHEN sbn.nhom_dich_vu_chinh = 'PTTM NGỰC/MÔNG' THEN '4.NGỰC/MÔNG'
             ELSE '6.DỊCH VỤ KHÁC'
         END AS nhom_dv_chinh_booking,
-        us.name AS nguon_moi_v2,
+        COALESCE(us.name, monm.new_source_name) AS nguon_moi_v2,
         cat.name AS nhom_nguon_moi_v2
     FROM {{ ref('stg_common_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
@@ -85,8 +85,21 @@ WITH x AS (
       ON sbn.crm_id = cl.id AND sbn.brand_etl = cl.brand_etl
      LEFT JOIN {{ source('kangnam', 'utm_source') }} us
       ON us.id = cl.new_source_id AND us.brand_id = cl.brand_etl
+     -- Fallback khi crm_lead.new_source_id NULL: suy ra nguồn mới từ nguồn cũ
+     -- (cl.source_id) qua bảng mapping master_data.m_utm_source_old_new_map.
+     -- LATERAL + ORDER BY new_source_id LIMIT 1 để tránh fan-out — 3 old_source_id
+     -- trong bảng mapping map sang >1 new_source_id (xem LOGIC.md/README.md), nếu
+     -- JOIN thẳng sẽ nhân dòng lead.
+     LEFT JOIN LATERAL (
+        SELECT new_source_name, new_source_category_id
+        FROM {{ ref('m_utm_source_old_new_map') }} m
+        WHERE m.old_source_id = cl.source_id AND m.brand_etl = cl.brand_etl
+          AND cl.new_source_id IS NULL
+        ORDER BY m.new_source_id
+        LIMIT 1
+     ) monm ON TRUE
      LEFT JOIN {{ source('kangnam', 'crm_category_source') }} cat
-      ON cat.id = us.category_id AND cat.brand_etl = cl.brand_etl
+      ON cat.id = COALESCE(us.category_id, monm.new_source_category_id) AND cat.brand_etl = cl.brand_etl
 ),
 kh AS (
     SELECT x.*,

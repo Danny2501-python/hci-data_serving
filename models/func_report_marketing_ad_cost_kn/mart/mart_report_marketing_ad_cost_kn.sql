@@ -46,8 +46,11 @@ SELECT
     cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
     null::text                                                AS nhom_dv_KH_quan_tam,
     null::text                                                AS nhom_dv_chinh_booking,
-    null::text                                                AS nguon_moi_v2,
-    null::text                                                AS nhom_nguon_moi_v2
+    -- Không có liên kết CRM, nhưng Stream 1 chỉ là chi phí quảng cáo Facebook
+    -- (int_frmack_fb_cost) -> mặc định cứng theo catalog utm_source thật của
+    -- Kangnam (id=751 'Facebook', category 'Online') thay vì NULL.
+    'Facebook'::text                                          AS nguon_moi_v2,
+    'Online'::text                                            AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_fb_cost') }} f
 -- Compute tinh_noi inline (same re_map formula as Pass 12)
 LEFT JOIN LATERAL (

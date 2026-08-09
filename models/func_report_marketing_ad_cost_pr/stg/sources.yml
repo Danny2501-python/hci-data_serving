@@ -30,6 +30,8 @@ sources:
       - name: crm_line
       - name: crm_stage
       - name: m_res_company
+      - name: utm_source
+      - name: crm_category_source
       # Revenue
       - name: stag_payment_transfer
       - name: view_stag_products

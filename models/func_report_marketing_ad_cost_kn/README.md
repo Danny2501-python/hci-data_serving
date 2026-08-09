@@ -577,12 +577,170 @@ CTE) — vào `stg_frmack_crm_base` (`cl.id`, DC/Lead/TC/BK/HL) và riêng vào
 | DS | `pwp.nguon_moi_v2`/`pwp.nhom_nguon_moi_v2` (từ `payment_with_page`) | Có `crm_lead` đã JOIN trực tiếp trong `stg_frmack_doanh_so.a` |
 | Inbox / GG / DealCS | `NULL` | Không có liên kết CRM |
 
-Ở `mart`: Stream 1 (FB Cost) expose `NULL::text` cứng. Stream 2 expose raw
-(có thể `NULL`). Stream 3 dùng `COALESCE(..., 'KXĐ')` cho cả 2 cột — đồng
-nhất cách xử lý `nhom_dv_chinh_booking`.
+Ở `mart`: Stream 2 expose raw (có thể `NULL`). Stream 3 dùng
+`COALESCE(..., 'KXĐ')` cho cả 2 cột — đồng nhất cách xử lý
+`nhom_dv_chinh_booking`. **[Cập nhật — xem mục 16]** Stream 1 và các nhánh
+Inbox/GG/DealCS (thuộc Stream 2/3) **không còn** để `NULL` — đã đổi sang mặc
+định cứng theo kênh đã biết.
 
 Có 2 dòng `new_source_id` (772 `K_CBNV`, 773 `K_Người nhà CBNV`) map sang
 `category_id=108` ("Khác") nhưng không có bản ghi `crm_category_source`
 tương ứng cho `brand_etl=1` → `nhom_nguon_moi_v2` ra `NULL`/`'KXĐ'` dù
 `nguon_moi_v2` vẫn có giá trị — đây là giới hạn dữ liệu nguồn, không phải
 lỗi join.
+
+## 16. `nguon_moi_v2`/`nhom_nguon_moi_v2` cho các nhánh không có CRM linkage — mặc định cứng theo kênh thay vì NULL (2026-08-09)
+
+Mục 15 để `NULL` cho Stream 1 (FB Cost) và nhánh Inbox/GG/DealCS vì các nhánh
+này không join `crm_lead` nên không tra được `new_source_id`. Nhưng bản thân
+loại dữ liệu của các nhánh này **đã xác định rõ kênh** mà không cần tra CRM —
+theo yêu cầu người dùng, đổi sang mặc định cứng theo tên thật trong catalog
+`utm_source` của Kangnam (đã verify tồn tại: id=751 `Facebook`, id=755
+`Google_Ads`, cả 2 cùng `category_id=121` → `crm_category_source.name =
+'Online'`):
+
+| Nhánh | Sửa ở file | Căn cứ xác định kênh | Mặc định |
+|---|---|---|---|
+| Stream 1 (FB Cost) | `mart/mart_report_marketing_ad_cost_kn.sql` | Nguồn `int_frmack_fb_cost`, toàn bộ là chi phí quảng cáo Facebook | `'Facebook'` / `'Online'` |
+| `inbox` | `int/int_frmack_union.sql` | `stg_frmack_inbox` đọc từ `m_inbox_kangnam` — Inbox Facebook | `'Facebook'` / `'Online'` |
+| `DealCS` | `int/int_frmack_union.sql` | `stg_frmack_deal.sql` set cứng `nguon = 'MD - Facebook'`, `kenh = 'FB'` — ticket Caresoft có gắn FB `ad_id` | `'Facebook'` / `'Online'` |
+| `Google_cd`/`Google_th` | `int/int_frmack_union.sql` | `stg_frmack_google` đọc từ `cp_google_kangnam` — chi phí Google Ads | `'Google_Ads'` / `'Online'` |
+
+**Lưu ý khác với `func_report_marketing_ad_cost_pr`:** bên PR, nhánh `DealCS`
+lấy Deal Caresoft theo tiêu chí **Google Search** (`ctsda.utm_source ilike
+'%Google_Search%'`) nên mặc định `'Google_Ads'`; bên KN, `DealCS` lấy theo
+tiêu chí **FB `ad_id`** nên mặc định `'Facebook'` — 2 pipeline có cùng
+`type_data = 'DealCS'` nhưng nguồn gốc dữ liệu hoàn toàn khác nhau, đã kiểm
+tra code thật của từng bên trước khi áp dụng, không copy máy móc.
+
+Vì Stream 2/3 (`int_frmack_region`) đọc `r.*` nguyên vẹn từ
+`int_frmack_union` (mục 3), giá trị mặc định gán ở `int_frmack_union` tự
+động lan xuống `mart` mà không cần sửa `mart_report_marketing_ad_cost_kn.sql`
+cho Stream 2/3 — chỉ Stream 1 (đọc trực tiếp từ `int_frmack_fb_cost`, không
+qua `int_frmack_union`) mới cần sửa riêng ở `mart`.
+
+**Verify (2026-08-09):** `dbt run --select func_report_marketing_ad_cost_kn`
+build lại thành công (4,384,136 dòng). Populate 100% cho `Cost_fb_cd`
+(3,326,298 dòng), `Cost_fb_th` (458,357), `DealCS` (61,022), `Google_cd`
+(13,950), `inbox` (162,188) — tất cả đúng giá trị mặc định theo bảng trên,
+không còn `NULL` ở các nhánh này.
+
+## 17. Fallback: suy ra `nguon_moi_v2`/`nhom_nguon_moi_v2` từ nguồn cũ qua `master_data.m_utm_source_old_new_map` (2026-08-09)
+
+Theo yêu cầu người dùng: với các dòng có liên kết CRM (DC/Lead/TC/BK/HL/DS)
+nhưng `crm_lead.new_source_id` NULL, tự động suy ra từ **nguồn cũ**
+(`crm_lead.source_id`) qua bảng mapping `m_utm_source_old_new_map` (model
+`master_data`) thay vì để `NULL`.
+
+**Verify trước khi áp dụng:** `crm_lead.source_id` (brand_etl=1) join thẳng
+`utm_source.id` (kèm `brand_id = brand_etl`) khớp **100%**
+(156,221/156,221 lead có `source_id` nhưng `new_source_id` NULL). Join tiếp
+qua `m_utm_source_old_new_map.old_source_id` khớp **99.9%**
+(156,031/156,221).
+
+**Gotcha fan-out:** bảng mapping có 1 số `old_source_id` ứng với nhiều
+`new_source_id` (không phải quan hệ 1-1 — xem
+`master_data/m_utm_source_old_new_map.sql`). JOIN thẳng theo
+`old_source_id + brand_etl` sẽ nhân dòng lead. **Fix:** dùng
+`LEFT JOIN LATERAL (... ORDER BY new_source_id LIMIT 1) ON TRUE` thay vì
+JOIN thẳng, chọn 1 dòng deterministic mỗi `(old_source_id, brand_etl)` —
+cùng kỹ thuật đã áp dụng bên `func_report_marketing_ad_cost_pr` (đo được 659
+lead Paris bị fan-out nếu không xử lý; con số tương ứng bên Kangnam không đo
+riêng nhưng cùng cơ chế rủi ro).
+
+Áp dụng ở `stg_frmack_crm_base.sql` (DC/Lead/TC/BK/HL) và
+`stg_frmack_doanh_so.sql` (DS):
+
+```sql
+LEFT JOIN utm_source us ON us.id = cl.new_source_id AND us.brand_id = cl.brand_etl
+LEFT JOIN LATERAL (
+    SELECT new_source_name, new_source_category_id
+    FROM m_utm_source_old_new_map m
+    WHERE m.old_source_id = cl.source_id AND m.brand_etl = cl.brand_etl
+      AND cl.new_source_id IS NULL
+    ORDER BY m.new_source_id
+    LIMIT 1
+) monm ON TRUE
+LEFT JOIN crm_category_source cat
+       ON cat.id = COALESCE(us.category_id, monm.new_source_category_id)
+       AND cat.brand_etl = cl.brand_etl
+...
+COALESCE(us.name, monm.new_source_name) AS nguon_moi_v2,
+cat.name AS nhom_nguon_moi_v2
+```
+*(đã bỏ dấu ngoặc kép Jinja trong đoạn minh họa; xem code thật ở 2 file trên.)*
+
+`cat` dùng chung 1 join, key = `COALESCE(us.category_id,
+monm.new_source_category_id)` — không cần join `crm_category_source` 2 lần.
+
+**Verify sau fix (2026-08-09):** `dbt run --select func_report_marketing_ad_cost_kn`
+build lại thành công (4,384,136 dòng, không đổi tổng số dòng). Coverage
+`nguon_moi_v2` tăng lên gần như tuyệt đối:
+
+| type_data | Trước fallback | Sau fallback |
+|---|---|---|
+| Lead | ~47% | 41,487/41,487 (100%) |
+| BKHL | ~54% | 64,233/64,290 (99.9%) |
+| HL | ~53% | 65,251/65,308 (99.9%) |
+| DC | ~53% | 47,945/47,965 (99.96%) |
+| TC | ~61% | 25,556/25,568 (99.95%) |
+| DS | ~85% | 117,680/117,703 (99.98%) |
+
+(Cột "trước fallback" lấy từ số liệu đo ở mục 15/16 trước khi thêm mục này —
+KN vốn đã có coverage tốt hơn PR ngay từ đầu do ERP Kangnam điền
+`new_source_id` đầy đủ hơn.)
+
+## 18. Tối ưu hiệu năng build `mart` — `MATERIALIZED` CTE (2026-08-09)
+
+Người dùng hỏi vì sao `dbt run --select func_report_marketing_ad_cost_kn`
+mất ~10 phút (chủ yếu ở bước build `report_marketing_ad_cost_kn_v2`, 591-593s
+đo được nhiều lần). Đã điều tra bằng `EXPLAIN` (không `ANALYZE`, chỉ xem
+plan — xem kỹ thuật ở `knowledge.md` mục 1, nhưng lần này không cần
+`run-operation` vì có sẵn compiled SQL từ `target/compiled/` sau khi
+`dbt run` thành công):
+
+**Phát hiện:** CTE `crm_base_with_page` (định nghĩa trong
+`int_frmack_union.sql`) được **UNION lại 5 lần** (DC/Lead/TC/BK/HL). Postgres
+14 mặc định **inline** CTE không đệ quy thay vì materialize (khác hành vi
+Postgres ≤11) — plan cho thấy `"Subquery Scan on crm_base_with_page"` xuất
+hiện đúng **5 lần**, tức toàn bộ chuỗi join bên trong nó (`dim_campaign`/
+`dim_account`/`ucbt_page_config`/`campaign_name_split` LATERAL/
+`stg_frmack_cs_tickets`/`stg_frmack_cs_services`) bị tính lại từ đầu cho mỗi
+nhánh UNION thay vì tính 1 lần rồi tái sử dụng.
+
+**Fix:** đổi `WITH crm_base_with_page as (` thành
+`WITH crm_base_with_page as MATERIALIZED (` (cú pháp Postgres 12+, ép
+materialize thay vì để planner tự quyết). `payment_with_page` (chỉ dùng 1
+lần ở nhánh DS) không cần đổi.
+
+**Kết quả đo (2026-08-09, cùng máy/cùng data):**
+
+| Lần chạy | Thời gian build mart |
+|---|---|
+| Trước MATERIALIZED | 591.64s / 592.98s (2 lần đo) |
+| Sau MATERIALIZED | 579.59s |
+
+Chỉ giảm **~2%** — không phải nút thắt chính. Đã kiểm tra tiếp: Stream 1 (FB
+Cost, từ `int_frmack_fb_cost`) chiếm **3.78 triệu/4.38 triệu dòng output
+(86%)**; các bảng lookup dùng trong luồng này (`dim_page`, `ggs_region_map`,
+`ucbt_country_continent`, `campaign_name_split`) đều rất nhỏ (51-106 dòng,
+không thiếu index) → thời gian chủ yếu do khối lượng dòng lớn × nhiều phép
+xử lý per-row (CASE WHEN, SUBSTRING, split_part, LATERAL lookup) chạy đơn
+luồng trong 1 câu `CREATE TABLE AS SELECT`, không phải lỗi thiết kế hay
+thiếu tối ưu dễ sửa. Đã hỏi người dùng có muốn đào sâu thêm (chuyển Stream 1
+sang `incremental`, hoặc tăng `max_parallel_workers_per_gather` ở Postgres
+server) — người dùng xác nhận **10 phút chấp nhận được**, dừng ở
+`MATERIALIZED` (giữ lại vì đúng và có lợi dù nhỏ, không có tác dụng phụ).
+
+**Bug phát sinh trong lúc điều tra (đã fix):** khi thử đưa
+`{{ ref('m_utm_source_old_new_map') }}` (cú pháp Jinja) vào text mô tả cột
+trong `mart/schema.yml` bên `func_report_marketing_ad_cost_pr`, `dbt
+run`/`dbt compile` báo lỗi `'ref' is undefined` cho **toàn bộ project**
+(không chỉ model đó) — dbt Jinja-render mọi property file (`.yml`) trước khi
+build bất kỳ node nào, nhưng context Jinja của property file **không có**
+`ref`/`source` (khác với file `.sql` model, nơi `ref`/`source` luôn sẵn
+sàng). **Bài học:** không dùng cú pháp `{{ ref(...) }}`/`{{ source(...) }}`
+trong mô tả `schema.yml` — chỉ dùng backtick code thường (`` `tên_model` ``).
+File `.md` (README/LOGIC) thì an toàn, không bị render kiểu này (đã có sẵn
+`{{ ref(...) }}` ở nhiều chỗ trong chính file README này, ví dụ mục 14, chạy
+bình thường).

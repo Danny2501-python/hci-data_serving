@@ -52,6 +52,11 @@ SELECT
     nhom_dv,
     chi_nhanh,
     SUM(ib)::text               AS metric,
-    'ib'::text                  AS type_data
+    'ib'::text                  AS type_data,
+    -- Không có liên kết CRM, nhưng nhánh này là Inbox Facebook (nguon =
+    -- 'MD - Facebook' ở trên) -> mặc định cứng theo catalog utm_source thật
+    -- của Paris (id=731 'Facebook', category 'Online').
+    'Facebook'::text            AS nguon_moi_v2,
+    'Online'::text               AS nhom_nguon_moi_v2
 FROM b
 GROUP BY channel, ngay, nhom_dv, chi_nhanh

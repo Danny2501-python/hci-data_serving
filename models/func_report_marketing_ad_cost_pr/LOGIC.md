@@ -197,6 +197,144 @@ thành công (4/4 model, gồm `view_ggs_paris_sm_target_daily` materialize ki�
 
 ---
 
+## Thêm `nguon_moi_v2`/`nhom_nguon_moi_v2` — "nguồn mới"/"nhóm nguồn mới" — 2026-08-09
+
+Thêm 2 cột mới vào `mart_report_marketing_ad_cost_pr`, cùng cơ chế và cùng
+tên cột đã dùng ở `func_report_marketing_ad_cost_kn` (xem `README.md` bên đó
+mục 15): lấy từ hệ "nguồn mới" `crm_lead.new_source_id → utm_source.name`,
+**khác** hệ nguồn cũ `nguon`/`nhom_nguon` (từ `stag_sources` qua
+`crm_lead.source_id` — 2 hệ bảng độc lập, không suy ra lẫn nhau).
+
+```
+crm_lead.new_source_id
+  → utm_source.id (kèm utm_source.brand_id = crm_lead.brand_etl)
+        → nguon_moi_v2 = utm_source.name
+  → utm_source.category_id → crm_category_source.id
+        (kèm crm_category_source.brand_etl = crm_lead.brand_etl)
+        → nhom_nguon_moi_v2 = crm_category_source.name
+```
+
+**Luôn kèm `brand_etl`/`brand_id` khi join `id`** — gotcha "id trùng chéo
+giữa brand_etl" (`common/knowledge.md` mục 1), áp dụng chung cho mọi bảng
+join mới trong `data_serving`, không riêng model này.
+
+**Thay đổi theo file:**
+- `stg/sources.yml`: thêm nguồn `utm_source`, `crm_category_source`
+- `stg_frmacpr_leads_lines.sql`: expose thêm `new_source_id`
+- `int_frmacpr_erp_conv.sql`: join `utm_source`/`crm_category_source` trong
+  CTE `base`, propagate qua các nhánh Lead/BK/BKHL/DC/TC
+- `stg_frmacpr_doanh_so.sql`: join tương tự (nhánh DS, đã có sẵn `crm_lead`
+  join từ trước)
+- `int_frmacpr_union.sql`, `mart_report_marketing_ad_cost_pr.sql`: propagate
+  ra output cuối
+
+**Populate:** chỉ cho các `type_data` có liên kết CRM (Lead/BK/BKHL/DC/TC/DS),
+và ngay trong nhóm đó cũng không phải 100% — phụ thuộc `crm_lead.new_source_id`
+có được ERP điền hay không (thực đo ~53–66% trên dữ liệu Paris, thấp hơn
+Kangnam do coverage ERP khác nhau giữa 2 brand).
+
+### Mặc định cứng theo kênh cho các nhánh không có CRM linkage — 2026-08-09
+
+Theo yêu cầu người dùng: các nhánh **không join CRM** nhưng kênh đã xác định
+rõ từ chính loại dữ liệu (không cần tra CRM) được mặc định cứng theo tên
+thật trong catalog `utm_source` của Paris (verify: id=731 `Facebook`, id=735
+`Google_Ads`, id=733 `Tiktok`, cả 3 cùng `category_id=126` →
+`crm_category_source.name = 'Online'`), thay vì để `NULL`:
+
+| Nhánh | File | Căn cứ xác định kênh | Mặc định |
+|---|---|---|---|
+| `Deal_cs` (DealCS) | `int_frmacpr_erp_conv.sql` | `stg_frmacpr_deal_cs` chỉ lấy Deal Caresoft có `ctsda.utm_source ilike '%Google_Search%'` | `'Google_Ads'` / `'Online'` |
+| `Cost_fb_cd`/`Cost_fb_th` | `stg_frmacpr_fb_insight_v3.sql` | Chi phí quảng cáo Facebook | `'Facebook'` / `'Online'` |
+| `ib` (Inbox) | `stg_frmacpr_inbox.sql` | `nguon` đã set cứng `'MD - Facebook'` | `'Facebook'` / `'Online'` |
+| `google` | `stg_frmacpr_google.sql` | Chi phí quảng cáo Google Ads | `'Google_Ads'` / `'Online'` |
+| `tiktok` | `stg_frmacpr_tiktok.sql` | Chi phí quảng cáo TikTok | `'Tiktok'` / `'Online'` |
+| `target_lead`/`target_cost` | `stg_frmacpr_targets.sql` | **Giữ NULL** — "Mục tiêu", không phải traffic thật, không gắn 1 kênh cụ thể | NULL |
+
+**Lưu ý khác với `func_report_marketing_ad_cost_kn`:** bên KN, `DealCS` lấy
+theo tiêu chí **FB `ad_id`** (`stg_frmack_deal.sql`) nên mặc định
+`'Facebook'`; bên PR, `DealCS` lấy theo tiêu chí **Google Search**
+(`ctsda.utm_source ilike '%Google_Search%'`) nên mặc định `'Google_Ads'` — 2
+pipeline cùng `type_data = 'Deal_cs'`/`'DealCS'` nhưng nguồn gốc dữ liệu khác
+nhau, đã đọc code thật của từng bên trước khi áp dụng, không copy máy móc.
+
+**Verify (2026-08-09):** `dbt run --select func_report_marketing_ad_cost_pr`
+build lại thành công (338,865 dòng). Populate 100% cho `Cost_fb_cd`
+(166,988), `Cost_fb_th` (65,930), `Deal_cs` (1,178), `google` (2,932),
+`tiktok` (31), `ib` (17,741) — đúng giá trị mặc định theo bảng trên;
+`target_lead`/`target_cost` (92 dòng mỗi loại) vẫn `NULL` đúng như thiết kế.
+
+---
+
+### Fallback: suy ra nguồn mới từ nguồn cũ qua `master_data.m_utm_source_old_new_map` — 2026-08-09
+
+Theo yêu cầu người dùng: với các dòng có liên kết CRM nhưng
+`crm_lead.new_source_id` NULL (không tra được nguồn mới trực tiếp), tự động
+suy ra `nguon_moi_v2`/`nhom_nguon_moi_v2` từ **nguồn cũ**
+(`crm_lead.source_id`) qua bảng mapping `m_utm_source_old_new_map`
+(model `master_data`, xem `data_serving/models/master_data/schema.yml`).
+
+**Verify trước khi áp dụng:** `crm_lead.source_id` join thẳng
+`utm_source.id` (kèm `brand_id = brand_etl`) khớp **100%** (37,906/37,906
+lead Paris có `source_id`) — xác nhận `source_id` cùng ID-space với
+`utm_source`, không phải hệ khác. Join tiếp qua
+`m_utm_source_old_new_map.old_source_id` khớp **97.7%** (37,051/37,906).
+
+**Gotcha fan-out:** bảng mapping có 1 số `old_source_id` ứng với **nhiều**
+`new_source_id` (không phải quan hệ 1-1 tuyệt đối — xem
+`master_data/m_utm_source_old_new_map.sql`). JOIN thẳng theo
+`old_source_id + brand_etl` sẽ nhân dòng — đo được **659 lead** (brand
+1/3/4/8, `new_source_id IS NULL`) bị fan-out nếu không xử lý. **Fix:**
+`LEFT JOIN LATERAL (... ORDER BY new_source_id LIMIT 1) ON TRUE` thay vì
+JOIN thẳng — chọn 1 dòng deterministic (nhỏ nhất `new_source_id`) mỗi
+`(old_source_id, brand_etl)`.
+
+Áp dụng ở `int_frmacpr_erp_conv.sql` (CTE `base`, cho Lead/BK/BKHL/DC/TC) và
+`stg_frmacpr_doanh_so.sql` (DS):
+
+```sql
+LEFT JOIN source('paris', 'utm_source') us
+       ON us.id = ll.new_source_id AND us.brand_id = ll.brand_etl
+LEFT JOIN LATERAL (
+    SELECT new_source_name, new_source_category_id
+    FROM ref('m_utm_source_old_new_map') m
+    WHERE m.old_source_id = ll.source_id AND m.brand_etl = ll.brand_etl
+      AND ll.new_source_id IS NULL
+    ORDER BY m.new_source_id
+    LIMIT 1
+) monm ON TRUE
+LEFT JOIN source('paris', 'crm_category_source') cat
+       ON cat.id = COALESCE(us.category_id, monm.new_source_category_id)
+       AND cat.brand_etl = ll.brand_etl
+...
+COALESCE(us.name, monm.new_source_name) AS nguon_moi_v2,
+cat.name AS nhom_nguon_moi_v2
+```
+*(bỏ dấu `{{ }}` Jinja trong đoạn minh họa trên để không bị hiểu nhầm là code
+thật khi đọc file này — xem code thật ở `int_frmacpr_erp_conv.sql`.)*
+
+`cat` (nhóm nguồn) dùng chung 1 join, key = `COALESCE(us.category_id,
+monm.new_source_category_id)` — không cần join `crm_category_source` 2 lần.
+
+**Verify sau fix (2026-08-09):** `dbt run --select func_report_marketing_ad_cost_pr`
+build lại thành công (338,865 dòng, không đổi tổng số dòng — chỉ đổi giá trị
+2 cột). Coverage `nguon_moi_v2` tăng mạnh:
+
+| type_data | Trước fallback | Sau fallback |
+|---|---|---|
+| BK | 7,479/12,613 (59.3%) | 12,454/12,613 (98.7%) |
+| BKHL | 7,479/12,613 (59.3%) | 12,454/12,613 (98.7%) |
+| DC | 6,238/10,532 (59.2%) | 10,407/10,532 (98.8%) |
+| Lead | 6,136/11,439 (53.6%) | 11,303/11,439 (98.8%) |
+| TC | 4,235/6,417 (66.0%) | 6,379/6,417 (99.4%) |
+| DS | 5,806/30,267 (19.2%) | 9,052/30,267 (29.9%) |
+
+DS thấp hơn hẳn các nhánh khác kể cả sau fallback — nhiều dòng
+`stag_payment_transfer` không map được `crm_id`/`source_id` hợp lệ sang
+`crm_lead`, giới hạn dữ liệu nguồn chứ không phải lỗi join (đã kiểm tra
+join logic giống hệt các nhánh khác).
+
+---
+
 ## Việc còn tồn (chưa xử lý, chỉ để theo dõi)
 
 Kiểm tra toàn bộ campaign_id Paris trong `cs_facebook_insight` bằng "tên mới nhất

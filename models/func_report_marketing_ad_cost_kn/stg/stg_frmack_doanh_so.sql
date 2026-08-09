@@ -42,7 +42,7 @@ WITH a AS (
             WHEN sbn.nhom_dich_vu_chinh = 'PTTM NGỰC/MÔNG' THEN '4.NGỰC/MÔNG'
             ELSE '6.DỊCH VỤ KHÁC'
         END                                              AS nhom_dv_chinh_booking,
-        us.name                                         AS nguon_moi_v2,
+        COALESCE(us.name, monm.new_source_name)         AS nguon_moi_v2,
         cat.name                                        AS nhom_nguon_moi_v2
     FROM {{ source('kangnam', 'stag_payment_transfer') }} std
     LEFT JOIN {{ source('kangnam', 'crm_lead') }} cl3
@@ -63,8 +63,18 @@ WITH a AS (
            ON sbn.crm_id = cl3.id AND sbn.brand_etl = cl3.brand_etl
     LEFT JOIN {{ source('kangnam', 'utm_source') }} us
            ON us.id = cl3.new_source_id AND us.brand_id = cl3.brand_etl
+    -- Fallback khi crm_lead.new_source_id NULL — xem stg_frmack_crm_base.sql
+    -- cho giải thích đầy đủ về gotcha fan-out và bảng mapping dùng chung.
+    LEFT JOIN LATERAL (
+        SELECT new_source_name, new_source_category_id
+        FROM {{ ref('m_utm_source_old_new_map') }} m
+        WHERE m.old_source_id = cl3.source_id AND m.brand_etl = cl3.brand_etl
+          AND cl3.new_source_id IS NULL
+        ORDER BY m.new_source_id
+        LIMIT 1
+    ) monm ON TRUE
     LEFT JOIN {{ source('kangnam', 'crm_category_source') }} cat
-           ON cat.id = us.category_id AND cat.brand_etl = cl3.brand_etl
+           ON cat.id = COALESCE(us.category_id, monm.new_source_category_id) AND cat.brand_etl = cl3.brand_etl
     WHERE std.brand_etl = 1
       AND std.payment_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
 )

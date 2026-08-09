@@ -32,14 +32,19 @@ v2_supplement AS (
     )
 )
 
-SELECT 
+-- nguon_moi_v2/nhom_nguon_moi_v2: không có liên kết CRM để tra new_source_id,
+-- nhưng cả nhánh này chỉ là chi phí quảng cáo Facebook -> mặc định cứng theo
+-- catalog utm_source thật của Paris (id=731 'Facebook', category 'Online').
+SELECT
     nguon, nhom_nguon, channel, ngay, metric, nhom_dv, chi_nhanh, type_data,
-    'old' as data_origin
+    'old' as data_origin,
+    'Facebook'::text AS nguon_moi_v2, 'Online'::text AS nhom_nguon_moi_v2
 FROM v1
 
 UNION ALL
 
-SELECT 
+SELECT
     nguon, nhom_nguon, channel, ngay, metric, nhom_dv, chi_nhanh, type_data,
-    'new' as data_origin
+    'new' as data_origin,
+    'Facebook'::text AS nguon_moi_v2, 'Online'::text AS nhom_nguon_moi_v2
 FROM v2_supplement
