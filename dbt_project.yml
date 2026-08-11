@@ -238,6 +238,14 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_thv_convert:
+      +tags: ["report_thv_convert"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
