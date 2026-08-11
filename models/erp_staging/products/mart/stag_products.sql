@@ -1,4 +1,4 @@
-{{ config(alias='stag_products_dbt') }}
+{{ config(alias='stag_products') }}
 
 -- Tương đương write_stag_products() trong quentk_1_stag_crm_New_sys_v2.py.
 -- Alias 'stag_products_dbt' để không ghi đè bảng stag_products đang chạy Python cho tới khi được đối chiếu/duyệt.
