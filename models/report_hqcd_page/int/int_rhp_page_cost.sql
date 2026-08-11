@@ -26,7 +26,7 @@ select
         when upper(a.chi_nhanh) in ('VIỆT KIỀU', 'QUỐC TẾ') then 'International'
         else 'Domestic'
     end                                                     as vk
-from {{ source('rhp', 'report_marketing_ad_cost_kn_v2') }} a
+from {{ ref('mart_report_marketing_ad_cost_kn')}} a
 left join pmap                 on upper(a.nhom_dv) = pmap.product_category
 left join {{ source('rhp', 'ggs_kdtc_product_ctg') }} gkc
        on gkc.kdtc_product_ctg_id = pmap.kdtc_product_ctg_id
