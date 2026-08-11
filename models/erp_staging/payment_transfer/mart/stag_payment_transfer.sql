@@ -1,4 +1,4 @@
-{{ config(alias='stag_payment_transfer_dbt') }}
+{{ config(alias='stag_payment_transfer') }}
 
 -- Tương đương write_stag_payment_transfer() trong quentk_1_stag_crm_New_sys.py.
 -- Alias 'stag_payment_transfer_dbt' để không ghi đè bảng thật cho tới khi được đối chiếu/duyệt.

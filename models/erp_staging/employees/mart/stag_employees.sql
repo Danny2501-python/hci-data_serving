@@ -1,4 +1,4 @@
-{{ config(alias='stag_employees_dbt') }}
+{{ config(alias='stag_employees') }}
 
 -- Tương đương write_stag_employees() trong quentk_1_stag_crm_New_sys.py.
 -- Alias 'stag_employees_dbt' để không ghi đè bảng stag_employees đang chạy Python cho tới khi được
