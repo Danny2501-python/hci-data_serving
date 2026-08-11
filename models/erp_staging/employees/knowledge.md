@@ -80,3 +80,19 @@ và không có `python3`/`node` sẵn trong môi trường Bash ở đây — d�
 System.Text.UTF8Encoding $false)` để ghi UTF-8 **không BOM**, khớp encoding
 file CSV gốc trong repo — `-Encoding utf8` mặc định của PowerShell 5.1 **có**
 BOM, sẽ làm hỏng seed nếu dbt/Postgres COPY không xử lý BOM đúng).
+
+## 4. Port view thủ công `view_stag_employees_user` — cùng pattern với `view_stag_products`, đơn giản hơn
+
+Quy trình chung (dùng `ref()` để dbt xếp chạy sau bảng mart nguồn, override
+`materialized='view'` per-model, rủi ro `dbt run` đè lên view thật đang được
+~15 model khác `source()`...) đã ghi ở `erp_staging/products/knowledge.md`
+mục 8 — áp dụng y hệt, không lặp lại. Khác biệt duy nhất đáng ghi:
+
+- View này **không cần join thêm bảng nào khác** (khác `view_stag_products`
+  phải join `product_template`/`product_category`) — cả 5 nhánh UNION ALL chỉ
+  đọc từ 1 bảng `stag_employees`, chỉ đổi cột `id`/`user_id` lấy theo brand
+  (`kn_id`/`kn_user_id`, `pr_id`/`pr_user_id`...).
+- `user_id` ở **mọi** nhánh đều bọc `NULLIF(..., 0)` — id user = 0 coi như
+  chưa map được tài khoản (khác với `NULLIF(x, '')` ở mục 7 của
+  `erp_staging/products/knowledge.md`, vốn xử lý chuỗi rỗng; ở đây là số 0,
+  do phía nguồn dùng `0` làm giá trị "chưa có" thay vì để `NULL` thật).

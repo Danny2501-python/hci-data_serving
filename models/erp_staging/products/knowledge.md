@@ -201,3 +201,39 @@ cũng có thể `''` ngay từ nguồn) để mô phỏng đúng hành vi ngầm
 Python cũ. Đây là hành vi **chung cho mọi bảng `stag_*`** do Python ghi qua
 cùng cơ chế `insert_data_to_db()` — không riêng gì `stag_products`, cần áp
 dụng lại khi chuyển các bảng còn lại.
+
+## 8. Port 1 view Postgres thủ công (không do dbt quản lý) sang dbt model
+
+Case `mart/view_stag_products.sql` (2026-08-11): view `public.view_stag_products`
+đang chạy thật trong DB, do ai đó viết tay ngoài dbt, không có DDL lưu ở đâu
+trong repo trước đây (phải xin người dùng paste `\d+`/`pg_get_viewdef` ra mới có
+để dịch) — khác các case `stag_*` khác vốn dịch từ hàm Python có sẵn trong repo.
+
+- **Dùng `ref('<mart model nguồn>')`, không `source()`**: view phụ thuộc bảng
+  `stag_products` (chính là mart model khác trong cùng project) — `ref()` cho
+  dbt biết đúng thứ tự chạy (view chạy **sau** khi bảng build xong), `source()`
+  sẽ không tạo được cạnh phụ thuộc này dù cùng trỏ vào 1 bảng vật lý.
+- **Override `materialized`/`alias` per-model**, không sửa `dbt_project.yml`:
+  nhóm `erp_staging.products.mart` mặc định `+materialized: table`, nhưng view
+  này cần `materialized='view'` — đặt thẳng trong `{{ config(...) }}` của file,
+  vì đây là ngoại lệ chỉ riêng model này, không phải đổi mặc định cả nhóm mart.
+- **Số hiệu `brand_etl` trong OUTPUT của view khác với `brand_etl` của bảng ERP
+  NGUỒN** — dễ nhầm vì cùng tên cột: view gán cứng `0=sci, 1=kn, 3=pr, 4=hh,
+  8=thv` (tự đánh số theo thứ tự nhánh UNION ALL), trong khi bảng ERP gốc
+  (`product_product`...) dùng `brand_etl` thật là kn=1, pr=3, hh=4, **sci=7**
+  (xem "Bài toán gốc" ở `LOGIC.md`) — 2 hệ số này **không phải cùng 1 ý nghĩa**
+  dù trùng brand kn/pr/hh, chỉ tình cờ trùng số. Khi port view kiểu này: giữ
+  đúng số hiệu **của chính view gốc** (đọc từ DDL, không suy ra từ quy ước
+  brand_etl đã biết ở model group khác), vì đây là 2 tầng dữ liệu độc lập.
+- **Giữ cột "dùng chung" xuyên suốt mọi nhánh UNION ALL dù bảng nguồn có cột
+  chi tiết hơn theo brand**: view gốc lấy `service_id`/`product_ctg_id` từ
+  `smhcsid`/`product_ctg_id` (cột chung) ở **mọi** nhánh, kể cả nhánh
+  pr/hh/thv — dù `stag_products` có sẵn `pr_smhcsid`, `pr_product_ctg_id`...
+  Không "sửa" cho nhất quán hơn — nhìn giống thiếu sót nhưng là hành vi đang
+  chạy thật, đổi sẽ làm lệch dữ liệu so với view sản xuất.
+- **Rủi ro khi build ra tên thật**: view port ra thẳng alias trùng tên
+  (`view_stag_products`) — nếu `dbt run`, Postgres sẽ `CREATE OR REPLACE VIEW`
+  **đè lên** view thủ công đang chạy, ảnh hưởng mọi model khác đang
+  `source()` nó (~40 model, xem `sources_common.yml`). Không tự ý `dbt run`
+  model dạng này — để người dùng tự chạy sau khi đối chiếu, hoặc đổi alias
+  tạm sang tên khác (`_dbt` suffix) để build thử song song trước.
