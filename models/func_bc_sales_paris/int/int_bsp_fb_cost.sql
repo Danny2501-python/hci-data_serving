@@ -16,7 +16,10 @@ WITH base AS (
         cfac2.name                                                     AS camp_name,
         cfaa2.name                                                     AS acc_name,
         split_part(cfas.name, '_', 2)                                  AS nhom_dv,
-        split_part(cfas.name, '_', 1)                                  AS chi_nhanh_raw
+        split_part(cfas.name, '_', 1)                                  AS chi_nhanh_raw,
+        1 thu_tu,
+        0 line_id,
+        0 tong_tien
     FROM {{ source('paris', 'core_facebook_ad_ad_insight') }} cfaai
     LEFT JOIN {{ source('paris', 'core_facebook_ad_ad') }} cfaa
            ON cfaa.fb_ad_ad_id = cfaai.fb_ad_ad_id
@@ -60,5 +63,9 @@ SELECT
     nhom_dv,
     'ten_khach'::text                                                  AS ten_khach,
     'ma_booking'::text                                                 AS ma_booking,
-    'phong_ban'::text                                                  AS phong_ban
+    'phong_ban'::text                                                  AS phong_ban,
+    thu_tu,
+    line_id,
+    tong_tien,
+    0 crm_id
 FROM base

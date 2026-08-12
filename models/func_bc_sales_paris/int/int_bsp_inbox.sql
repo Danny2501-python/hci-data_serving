@@ -20,7 +20,11 @@ SELECT
     CASE WHEN tts.work_email IS NOT NULL
          THEN 'Sales & Marketing Thương hiệu Paris'
          ELSE vseu.department
-    END                                                                AS phong_ban
+    END                                                                AS phong_ban,
+    1 thu_tu,
+    0 line_id,
+    0 tong_tien,
+    0 crm_id
 FROM {{ ref('stg_bsp_ranked_contacts') }} a
 LEFT JOIN {{ ref('stg_bsp_cs_service_category') }} x
        ON x.id = a.khach_id

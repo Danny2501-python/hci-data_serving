@@ -26,7 +26,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao               AS phong_ban
+    phong_ban_nguoi_tao               AS phong_ban,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 1
   AND trang_thai IN ('Tiềm năng', 'Tham khảo', 'Đặt lịch')
@@ -49,7 +53,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao
+    phong_ban_nguoi_tao,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 2
   -- AND nhom_dv <> 'SAN PHAM'
@@ -71,7 +79,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao
+    phong_ban_nguoi_tao,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 2
   -- AND nhom_dv <> 'SAN PHAM'
@@ -93,7 +105,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao
+    phong_ban_nguoi_tao,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 2
   -- AND nhom_dv <> 'SAN PHAM'
@@ -115,7 +131,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao
+    phong_ban_nguoi_tao,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 2
   AND doanh_so > 0
@@ -138,7 +158,11 @@ SELECT
     nhom_dv,
     ten_khach,
     ma_booking,
-    phong_ban_nguoi_tao1              AS phong_ban
+    phong_ban_nguoi_tao1              AS phong_ban,
+    thu_tu,
+    line_id,
+    tong_tien,
+    crm_id
 FROM base
 WHERE loai_ban_ghi = 2
   -- AND nhom_dv <> 'SAN PHAM'
