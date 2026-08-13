@@ -1,0 +1,25 @@
+version: 2
+
+# Nguồn cho các model trong old_view_store — các bảng gốc (raw, không phải
+# output của model dbt khác) mà 3 view cũ trên new_product phụ thuộc:
+#   - mv_lead_mb_from_t8_2025_fix (Kangnam, brand_etl=1)
+#   - mv_dc_mb_from_t8_2025_fix_dc (Kangnam, brand_etl=1)
+#   - view_crm_old_pr (Paris, brand_id=3)
+# stag_products/stag_payment_transfer/stag_employees/view_stag_employees_user
+# KHÔNG khai báo ở đây vì là output của model khác (erp_staging/*) — dùng
+# ref() thẳng trong model, không source().
+sources:
+  - name: ovs_source
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: m_res_company
+      - name: res_users
+      - name: stag_sources
+      - name: ggs_kdtc_product_ctg_rate
+      - name: ggs_kdtc_service_type_revenue
+      - name: stag_crm_booking_arrival_company
+      - name: crm_sync_brand
+      - name: crm_stage
+      - name: crm_type
