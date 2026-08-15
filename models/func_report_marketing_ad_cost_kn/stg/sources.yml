@@ -42,3 +42,5 @@ sources:
       # Caresoft
       - name: cs_services_api
       - name: cs_ticket_api
+      - name: cs_ticket_source_api
+      - name: cs_ticket_source_detail_api

@@ -39,8 +39,8 @@ SELECT
          ELSE 'no'
     END                                                              AS vk,
     'DV'::text                                                       AS ten_dv,
-    'GG'::text                                                       AS nguon,
-    'GG'::text                                                       AS nhom_nguon,
+    'MD - Search'::text                                                       AS nguon,
+    'MD - Search'::text                                                       AS nhom_nguon,
     a.channel                                                        AS kenh,
     a.ngay,
     CASE WHEN a.nhom_dv_raw = '88888'            THEN 'VIỆT KIỀU'
