@@ -73,7 +73,10 @@ WITH x AS (
         cat.name AS nhom_nguon_moi_v2
     FROM {{ ref('stg_common_tongquan_khachhang') }} stks
     JOIN {{ source('kangnam', 'crm_lead') }} cl
-      ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL 
+      ON cl.id = stks.id AND cl.brand_etl = 1
+      -- KHÔNG lọc cl.create_by_department IS NOT NULL ở đây nữa — xem mục 19
+      -- README.md: điều kiện này loại nhầm toàn bộ lead nguồn "Tái khai thác"
+      -- (create_by_department luôn NULL cho nhóm này) ra khỏi model.
     LEFT JOIN {{ source('kangnam', 'res_country_state') }} rcs
       ON rcs.id = cl.state_id  AND rcs.brand_etl = 1
     LEFT JOIN {{ source('kangnam', 'res_country') }} rc

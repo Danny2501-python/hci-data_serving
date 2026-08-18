@@ -146,3 +146,34 @@ cấu trúc lặp/nested.
 Nếu câu trả lời cho (3) là "chỉ 1 lần lúc build" và mức chênh lệch hiệu năng
 đo được không lớn, ưu tiên cách **an toàn/dễ đọc hơn** thay vì cách "trông có
 vẻ nhanh hơn" nhưng không đo được lợi ích rõ ràng.
+
+## 6. Điều kiện `column IS NOT NULL` trong mệnh đề `ON` của INNER JOIN âm thầm loại cả 1 nhóm dữ liệu
+
+Case thực tế (xem README.md mục 19): `stg_frmack_crm_base.sql` JOIN
+`crm_lead` với `ON cl.id = stks.id AND cl.brand_etl = 1 AND
+cl.create_by_department IS NOT NULL`. Điều kiện `create_by_department IS NOT
+NULL` nhìn tưởng là lọc rác vô hại, nhưng vì nằm trong `ON` của **INNER
+JOIN** nên hoạt động y hệt một `WHERE` — bất kỳ dòng nào không thỏa bị loại
+thẳng, không có cách nào phát hiện qua đọc code tĩnh nếu không biết trước
+phân bố NULL thực tế của cột đó.
+
+Hậu quả: **toàn bộ 1 nhóm nghiệp vụ hợp lệ** (lead nguồn "Tái khai thác",
+được tạo qua quy trình không gán `create_by_department`) bị mất khỏi model —
+không phải noise ngẫu nhiên, mà là **thiên lệch có hệ thống theo đúng 1
+segment dữ liệu**, rất khó phát hiện bằng cách nhìn tổng số dòng (giảm không
+nhiều so với tổng) mà chỉ lộ ra khi đối chiếu chéo với 1 nguồn tính độc lập
+theo từng nhóm nhỏ (ở đây là đối chiếu 2 báo cáo Tableau, soi tới từng khách
+hàng lệch, xem "Nguồn" của case lệch).
+
+**Bài học:**
+1. Với bất kỳ điều kiện `X IS NOT NULL` (hoặc bất kỳ điều kiện lọc business
+   rule nào) đặt trong `ON` của `JOIN` (không phải `LEFT JOIN ... WHERE`),
+   luôn tự hỏi: điều kiện này có ý định loại **rác/edge-case hiếm**, hay có
+   thể trùng với đặc điểm của **1 segment nghiệp vụ hợp lệ nào đó**? Nếu
+   không chắc, kiểm tra phân bố NULL của cột đó theo từng nhóm nguồn/loại dữ
+   liệu (`GROUP BY nguon, (col IS NULL)`) trước khi chấp nhận điều kiện.
+2. Cách phát hiện hiệu quả nhất không phải đọc lại SQL, mà là **đối chiếu
+   chéo kết quả với 1 nguồn tính độc lập, ở mức chi tiết đủ nhỏ** (từng
+   khách hàng/từng dòng, không chỉ tổng số) — tổng số liệu tổng hợp có thể
+   trông "gần đúng" (lệch <1.5%) trong khi thực chất đang mất sạch 1 nhóm cụ
+   thể, chỉ là nhóm đó chiếm tỷ trọng nhỏ trên tổng.
