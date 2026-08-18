@@ -744,3 +744,54 @@ trong mô tả `schema.yml` — chỉ dùng backtick code thường (`` `tên_mo
 File `.md` (README/LOGIC) thì an toàn, không bị render kiểu này (đã có sẵn
 `{{ ref(...) }}` ở nhiều chỗ trong chính file README này, ví dụ mục 14, chạy
 bình thường).
+
+## 19. [Đã fix] Lead nguồn "Tái khai thác" bị loại nhầm khỏi toàn bộ model (2026-08-18)
+
+**Bối cảnh phát hiện:** Đối chiếu số liệu 2 báo cáo Tableau tính "Khách đến
+cửa"/"Khách thành công" từ 2 nguồn khác nhau — 1 báo cáo dùng
+`report_marketing_ad_cost_kn_v2` (output của model này), 1 báo cáo tính trực
+tiếp từ CRM (`report_crm_lead_customer_out_sold`). Sau khi khớp đúng
+`brand_etl`/filter, 2 báo cáo lệch nhau ~0.2-1.3% (tháng 6-7/2026), và soi chi
+tiết từng khách hàng lệch thì **16/18 case (tháng 7) đều thuộc nguồn "MD/MBS -
+Tái khai thác"** — đúng nguồn vừa được bổ sung vào 1 trong 2 báo cáo, dẫn tới
+việc lần theo tận model dbt này.
+
+**Nguyên nhân:** `stg_frmack_crm_base.sql` JOIN `crm_lead` với điều kiện:
+
+```sql
+-- BUG (đã sửa):
+JOIN {{ source('kangnam', 'crm_lead') }} cl
+  ON cl.id = stks.id AND cl.brand_etl = 1 AND cl.create_by_department IS NOT NULL
+```
+
+`create_by_department IS NOT NULL` nằm trong mệnh đề `ON` của **INNER JOIN**
+→ bất kỳ lead nào có `create_by_department` rỗng sẽ bị loại thẳng khỏi
+`stg_frmack_crm_base`, kéo theo mất luôn ở `crm_base_with_page` và **cả 5
+nhánh CRM** dùng chung CTE này (DC/Lead/TC/BK/HL — xem mục 3).
+
+Đã verify trực tiếp trên DB (join chính xác theo `crm_lead.id = crm_id`, không
+chỉ theo số điện thoại — 1 số điện thoại có thể ứng với nhiều `lead id` do
+khách quay lại nhiều lần): **15/20 lead thuộc nguồn "Tái khai thác"** có
+`create_by_department = NULL`, đều do phòng **"Sales & Marketing Thương hiệu
+Kangnam"** tạo — nhiều khả năng quy trình tạo lead tái khai thác (tự động/bán
+tự động) không đi qua luồng gán `create_by_department` chuẩn như lead mới do
+các phòng kinh doanh/dịch vụ tạo thủ công, nên trường này bị bỏ trống có hệ
+thống cho cả nhóm nguồn này — không phải lỗi dữ liệu ngẫu nhiên.
+
+Case minh chứng rõ nhất: khách hàng `CUS723749` có 2 lead record khác nhau
+trong `crm_lead` — 1 lead nguồn `MD - Facebook` có `create_by_department` =
+"Sales & Marketing Thương hiệu Kangnam" (có giá trị), và 1 lead nguồn `MD -
+Tái khai thác` có `create_by_department = NULL`. Phía CRM (không có điều kiện
+lọc này) chọn đúng lead "Tái khai thác" làm bản ghi chính cho lượt đến gần
+nhất, còn model này đánh rớt nó ngay từ vòng JOIN.
+
+**Fix đã áp dụng:** bỏ điều kiện `cl.create_by_department IS NOT NULL` khỏi
+`ON` clause, giữ nguyên `JOIN` trên `cl.id = stks.id AND cl.brand_etl = 1`.
+Không đổi sang `LEFT JOIN` vì `stks.id` luôn phải khớp 1 lead thật (INNER JOIN
+ở đây không phải nguồn gây mất data — chỉ điều kiện business rule thừa mới
+là nguyên nhân).
+
+**Chưa xác nhận được:** mục đích ban đầu của điều kiện `create_by_department
+IS NOT NULL` khi được thêm vào (loại lead rác/test data?). Nếu về sau phát
+hiện lại rác lẫn vào do bỏ điều kiện này, cần tìm lọc khác đặc thù hơn (ví dụ
+theo nguồn tạo lead) thay vì lọc chung theo `create_by_department`.
