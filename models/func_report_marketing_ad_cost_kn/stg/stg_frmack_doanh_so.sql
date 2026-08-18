@@ -15,6 +15,7 @@ WITH a AS (
              WHEN ss.source ~~ '%Seo%'      THEN 'Web'
              WHEN ss.source ~~ '%Google%'   THEN 'Web'
              WHEN ss.source ~~ '%Hotline%'  THEN 'Web'
+             when ctsd.source_name not like '%utm_source%' THEN 'Web - SEO'
              ELSE 'Khác'
         END                                            AS kenh,
         std.payment_date                               AS ngay,
@@ -47,6 +48,10 @@ WITH a AS (
     FROM {{ source('kangnam', 'stag_payment_transfer') }} std
     LEFT JOIN {{ source('kangnam', 'crm_lead') }} cl3
            ON std.crm_id = cl3.id AND std.brand_etl = cl3.brand_etl
+    left join {{ source('kangnam', 'cs_ticket_source_api') }} cts
+      on cts.ticket_id = cl3.ticket_id 
+    left join {{ source('kangnam', 'cs_ticket_source_detail_api') }} ctsd
+      on ctsd.id = cts.ticket_source_detail_id
     LEFT JOIN {{ source('kangnam', 'res_country_state') }} rcs
            ON rcs.id = cl3.state_id  AND rcs.brand_etl = 1
     LEFT JOIN {{ source('kangnam', 'res_country') }} rc

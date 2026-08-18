@@ -45,6 +45,7 @@ WITH x AS (
              WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Hotline%'  THEN 'Web'
+             when ctsd.source_name not like '%utm_source%' THEN 'Web - SEO'
              ELSE 'Khác'
         END                                                  AS kenh,
         CASE WHEN rcs.name = 'Thành phố Hồ Chí Minh' THEN 'SÀI GÒN'
@@ -82,6 +83,10 @@ WITH x AS (
       ON rc.id  = cl.country_id AND rc.brand_etl = 1
      LEFT JOIN {{ source('kangnam', 'cs_ticket_api') }} cta
       ON cta.ticket_id  = cl.ticket_id AND cta.brand_id = 1
+    left join {{ source('kangnam', 'cs_ticket_source_api') }} cts
+      on cts.ticket_id = cta.ticket_id 
+    left join {{ source('kangnam', 'cs_ticket_source_detail_api') }} ctsd
+      on ctsd.id = cts.ticket_source_detail_id
      LEFT JOIN {{ ref('stg_dv_khach_hang_quan_tam') }} dkq
       ON dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl
      LEFT JOIN {{ ref('stg_booking_nhom_dich_vu_chinh') }} sbn
