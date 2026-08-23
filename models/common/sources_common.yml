@@ -29,3 +29,4 @@ sources:
       - name: stag_products_dbt
       - name: sh_medical_appointment_register_walkin
       - name: sh_walkin_service_rel
+      - name: res_partner
