@@ -6,7 +6,7 @@ dùng lại cho các bảng `stag_*` còn lại (`stag_employees`, `stag_payment
 
 ## 0. Có DB thật thì đối chiếu bằng số liệu thật, đừng đoán
 
-`dbt debug` connect được thẳng vào Postgres sống (`new_product@10.10.10.214`,
+`dbt debug` connect được thẳng vào Postgres sống (DB `new_product`,
 cùng DB chứa cả bảng ERP nguồn lẫn `stag_products` do Python ghi) — nghĩa là
 **đối chiếu 1:1 với bảng thật là khả thi ngay trong lúc build**, không cần chờ
 review thủ công. Quy trình đã dùng, lặp lại đến khi diff = 0:

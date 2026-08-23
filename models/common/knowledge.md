@@ -1,6 +1,6 @@
 # common — Knowledge (bug đã phát hiện & fix)
 
-Ghi lại trong quá trình build `stg_booking_xet_ban_cheo.sql` và `stg_booking_nhom_dich_vu_chinh.sql`.
+Ghi lại trong quá trình build `stg_crm_line_ecosystem.sql` và `stg_booking_nhom_dich_vu_chinh.sql`.
 Các gotcha này áp dụng chung cho mọi model mới join vào các bảng nguồn liên quan trong
 `data_serving` (không riêng 2 model trên).
 
@@ -37,7 +37,7 @@ theo cline. Đo được ~17% cline trong scope bị nhân bản.
 
 **Fix:** luôn `GROUP BY clineid, brand_etl` trước khi join, lấy `MIN(payment_date)` (ngày thanh
 toán đầu) và `SUM(payment)` (tổng payment) — xem CTE `cline` trong
-`stg_booking_xet_ban_cheo.sql`.
+`stg_crm_line_ecosystem.sql`.
 
 ## 3. `ORDER BY` trên timestamp không có tie-break → kết quả không tái lập được
 
@@ -121,7 +121,7 @@ mới — bảng dbt-managed, cập nhật định kỳ; tại thời điểm vi
 (xem mục 8 dưới), đơn giản hơn và khớp sandbox chính xác hơn. Bài học "join theo ID, không so
 text" ở mục này vẫn đúng và áp dụng chung cho các model khác.
 
-## 8. Đối chiếu với DB sandbox (`staging_sci` @ `10.10.10.226`) — nguồn xác nhận nghiệp vụ đáng tin
+## 8. Đối chiếu với DB sandbox (`staging_sci`) — nguồn xác nhận nghiệp vụ đáng tin
 
 Kho dữ liệu này có 1 DB "sandbox" riêng (`staging_sci`), có các view nghiệp vụ đã được xác nhận
 đúng chuẩn, dùng làm nguồn đối chiếu khi nghi ngờ logic tự viết bị sai/trôi khỏi chuẩn nghiệp vụ.
