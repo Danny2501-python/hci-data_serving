@@ -6,7 +6,7 @@ dùng lại cho các bảng `stag_*` còn lại (`stag_employees`, `stag_payment
 
 ## 0. Có DB thật thì đối chiếu bằng số liệu thật, đừng đoán
 
-`dbt debug` connect được thẳng vào Postgres sống (`new_product@10.10.10.214`,
+`dbt debug` connect được thẳng vào Postgres sống (DB `new_product`,
 cùng DB chứa cả bảng ERP nguồn lẫn `stag_products` do Python ghi) — nghĩa là
 **đối chiếu 1:1 với bảng thật là khả thi ngay trong lúc build**, không cần chờ
 review thủ công. Quy trình đã dùng, lặp lại đến khi diff = 0:
@@ -201,3 +201,45 @@ cũng có thể `''` ngay từ nguồn) để mô phỏng đúng hành vi ngầm
 Python cũ. Đây là hành vi **chung cho mọi bảng `stag_*`** do Python ghi qua
 cùng cơ chế `insert_data_to_db()` — không riêng gì `stag_products`, cần áp
 dụng lại khi chuyển các bảng còn lại.
+
+## 8. Gap đồng bộ ERP làm mất nguyên cả nhóm sản phẩm khỏi output (không phải lỗi logic dbt) — backfill bằng seed, không vá thẳng bảng mart
+
+Đối chiếu `stag_products` giữa target `new_product` và DB `sandbox`
+(2026-08-11) phát hiện **9.209 sản phẩm brand EHC** (`default_code` tiền tố
+`EHC*`, `product_category = 'SAN PHAM'`) có mặt ở `sandbox` nhưng **biến mất
+hoàn toàn** khỏi `stag_products` trên target `new_product`.
+
+**Gốc rễ**: không phải lỗi SQL. `int_stps_base.sql` gộp đủ 5 brand
+(`brand_etl in (1,3,4,7,8)`), nhưng nhánh `dfo` của `int_stps_product_map.sql`
+(áp dụng cho `product_id <= 31842`, tương đương `dfmap1` trong Python) **chỉ
+giữ dòng của brand `kn` (`brand_etl=1`) làm output — dòng brand khác cùng
+product_id cũ bị loại bỏ hẳn**, không rơi vào `dfmap3` (nhánh đó chỉ nhận
+`product_id > 31842`). Kiểm chứng trực tiếp trên `public.product_product` của
+`new_product`: cả 9.209 id đều có dòng `brand_etl` 4/7/8, **0/9.209** có dòng
+`brand_etl=1` — tức bảng ERP nguồn (`product_product`) trong `new_product`
+đang thiếu cục bộ đúng phần brand KangNam cho nhóm sản phẩm này (gap đồng bộ
+ERP từ nguồn, không phải do model dbt viết sai) — khớp với việc `new_product`
+vốn là bản sao đồng bộ định kỳ, không live.
+
+**Cách xử lý đã chọn — KHÔNG vá trực tiếp `stag_products`**: bảng này là
+mart `materialized: table`, mỗi `dbt run` sẽ DROP/CREATE lại toàn bộ từ
+`int_stps_product_map`, nên `INSERT` tay vào `stag_products` sẽ mất sạch ở
+lần chạy kế tiếp. Thay vào đó:
+
+1. Seed `stag_product_backfill_sandbox` (`seeds/stag_product_backfill_sandbox.csv`,
+   config ở `seeds/seeds.yml`) chứa đúng 9.209 dòng đã export từ `sandbox`,
+   schema khớp cột output cuối cùng của `stag_products`.
+2. `stag_products.sql` `union all` thêm seed này vào sau `combined` (kết quả
+   `int_stps_product_map`), có **anti-join theo `product_id`**
+   (`where product_id not in (select product_id from combined ...)`) — một
+   khi `new_product` được đồng bộ đủ `brand_etl=1` cho các id này, dòng thật
+   từ `combined` sẽ tự động "thắng" và dòng seed tự động không còn được chọn,
+   không cần dọn tay.
+3. `dbt run` (không phải `dbt build`) **không tự load seed** — DAG
+   (`data_ops/dags/dbt/data_serving_erp_staging_dag.py`) phải có task
+   `dbt seed --select stag_product_backfill_sandbox` chạy **trước** task
+   `dbt run --select tag:erp_staging`.
+
+Áp dụng lại được cho mọi gap đồng bộ ERP dạng "thiếu hẳn 1 brand/nhóm id" ở
+các bảng `stag_*` khác: seed + union + anti-join theo khoá tự nhiên, không
+đụng vào bảng ERP nguồn lẫn bảng mart.

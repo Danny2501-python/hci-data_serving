@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: ParisTrust360
+    # Bỏ dòng database vì tất cả bảng gốc hiện đã nằm trong database 'staging_sci'
+    schema: public
+    tables:
+      - name: pr_trust_360_data_thoi_gian_phuc_vu

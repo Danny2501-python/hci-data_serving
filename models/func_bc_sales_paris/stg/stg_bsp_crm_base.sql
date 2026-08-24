@@ -27,5 +27,9 @@ SELECT
     stks.ma_booking,
     stks.phong_ban_nguoi_tao,
     stks.phong_ban_nguoi_tao1,
-    stks.work_email
+    stks.work_email,
+    stks.thu_tu,
+    stks.line_id,
+    stks.tong_tien,
+    stks.id crm_id
 FROM {{ source('paris', 'view_stag_tongquan_khachhang_sm_pr') }} stks

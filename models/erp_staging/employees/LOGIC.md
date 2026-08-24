@@ -114,3 +114,21 @@ trong `mart/stag_employees.sql`, xoá task Airflow `task_1_stag_employees`
 không đổi theo ERP sống), **không cần đối chiếu lại phần đó** trước cutover —
 chỉ cần re-run đối chiếu phần `id>0` (sinh từ ERP) ngay trước khi cutover, như
 với `stag_products`.
+
+## mart/view_stag_employees_user.sql — port view thủ công `public.view_stag_employees_user`
+
+Port 1:1 view Postgres thủ công cùng tên đang chạy thật trong DB `new_product`
+(không do dbt quản lý, DDL gốc do anh yêu paste trực tiếp). `materialized='view'`,
+alias `view_stag_employees_user`, dùng `ref('stag_employees')` (không phải
+`source()`) → dbt tự xếp model này chạy **sau** khi bảng `stag_employees` build
+xong.
+
+- UNION ALL 5 nhánh theo `brand_etl` (1=kn, 3=pr, 4=hh, 8=thv, 0=chính
+  id/user_id gốc của bảng `stag_employees`) — không cần join thêm bảng nào
+  khác (khác `view_stag_products`, view này chỉ đọc từ 1 bảng).
+- `user_id` mọi nhánh đều `NULLIF(..., 0)` — giữ nguyên như view gốc (id user
+  = 0 coi như NULL).
+- Đã `dbt compile --select view_stag_employees_user` thành công (2026-08-11).
+  **Chưa** `dbt run` — cần xác nhận trước vì đây là thay đổi schema DB
+  production (xem `erp_staging/products/LOGIC.md` mục `view_stag_products`
+  cho cùng lưu ý này, áp dụng chung cho cả 2 view).

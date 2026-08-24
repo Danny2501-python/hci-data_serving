@@ -23,6 +23,8 @@ sources:
       - name: product_category
       - name: crm_lead
       - name: crm_line
+      - name: utm_source
+      - name: crm_category_source
       - name: res_country_state
       - name: res_country
       - name: m_res_company
@@ -40,3 +42,5 @@ sources:
       # Caresoft
       - name: cs_services_api
       - name: cs_ticket_api
+      - name: cs_ticket_source_api
+      - name: cs_ticket_source_detail_api
