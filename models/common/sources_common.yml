@@ -26,5 +26,7 @@ sources:
       - name: product_category
       - name: cs_deal_detail_api_v2
       - name: cs_custom_fields
+      - name: stag_products_dbt
       - name: sh_medical_appointment_register_walkin
       - name: sh_walkin_service_rel
+      - name: res_partner

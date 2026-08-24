@@ -222,16 +222,43 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
-    report_bc_chi_phi_vtth:
-      +tags: ["report_bc_chi_phi_vtth"]
-      stg:
-        +materialized: ephemeral
+    report_thv_sale_online:
+      +tags: ["report_thv_sale_online"]
       int:
         +materialized: ephemeral
       mart:
         +materialized: table
       stag:
         +materialized: ephemeral
+    report_convert_kangnam:
+      +tags: ["report_convert_kangnam"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    report_thv_convert:
+      +tags: ["report_thv_convert"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    old_view_store:
+      +tags: ["old_view_store"]
+      mart:
+        +materialized: view
+    report_pr_trust_360_TG:
+      +tags: ["report_pr_trust_360_TG"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
