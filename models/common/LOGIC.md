@@ -80,6 +80,27 @@ theo chi nhánh/tháng...) mà không cần dựng bảng tạm.
   kèm `brand_etl`) — **[Mới 2026-08-22]**, dùng để loại trừ nhóm khách cũ ở quy tắc `is_cross_sale`
   bên dưới.
 
+### CTE `service_walkin_completed` — ngày hoàn thành phiếu khám theo từng dòng dịch vụ `[Mới 2026-08-26]`
+
+Port từ procedure `func_stag_crm_line_ecosystem()` bước 1.5 (`tmp_service_walkin_completed`, đã
+deploy sandbox — xem `func_stag_crm_line_ecosystem.md` mục 4/5), mở rộng thêm
+`MIN(service_date_start)`. Grain: `(crm_id, service_id, brand_etl)` — `crm_id` = `booking_id` của
+phiếu khám (`sh_medical_appointment_register_walkin`, `state = 'Completed'`), join
+`sh_walkin_service_rel` lấy `service_id`. **Chỉ tính trong cùng booking** (không gộp theo toàn lịch
+sử khách hàng như `main_bl_walkin`).
+
+Join vào CTE `cline` (theo `crm_id = cl.id`, `service_id` khớp `view_stag_products.service_id` của
+product trên dòng đó, kèm `brand_etl`), sinh ra 2 cột trên mỗi dòng dịch vụ (cline):
+
+- `line_walkin_finish_date`: ngày hoàn thành sớm nhất của phiếu khám khớp đúng dòng dịch vụ này,
+  trong cùng booking. `NULL` nếu dòng dịch vụ đó chưa có phiếu khám Completed nào khớp.
+- `has_completed_walkin`: `line_walkin_finish_date IS NOT NULL` (dạng boolean, dùng ở gate
+  `is_cross_sale` bên dưới).
+
+Khác với `main_bl_completed_date` (CTE `main_bl_walkin` phía dưới) — cột đó chỉ tính 1 giá trị cho
+**main BL của cả khách hàng** (toàn lịch sử), còn `line_walkin_finish_date`/`has_completed_walkin`
+tính **cho từng dòng dịch vụ riêng lẻ**, phạm vi trong cùng booking.
+
 ### CTE `ctg_service_type_map` / `uu_tien_1` / `uu_tien_2` / `uu_tien_3` / `nhom_dich_vu_chinh` — nhóm dịch vụ chính của booking `[Mới 2026-08-22]`
 
 Port y hệt bước 3.5 của procedure `func_stag_crm_line_ecosystem()` (3 tầng ưu tiên: 1.
@@ -167,18 +188,23 @@ Liên hệ: `sh_medical_appointment_register_walkin.booking_id = crm_lead.id` �
    OR main_bl_customer = 'Khác' OR business_line = 'Khác'   → false (thuộc main BL, hoặc main BL/BL hiện tại chưa phân loại được)
 2. source_main_bl = 'crm_lead_history'
    AND partner_create_date < '2025-08-01'                   → false  -- [Mới 2026-08-22]
-3. EXISTS (trong cùng booking crm_id + cùng business_line) ít nhất 1 dòng khác thỏa:
+3. NOT has_completed_walkin                                 → false  -- [Mới 2026-08-26]
+4. EXISTS (trong cùng booking crm_id + cùng business_line) ít nhất 1 dòng khác thỏa:
        cline_total_payment > 0
        AND (cus_bl_paid_order = 1 OR is_line_over_6_months_in_bl = true)
    (tính bằng bool_or(...) OVER (PARTITION BY crm_id, business_line))
                                                              → true
-4. else                                                     → false
+5. else                                                     → false
 ```
 
-Nhánh 1 và 3 giữ nguyên như trước. **Nhánh 2 là mới (2026-08-22)**, đồng bộ theo procedure: loại
-trừ hẳn các dòng của khách mà `main_bl_customer` resolve qua tầng 3 (fallback, độ tin cậy thấp
-nhất) VÀ khách đó tạo tài khoản (`res_partner.create_date`) trước 2025-08-01 — tránh false
-positive cho nhóm khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy.
+Nhánh 1 và 4 giữ nguyên như trước. **Nhánh 2 (2026-08-22)** đồng bộ theo procedure: loại trừ hẳn
+các dòng của khách mà `main_bl_customer` resolve qua tầng 3 (fallback, độ tin cậy thấp nhất) VÀ
+khách đó tạo tài khoản (`res_partner.create_date`) trước 2025-08-01 — tránh false positive cho
+nhóm khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy.
+
+**Nhánh 3 (2026-08-26)** cũng đồng bộ theo procedure (mục `service_walkin_completed` phía trên):
+dòng dịch vụ chưa có phiếu khám Completed nào khớp đúng `service_id` **trong cùng booking** thì
+không tính bán chéo, bất kể điều kiện payment/6 tháng ở nhánh 4 có thỏa hay không.
 
 `main_bl_completed_date IS NULL` **không còn** chặn `is_cross_sale` (bỏ theo yêu cầu 2026-08-03) —
 cột này vẫn được SELECT ra (`mbw.main_bl_completed_date`) để tầng Tableau tự lọc nếu cần, nhưng bản

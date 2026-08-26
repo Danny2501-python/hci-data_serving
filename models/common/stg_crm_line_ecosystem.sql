@@ -13,8 +13,32 @@
 -- ở uu_tien_2) để khớp 100% với bảng vật lý, KHÔNG tự sửa. KHÔNG đụng/không revert
 -- stg_booking_nhom_dich_vu_chinh.sql (model đó đã chủ động đơn giản hóa bỏ 3 tầng, đang dùng chung
 -- với stg_dv_khach_hang_quan_tam) — 3 tầng ưu tiên ở đây là bản viết riêng, độc lập.
+--
+-- [MỚI 2026-08-26] Port CTE service_walkin_completed + cột line_walkin_finish_date/
+-- has_completed_walkin + gate "WHEN NOT has_completed_walkin THEN false" trong is_cross_sale, đồng
+-- bộ theo procedure func_stag_crm_line_ecosystem() (đã deploy sandbox trước, xem
+-- func_stag_crm_line_ecosystem.md mục 4/5). Tại thời điểm sửa file này, phần tương ứng bên sandbox
+-- (ALTER TABLE + CREATE OR REPLACE PROCEDURE) CHƯA được thực thi — chỉ mới sửa phía dbt.
 
-WITH cline as (
+WITH service_walkin_completed as (
+    -- [MỚI 2026-08-26] (crm_id, service_id, brand_etl) đã có phiếu khám Completed, kèm ngày hoàn
+    -- thành sớm nhất (line_walkin_finish_date) -- port từ procedure func_stag_crm_line_ecosystem()
+    -- bước 1.5 (tmp_service_walkin_completed), mở rộng thêm MIN(service_date_start) -- xem
+    -- func_stag_crm_line_ecosystem.md mục 4/5. Chỉ tính trong CÙNG booking (crm_id = booking_id),
+    -- không gộp theo toàn lịch sử khách hàng.
+    select
+        w.booking_id as crm_id,
+        wsr.service_id,
+        w.brand_etl,
+        MIN(w.service_date_start) as line_walkin_finish_date
+    from {{ source('crm_base', 'sh_medical_appointment_register_walkin') }} w
+        inner join {{ source('crm_base', 'sh_walkin_service_rel') }} wsr
+            on wsr.walkin_id = w.id and wsr.brand_etl = w.brand_etl
+    where w.state = 'Completed'
+        and w.service_date_start is not null
+        and w.booking_id in (select crm_id from {{ ref('stg_booking_id_co_tien_tc') }})
+    group by w.booking_id, wsr.service_id, w.brand_etl
+), cline as (
     SELECT
         cl.id as crm_id,
         cl.name as code_booking,
@@ -41,7 +65,9 @@ WITH cline as (
             WHEN sp.his_service_type = 'weight_loss' then 'Weight Loss'
             ELSE 'Khác'
         END as business_line,
-        rp.create_date + interval '7 hours' as partner_create_date
+        rp.create_date + interval '7 hours' as partner_create_date,
+        swc.line_walkin_finish_date,                                  -- [MỚI 2026-08-26]
+        (swc.crm_id is not null) as has_completed_walkin               -- [MỚI 2026-08-26]
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
         left join (
@@ -51,6 +77,8 @@ WITH cline as (
         ) spt on spt.clineid = cln.id and spt.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'view_stag_products') }} sp on sp.product_id = cln.product_id and sp.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'res_partner') }} rp on cl.partner_id = rp.id and cl.brand_etl = rp.brand_etl
+        left join service_walkin_completed swc                          -- [MỚI 2026-08-26]
+            on swc.crm_id = cl.id and swc.service_id = sp.service_id and swc.brand_etl = cln.brand_etl
     WHERE cl.id in (SELECT crm_id FROM {{ ref('stg_booking_id_co_tien_tc') }})
         AND cl.type = 'opportunity'
 ), rnk_bl_cline as (
@@ -327,6 +355,11 @@ select
         -- nhóm khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy) — khớp logic mới nhất của
         -- procedure (bước 8).
         when lb.source_main_bl = 'crm_lead_history' and lb.partner_create_date < '2025-08-01' then false
+        -- [MỚI 2026-08-26] port gate has_completed_walkin từ procedure func_stag_crm_line_ecosystem()
+        -- (đã deploy trên sandbox) -- dòng dịch vụ này, TRONG CÙNG BOOKING, chưa có phiếu khám
+        -- Completed nào khớp đúng service_id thì không tính bán chéo, bất kể điều kiện payment/6
+        -- tháng bên dưới có thỏa hay không.
+        when not lb.has_completed_walkin then false
         -- Trong cùng booking (crm_id) và cùng BL này, chỉ cần TỒN TẠI 1 dòng "kích hoạt" bán chéo
         -- (có payment > 0, và là lần mua đầu tiên của BL đó hoặc cách lần mua liền trước của BL đó
         -- > 6 tháng) thì MỌI dòng dịch vụ của cùng BL trong cùng booking đó đều được tính là bán

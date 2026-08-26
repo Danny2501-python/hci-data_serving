@@ -198,9 +198,28 @@ và xác nhận đề xuất **đã được deploy**, đúng như thiết kế 
 > `business_line` riêng lẻ. Xem mục 5 — đang bổ sung cột ngày hoàn thành đầu tiên theo từng dòng
 > dịch vụ (`line_completed_date`), sẽ tái dùng `tmp_service_walkin_completed` ở đây.
 
-## 5. Đề xuất đang triển khai — cột ngày hoàn thành đầu tiên theo từng dòng dịch vụ
+## 5. Cột `line_walkin_finish_date` — ngày hoàn thành đầu tiên theo từng dòng dịch vụ
 
-*(bắt đầu 2026-08-26, theo yêu cầu)* Đang bổ sung 1 cột ngày (không chỉ cờ boolean như mục 4) ghi
-nhận **ngày hoàn thành sớm nhất của phiếu khám khớp đúng dòng dịch vụ đó** — xem chi tiết thiết kế
-cụ thể (tên cột, phạm vi tính theo booking hay theo toàn lịch sử khách hàng, có đồng bộ sang dbt
-`stg_crm_line_ecosystem.sql` hay không) khi chốt xong, cập nhật lại mục này.
+*(chốt thiết kế 2026-08-26, theo yêu cầu)* Bổ sung 1 cột **ngày** (khác `has_completed_walkin` ở
+mục 4 vốn chỉ là cờ boolean) ghi nhận **ngày hoàn thành sớm nhất của phiếu khám khớp đúng dòng dịch
+vụ đó**, tái dùng `tmp_service_walkin_completed` (mục 4), mở rộng thêm `MIN(service_date_start)`.
+
+- **Tên cột**: `line_walkin_finish_date`.
+- **Phạm vi tính**: trong cùng booking (`crm_id`) — giống hệt phạm vi của `has_completed_walkin`,
+  KHÔNG gộp theo toàn lịch sử khách hàng (khác cách `main_bl_completed_date` ở mục "Bước 7" đang
+  tính cho main BL).
+- **`has_completed_walkin`** giờ tương đương `line_walkin_finish_date IS NOT NULL` — vẫn giữ tính
+  cả 2 để rõ ý ở nơi dùng (procedure) / không bắt buộc bên dbt (dbt tính trực tiếp
+  `line_walkin_finish_date IS NOT NULL` làm `has_completed_walkin`, xem `LOGIC.md`).
+
+### Trạng thái thực thi (2026-08-26)
+
+- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong — thêm CTE `service_walkin_completed`,
+  cột `line_walkin_finish_date`/`has_completed_walkin` trong `cline`, và gate
+  `WHEN NOT has_completed_walkin THEN false` trong `is_cross_sale` (đồng bộ luôn gate ở mục 4 mà
+  trước đó dbt còn thiếu). Xem `LOGIC.md` mục 3.
+- ⏳ **Sandbox** (`func_stag_crm_line_ecosystem()` + bảng vật lý `stag_crm_line_ecosystem`):
+  **CHƯA thực thi** — script đã soạn sẵn (`ALTER TABLE ADD COLUMN line_walkin_finish_date
+  timestamp without time zone` + sửa `tmp_service_walkin_completed`/`tmp_cline`/`INSERT` cuối của
+  procedure để thêm cột), chờ xác nhận trước khi chạy. Tại thời điểm này, **2 bên (dbt và sandbox)
+  đang lệch nhau ở đúng cột này** — dbt đã có `line_walkin_finish_date`, sandbox chưa.
