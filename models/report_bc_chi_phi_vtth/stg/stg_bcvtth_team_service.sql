@@ -22,7 +22,10 @@ SELECT
     roleid,
     employee_id,
     employee,
+    room,
+    product_category,
+    surgery_type,
     MAX(product) AS product,
     MAX(revenue) AS revenue
 FROM {{ source('dwh_public', 'report_kpi_team_service') }}
-GROUP BY form_id, brand_etl, product_id, roleid, employee_id, employee
+GROUP BY form_id, brand_etl, product_id, roleid, employee_id, employee, room, product_category, surgery_type

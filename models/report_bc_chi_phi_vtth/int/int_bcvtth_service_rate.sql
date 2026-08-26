@@ -23,16 +23,19 @@ WITH svc_revenue AS (
     -- nhau trên cùng phiếu (vd. đặt lại/đổi dòng dịch vụ với giá khác) vì
     -- report_kpi_team_service không có order_product_id để phân biệt dòng
     -- gốc; lấy 1 giá trị đại diện để tránh JOIN fan-out gây trùng khoá.
-    SELECT form_id, brand_etl, product_id, MAX(product) AS service_name, MAX(revenue) AS revenue
+    SELECT form_id, brand_etl, product_id, MAX(product) AS service_name, MAX(revenue) AS revenue, room, product_category, surgery_type
     FROM {{ ref('stg_bcvtth_team_service') }}
-    GROUP BY form_id, brand_etl, product_id
+    GROUP BY form_id, brand_etl, product_id, room, product_category, surgery_type
 ),
 
 base AS (
     SELECT
         s.*,
         r.service_name,
-        r.revenue
+        r.revenue,
+        r.room,
+        r.product_category,
+        r.surgery_type
     FROM {{ ref('int_bcvtth_supply_with_cost') }} s
     LEFT JOIN svc_revenue r
         ON r.form_id = s.form_id

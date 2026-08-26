@@ -6,13 +6,23 @@
 -- fallback sang BS mổ phụ (roleid = 2) của CHÍNH dịch vụ đó. Dịch vụ không có
 -- cả 2 vai trò này sẽ không xuất hiện ở đây -> phần vật tư phân bổ cho dịch vụ
 -- đó bị loại khỏi report ở tầng mart (không có bác sĩ để gán).
+-- Bổ sung: Lấy cả trường hợp roleid is null (không có roleid) nếu không có cả bác sĩ mổ chính và phụ.
 --
 -- MATERIALIZED = table: đồng bộ với các model khác trong pipeline này để
 -- tránh bị inline vào query tổng (xem lý do chi tiết ở stg_bcvtth_bom).
 -- =============================================================================
 {{ config(materialized='table') }}
 
-WITH r1 AS (
+WITH 
+r0 AS (
+    SELECT form_id, brand_etl, product_id AS service_product_id, employee_id, MAX(employee) AS employee
+    FROM {{ ref('stg_bcvtth_team_service') }}
+    WHERE roleid is null
+    GROUP BY form_id, brand_etl, product_id, employee_id
+),
+
+
+r1 AS (
     SELECT form_id, brand_etl, product_id AS service_product_id, employee_id, MAX(employee) AS employee
     FROM {{ ref('stg_bcvtth_team_service') }}
     WHERE roleid = 1
@@ -32,6 +42,10 @@ service_has_r1 AS (
 
 doctor AS (
     SELECT * FROM r1
+
+    UNION ALL
+
+    SELECT * FROM r0
 
     UNION ALL
 
