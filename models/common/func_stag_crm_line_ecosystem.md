@@ -169,15 +169,57 @@ khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy. **[2026-08
 được SELECT ra bảng đích nhưng **không dùng để chặn `is_cross_sale`** — giống cách dbt đang làm
 (ghi chú "bỏ theo yêu cầu 2026-08-03" trong `LOGIC.md` mục 3).
 
-## 4. Đề xuất đang thảo luận — CHƯA DEPLOY
+## 4. `has_completed_walkin` — điều kiện tiên quyết theo từng dòng dịch vụ `[ĐÃ DEPLOY]`
 
-*(cập nhật 2026-08-22, chưa áp dụng vào DB)* Đang bàn thêm điều kiện: 1 dòng dịch vụ chỉ được
-tính bán chéo nếu **chính dòng đó** có ít nhất 1 phiếu khám (`sh_medical_appointment_register_walkin`,
-`state = 'Completed'`) khớp theo `service_id` (của product trên dòng đó, qua
-`view_stag_products.service_id`) **trong cùng booking** (`w.booking_id = cln.crm_id`) — khác với
-`tmp_main_bl_walkin` ở bước 7 vốn chỉ tính phiếu khám Completed đầu tiên cho **main BL của cả
-KH**, không phải cho từng dòng dịch vụ. Thiết kế: thêm bảng tạm
-`tmp_service_walkin_completed` (crm_id, service_id, brand_etl) trước bước 2, join vào `tmp_cline`
-lấy cờ `has_completed_walkin`, và thêm 1 nhánh `WHEN NOT has_completed_walkin THEN false` vào
-CASE `is_cross_sale` ở bước 8 (trước nhánh `bool_or`), áp **ở mức từng dòng output**, không đổi
-điều kiện "kích hoạt" của cả nhóm.
+**[Cập nhật 2026-08-26]** Mục này trước đây ghi "đề xuất đang thảo luận — CHƯA DEPLOY" (cập nhật
+2026-08-22) — đã **kiểm tra lại definition thật trên sandbox** (`pg_get_functiondef`, 2026-08-26)
+và xác nhận đề xuất **đã được deploy**, đúng như thiết kế mô tả trước đó:
+
+- **Bước 1.5 (mới, chèn trước bước 2)** — `tmp_service_walkin_completed`: tập
+  `(crm_id, service_id, brand_etl)` — `booking_id` của phiếu khám
+  (`sh_medical_appointment_register_walkin`, `state = 'Completed'`) join `sh_walkin_service_rel`
+  lấy `service_id`, giới hạn trong các `crm_id` đã "có tiền thành công"
+  (`tmp_booking_id_co_tien_tc`).
+- **`tmp_cline`**: join thêm `tmp_service_walkin_completed` (theo `crm_id = booking_id`,
+  `service_id` khớp `view_stag_products.service_id` của product trên dòng đó, kèm `brand_etl`) →
+  cột `has_completed_walkin` (**boolean**) = dòng dịch vụ này, **trong cùng booking**, đã có ít
+  nhất 1 phiếu khám Completed khớp đúng `service_id` hay chưa.
+- **CASE `is_cross_sale` (bước 8)**: thêm nhánh `WHEN NOT has_completed_walkin THEN false` —
+  chèn **trước** nhánh `bool_or(...)`, sau 2 nhánh cũ (`business_line = main_bl_customer`/`Khác` và
+  `source_main_bl = 'crm_lead_history' AND partner_create_date < 2025-08-01`) — áp ở mức từng dòng
+  output, không đổi điều kiện "kích hoạt" của cả nhóm (bool_or vẫn tính như cũ).
+
+> ⚠️ **Khác với những gì bảng output thể hiện ra ngoài:** `has_completed_walkin` chỉ là **cờ
+> boolean tồn tại** (có/không), **không giữ lại ngày hoàn thành** (`service_date_start`) của phiếu
+> khám đó, và **không được SELECT ra bảng vật lý** `public.stag_crm_line_ecosystem` (đã kiểm tra
+> đủ 36 cột thật của bảng — không có cột này) — chỉ dùng nội bộ trong procedure để tính
+> `is_cross_sale`. Khác với `main_bl_completed_date` (bước 7, cột có thật trong bảng output) vốn là
+> 1 **ngày** nhưng chỉ tính cho **main BL của cả khách hàng**, không phải cho từng dòng/từng
+> `business_line` riêng lẻ. Xem mục 5 — đang bổ sung cột ngày hoàn thành đầu tiên theo từng dòng
+> dịch vụ (`line_completed_date`), sẽ tái dùng `tmp_service_walkin_completed` ở đây.
+
+## 5. Cột `line_walkin_finish_date` — ngày hoàn thành đầu tiên theo từng dòng dịch vụ
+
+*(chốt thiết kế 2026-08-26, theo yêu cầu)* Bổ sung 1 cột **ngày** (khác `has_completed_walkin` ở
+mục 4 vốn chỉ là cờ boolean) ghi nhận **ngày hoàn thành sớm nhất của phiếu khám khớp đúng dòng dịch
+vụ đó**, tái dùng `tmp_service_walkin_completed` (mục 4), mở rộng thêm `MIN(service_date_start)`.
+
+- **Tên cột**: `line_walkin_finish_date`.
+- **Phạm vi tính**: trong cùng booking (`crm_id`) — giống hệt phạm vi của `has_completed_walkin`,
+  KHÔNG gộp theo toàn lịch sử khách hàng (khác cách `main_bl_completed_date` ở mục "Bước 7" đang
+  tính cho main BL).
+- **`has_completed_walkin`** giờ tương đương `line_walkin_finish_date IS NOT NULL` — vẫn giữ tính
+  cả 2 để rõ ý ở nơi dùng (procedure) / không bắt buộc bên dbt (dbt tính trực tiếp
+  `line_walkin_finish_date IS NOT NULL` làm `has_completed_walkin`, xem `LOGIC.md`).
+
+### Trạng thái thực thi (2026-08-26)
+
+- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong — thêm CTE `service_walkin_completed`,
+  cột `line_walkin_finish_date`/`has_completed_walkin` trong `cline`, và gate
+  `WHEN NOT has_completed_walkin THEN false` trong `is_cross_sale` (đồng bộ luôn gate ở mục 4 mà
+  trước đó dbt còn thiếu). Xem `LOGIC.md` mục 3.
+- ⏳ **Sandbox** (`func_stag_crm_line_ecosystem()` + bảng vật lý `stag_crm_line_ecosystem`):
+  **CHƯA thực thi** — script đã soạn sẵn (`ALTER TABLE ADD COLUMN line_walkin_finish_date
+  timestamp without time zone` + sửa `tmp_service_walkin_completed`/`tmp_cline`/`INSERT` cuối của
+  procedure để thêm cột), chờ xác nhận trước khi chạy. Tại thời điểm này, **2 bên (dbt và sandbox)
+  đang lệch nhau ở đúng cột này** — dbt đã có `line_walkin_finish_date`, sandbox chưa.
