@@ -1,7 +1,11 @@
 {{ config(alias='stag_payment_transfer') }}
 
 -- Tương đương write_stag_payment_transfer() trong quentk_1_stag_crm_New_sys.py.
--- Alias 'stag_payment_transfer_dbt' để không ghi đè bảng thật cho tới khi được đối chiếu/duyệt.
+-- (2026-08-27) ĐÃ CUTOVER — alias ghi thẳng bảng thật 'stag_payment_transfer', task Airflow cũ
+-- (write_stag_payment_transfer trong quentk_1_stag_crm_New_sys.py) đã tắt/xoá (user xác nhận). Các
+-- model/report khác trong repo giờ nên dùng ref('stag_payment_transfer') thay vì
+-- source(..., 'stag_payment_transfer') khi có thể — xem mục "Cutover" trong LOGIC.md để biết các
+-- bước còn lại CHƯA xác nhận xong (đặc biệt bảng đi kèm stag_payment_transfer_grby_date).
 --
 -- 3 phần, UNION ALL:
 --   1. legacy (brand_etl=0)      -- đóng băng, không ETL nào tái tạo được

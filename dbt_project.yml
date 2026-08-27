@@ -27,6 +27,10 @@ vars:
   all_brand_etl: "(1,3,4,7)"
   # Whitelist of brand codes (campaign name token 1) recognized as the 9+ token naming convention
   all_brand_mkt_camp: "('kgs','kbs','kwl','kwn','kdt','kal','prd','hh','vde')"
+  # report_kpi_bonus_commission: mốc sàn (không xử lý lại dữ liệu trước ngày này) — port từ
+  # `date_sys` trong script gốc jupiter_sand_box/quentk_3_report_kpi_bonus_commission_New_sys.py,
+  # PHẢI nâng dần tay theo thời gian giống cách bản gốc vẫn làm (xem int_rkbc_base_payment.sql).
+  rkbc_floor_date: '2026-08-01'
 
 # Model configurations
 models:
@@ -230,6 +234,22 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    report_kpi_bonus_commission:
+      +tags: ["report_kpi_bonus_commission"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    report_tableau_doanh_so:
+      +tags: ["report_tableau_doanh_so"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: table
+      mart:
+        +materialized: table
     report_convert_kangnam:
       +tags: ["report_convert_kangnam"]
       int:

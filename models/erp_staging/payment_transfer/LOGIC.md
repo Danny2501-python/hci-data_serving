@@ -1,10 +1,16 @@
 # Logic: erp_staging/payment_transfer
 
-Chuyển logic tạo bảng `stag_payment_transfer` (đang chạy Python/pandas trong Airflow DAG
+Chuyển logic tạo bảng `stag_payment_transfer` (trước chạy Python/pandas trong Airflow DAG
 `quentk_1_stag_crm_New_sys.py`, hàm `get_data_payment()` + `write_stag_payment_transfer()`,
-cùng `write_temp_crm_id_update()`) sang dbt. Output: `mart_stag_payment_transfer`, alias
-vật lý `stag_payment_transfer_dbt` (xem mục "Cutover" — **chưa** ghi đè bảng
-`stag_payment_transfer` thật).
+cùng `write_temp_crm_id_update()`) sang dbt. Output: `mart_stag_payment_transfer`.
+
+**(2026-08-27) ĐÃ CUTOVER** — alias đổi thành `stag_payment_transfer` (bảng thật, không còn
+`stag_payment_transfer_dbt`), task Airflow cũ `write_stag_payment_transfer` đã tắt/xoá (user xác
+nhận trực tiếp, chưa kiểm tra lại được file DAG gốc vì không có trong repo ở máy này). Các model
+khác trong repo nên đổi dần sang `ref('stag_payment_transfer')` thay vì
+`source(..., 'stag_payment_transfer')` khi sửa tới. **CHƯA xác nhận** bước 5 ở mục "Cutover" bên
+dưới (bảng đi kèm `stag_payment_transfer_grby_date`) — có thể đang không còn tiến trình nào cập
+nhật, cần kiểm tra riêng trước khi coi cutover là hoàn tất 100%.
 
 Đối chiếu ngày build (2026-07-25): row count khớp **tuyệt đối** (816,719/816,719). Sau khi
 sửa lỗi gộp NULL clineid (xem `knowledge.md` mục 1), còn **~421/816,719 dòng (0.05%)** lệch
@@ -133,19 +139,21 @@ trước — không phải khoảng lệch phát sinh khi dịch sang dbt.
 
 ## Cutover — kế hoạch chuyển từ Python sang dbt
 
-Theo đúng pattern đã dùng cho `products`/`employees`:
+Theo đúng pattern đã dùng cho `products`/`employees`.
 
-1. Model hiện build ra bảng riêng `stag_payment_transfer_dbt`
-   (`{{ config(alias='stag_payment_transfer_dbt') }}` trong `mart/stag_payment_transfer.sql`)
-   — **không** đụng bảng thật `stag_payment_transfer`.
+**(2026-08-27) Trạng thái**: bước 1, 3, 4 **đã xong** (alias trỏ thẳng bảng thật, task Airflow cũ đã
+tắt/xoá theo xác nhận của user). Bước 2 và 5 **chưa xác nhận lại** — xem ghi chú đầu file.
+
+1. ~~Model hiện build ra bảng riêng `stag_payment_transfer_dbt`~~ ĐÃ XONG — giờ build thẳng bảng
+   thật `stag_payment_transfer` (`{{ config(alias='stag_payment_transfer') }}`).
 2. **Ngay trước khi cutover**: chạy lại đúng quy trình đối chiếu ở `knowledge.md` — dữ liệu
    ERP là sống và "Phạm vi tính lại" trôi theo tháng (`limit_start_date_1m`), nên kết quả đối
-   chiếu cũ có thể lệch nếu cách xa thời điểm cutover quá lâu.
-3. Xoá task Airflow tương ứng `write_stag_payment_transfer` (và `write_temp_crm_id_update`,
-   nếu không còn hàm nào khác dùng bảng tạm `temp_crm_id_update`) khỏi DAG
-   `quentk_1_stag_crm_New_sys.py`.
-4. Bỏ dòng `config(alias=...)` trong `mart/stag_payment_transfer.sql` để dbt build thẳng ra
-   bảng `stag_payment_transfer` (cần đảm bảo quyền DROP/CREATE trên bảng đó).
+   chiếu cũ có thể lệch nếu cách xa thời điểm cutover quá lâu. (chưa xác nhận đã chạy lại lần cuối)
+3. ~~Xoá task Airflow tương ứng `write_stag_payment_transfer`~~ ĐÃ XONG (user xác nhận
+   2026-08-27) — chưa kiểm tra lại được liệu `write_temp_crm_id_update`/bảng tạm
+   `temp_crm_id_update` có còn hàm nào khác dùng không.
+4. ~~Bỏ dòng `config(alias=...)`~~ ĐÃ LÀM TƯƠNG ĐƯƠNG — set thẳng `alias='stag_payment_transfer'`
+   thay vì xoá hẳn dòng config (cùng kết quả vật lý, khác cách viết so với kế hoạch gốc).
 5. **Chưa dịch `stag_payment_transfer_grby_date`** (tương đương
    `write_stag_payment_transfer_grby_date()`): bảng tổng hợp theo ngày, dùng cho báo cáo
    doanh số group theo `(brand_id, crm_id, product_id, payment_date)` — nối `id`/`ma_phieu`/
