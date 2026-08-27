@@ -198,28 +198,455 @@ và xác nhận đề xuất **đã được deploy**, đúng như thiết kế 
 > `business_line` riêng lẻ. Xem mục 5 — đang bổ sung cột ngày hoàn thành đầu tiên theo từng dòng
 > dịch vụ (`line_completed_date`), sẽ tái dùng `tmp_service_walkin_completed` ở đây.
 
-## 5. Cột `line_walkin_finish_date` — ngày hoàn thành đầu tiên theo từng dòng dịch vụ
+## 5. Cột `cline_walkin_finish_date` (trước đây `line_walkin_finish_date`) — ngày hoàn thành đầu tiên theo từng dòng dịch vụ
 
 *(chốt thiết kế 2026-08-26, theo yêu cầu)* Bổ sung 1 cột **ngày** (khác `has_completed_walkin` ở
-mục 4 vốn chỉ là cờ boolean) ghi nhận **ngày hoàn thành sớm nhất của phiếu khám khớp đúng dòng dịch
-vụ đó**, tái dùng `tmp_service_walkin_completed` (mục 4), mở rộng thêm `MIN(service_date_start)`.
+mục 4 vốn chỉ là cờ boolean) ghi nhận **ngày sớm nhất của phiếu khám khớp đúng dòng dịch vụ đó**,
+tái dùng `tmp_service_walkin_completed` (mục 4), mở rộng thêm `MIN(service_date_start)`.
 
-- **Tên cột**: `line_walkin_finish_date`.
+- **Tên cột**: `cline_walkin_finish_date` (đổi tên 2026-08-27, trước đó là `line_walkin_finish_date`
+  — xem mục 6).
 - **Phạm vi tính**: trong cùng booking (`crm_id`) — giống hệt phạm vi của `has_completed_walkin`,
   KHÔNG gộp theo toàn lịch sử khách hàng (khác cách `main_bl_completed_date` ở mục "Bước 7" đang
   tính cho main BL).
-- **`has_completed_walkin`** giờ tương đương `line_walkin_finish_date IS NOT NULL` — vẫn giữ tính
+- **`has_completed_walkin`** giờ tương đương `cline_walkin_finish_date IS NOT NULL` — vẫn giữ tính
   cả 2 để rõ ý ở nơi dùng (procedure) / không bắt buộc bên dbt (dbt tính trực tiếp
-  `line_walkin_finish_date IS NOT NULL` làm `has_completed_walkin`, xem `LOGIC.md`).
+  `cline_walkin_finish_date IS NOT NULL` làm `has_completed_walkin`, xem `LOGIC.md`).
 
-### Trạng thái thực thi (2026-08-26)
+### Trạng thái thực thi (2026-08-26, cột `line_walkin_finish_date` gốc)
 
 - ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong — thêm CTE `service_walkin_completed`,
   cột `line_walkin_finish_date`/`has_completed_walkin` trong `cline`, và gate
   `WHEN NOT has_completed_walkin THEN false` trong `is_cross_sale` (đồng bộ luôn gate ở mục 4 mà
   trước đó dbt còn thiếu). Xem `LOGIC.md` mục 3.
-- ⏳ **Sandbox** (`func_stag_crm_line_ecosystem()` + bảng vật lý `stag_crm_line_ecosystem`):
-  **CHƯA thực thi** — script đã soạn sẵn (`ALTER TABLE ADD COLUMN line_walkin_finish_date
-  timestamp without time zone` + sửa `tmp_service_walkin_completed`/`tmp_cline`/`INSERT` cuối của
-  procedure để thêm cột), chờ xác nhận trước khi chạy. Tại thời điểm này, **2 bên (dbt và sandbox)
-  đang lệch nhau ở đúng cột này** — dbt đã có `line_walkin_finish_date`, sandbox chưa.
+- ✅ **Sandbox** (`func_stag_crm_line_ecosystem()` + bảng vật lý `stag_crm_line_ecosystem`): **đã
+  thực thi** (`ALTER TABLE ADD COLUMN line_walkin_finish_date timestamp without time zone` +
+  `CREATE OR REPLACE PROCEDURE`). Đã kiểm tra lại bằng `pg_get_functiondef` + liệt kê cột thật của
+  bảng (2026-08-26): cột `line_walkin_finish_date` có mặt, đúng vị trí cuối bảng (cột 37/37), khớp
+  100% thiết kế — `tmp_service_walkin_completed` đã đổi `DISTINCT` → `GROUP BY` +
+  `MIN(service_date_start)`, `tmp_cline` join lấy thêm cột này, `INSERT` cuối đã thêm
+  `lb.line_walkin_finish_date`. **dbt và sandbox hiện đã khớp nhau hoàn toàn** ở cột này.
+
+## 6. Đổi tên + sửa timezone/điều kiện `state` `[2026-08-27]`
+
+Sau khi verify data thật (mục 5), phát hiện 2 vấn đề + 1 yêu cầu đổi tên:
+
+1. **Đổi tên cột**: `line_walkin_finish_date` → `cline_walkin_finish_date` (rõ nghĩa "theo từng
+   cline/dòng dịch vụ", tránh nhầm với các cột "line" khác đang mang nghĩa business_line).
+2. **+7h cho `service_date_start`**: bảng `sh_medical_appointment_register_walkin` lưu UTC — cột
+   này trước đó bị sót (khác `booking_report_date`/`cline_created_date`/`partner_create_date` đã
+   +7h từ trước). Áp dụng ở **cả 2 chỗ** dùng `service_date_start`: `tmp_service_walkin_completed`
+   (→ `cline_walkin_finish_date`) VÀ `tmp_main_bl_walkin_ranked` bước 7 (→ `main_bl_completed_date`).
+3. **Bỏ điều kiện `w.state = 'Completed'`**, chỉ giữ `w.service_date_start IS NOT NULL` — cover
+   nhiều trường hợp hợp lệ hơn, không giới hạn đúng state `'Completed'`. Áp dụng ở **cả 2 chỗ**
+   trên. Tên `has_completed_walkin`/`tmp_service_walkin_completed`/`main_bl_completed_date` **giữ
+   nguyên** dù không còn lọc theo state Completed nữa (cân nhắc đổi tên ở đợt sau nếu gây hiểu nhầm).
+
+### Trạng thái thực thi (2026-08-27)
+
+- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong cả 3 điểm trên.
+- ⏳ **Sandbox**: **CHƯA thực thi** — script đầy đủ bên dưới, anh chạy tay.
+
+### Script cho sandbox (chạy tay, theo thứ tự)
+
+```sql
+-- 1) Đổi tên cột vật lý (INSERT cuối procedure dùng positional match, không cần đổi thứ tự)
+ALTER TABLE public.stag_crm_line_ecosystem
+    RENAME COLUMN line_walkin_finish_date TO cline_walkin_finish_date;
+
+-- 2) Thay procedure — 4 chỗ đổi so với bản đang chạy: bước 1.5 (bỏ state='Completed', +7h, đổi
+-- tên alias), tmp_cline (đổi tên cột tham chiếu), bước 7/tmp_main_bl_walkin_ranked (bỏ
+-- state='Completed', +7h), và INSERT cuối (đổi tên cột tham chiếu).
+CREATE OR REPLACE PROCEDURE public.func_stag_crm_line_ecosystem()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    <<main_block>>
+    BEGIN
+    -- Bước 1: booking đã có tiền thành công
+    DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
+    CREATE TEMP TABLE tmp_booking_id_co_tien_tc AS
+        SELECT spt.crm_id, spt.brand_etl, SUM(spt.payment) AS total_payment
+        FROM "staging_sci"."public"."stag_payment_transfer" spt
+            LEFT JOIN "staging_sci"."public"."crm_lead" cl ON cl.id = spt.crm_id AND cl.brand_etl = spt.brand_etl
+        WHERE cl.stage_id = 4
+        GROUP BY spt.crm_id, spt.brand_etl
+        HAVING SUM(spt.payment) > 0;
+    -- Bước 1.5 [ĐỔI 2026-08-27]: bỏ state='Completed' (chỉ giữ service_date_start IS NOT NULL),
+    -- +7h cho service_date_start (bảng gốc lưu UTC), đổi tên cột -> cline_walkin_finish_date.
+    DROP TABLE IF EXISTS tmp_service_walkin_completed;
+    CREATE TEMP TABLE tmp_service_walkin_completed AS
+    SELECT w.booking_id AS crm_id, wsr.service_id, w.brand_etl,
+        MIN(w.service_date_start + interval '7 hours') AS cline_walkin_finish_date
+    FROM "staging_sci"."public"."sh_medical_appointment_register_walkin" w
+        INNER JOIN "staging_sci"."public"."sh_walkin_service_rel" wsr
+            ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+    WHERE w.service_date_start IS NOT NULL
+        AND w.booking_id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc)
+    GROUP BY w.booking_id, wsr.service_id, w.brand_etl;
+    -- Bước 2: cline (grain: 1 dòng dịch vụ)
+    DROP TABLE IF EXISTS tmp_cline;
+    CREATE TEMP TABLE tmp_cline AS
+        SELECT
+            cl.id AS crm_id,
+            cl.name AS code_booking,
+            cl.code_customer,
+            cln.brand_etl,
+            cln.id AS cline_id,
+            cln.stage,
+            cln.product_id AS product_id,
+            sp.product AS cline_service_name,
+            sp.product_category AS cline_product_category,
+            sp.product_ctg_id AS cline_product_category_id,
+            CASE
+                WHEN cl.customer_come = 'yes' THEN cl.arrival_date + interval '7 hours'
+                ELSE cl.booking_date + interval '7 hours'
+            END AS booking_report_date,
+            cln.create_date + interval '7 hours' AS cline_created_date,
+            spt.payment_date AS cline_payment_date,
+            spt.total_payment AS cline_total_payment,
+            CASE
+                WHEN sp.his_service_type = 'Surgery' THEN 'PTTM'
+                WHEN sp.his_service_type IN ('Spa','Laser','Card') THEN 'Beauty & Spa'
+                WHEN sp.his_service_type = 'Odontology' THEN 'Nha khoa'
+                WHEN sp.his_service_type = 'wellness' THEN 'Wellness'
+                WHEN sp.his_service_type = 'weight_loss' THEN 'Weight Loss'
+                ELSE 'Khác'
+            END AS business_line,
+            rp.create_date + interval '7 hours' AS partner_create_date,
+            (swc.crm_id IS NOT NULL) AS has_completed_walkin,
+            swc.cline_walkin_finish_date                            -- [ĐỔI 2026-08-27] đổi tên
+        FROM "staging_sci"."public"."crm_line" cln
+            LEFT JOIN "staging_sci"."public"."crm_lead" cl ON cl.id = cln.crm_id AND cl.brand_etl = cln.brand_etl
+            LEFT JOIN (
+                SELECT clineid, brand_etl, MIN(payment_date) AS payment_date, SUM(payment) AS total_payment
+                FROM "staging_sci"."public"."stag_payment_transfer"
+                GROUP BY clineid, brand_etl
+            ) spt ON spt.clineid = cln.id AND spt.brand_etl = cln.brand_etl
+            LEFT JOIN "staging_sci"."public"."view_stag_products" sp ON sp.product_id = cln.product_id AND sp.brand_etl = cln.brand_etl
+            LEFT JOIN "staging_sci"."public"."res_partner" rp ON cl.partner_id = rp.id AND cl.brand_etl = rp.brand_etl
+            LEFT JOIN tmp_service_walkin_completed swc
+                ON swc.crm_id = cl.id AND swc.service_id = sp.service_id AND swc.brand_etl = cln.brand_etl
+        WHERE cl.id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc)
+            AND cl.type = 'opportunity';
+
+    -- Bước 3: đánh số thứ tự cline (kèm cline_id tie-break cho ổn định)
+    DROP TABLE IF EXISTS tmp_rnk_bl_cline;
+    CREATE TEMP TABLE tmp_rnk_bl_cline AS
+        SELECT cln.*,
+            ROW_NUMBER() OVER (PARTITION BY cln.business_line, cln.code_customer ORDER BY cln.cline_created_date, cln.cline_id) AS cus_bl_cline_order,
+            ROW_NUMBER() OVER (PARTITION BY cln.crm_id ORDER BY cln.cline_created_date, cln.cline_id) AS crm_cline_order,
+            ROW_NUMBER() OVER (PARTITION BY cln.code_customer ORDER BY cln.cline_created_date, cln.cline_id) AS cus_cline_order
+        FROM tmp_cline cln
+        WHERE cln.brand_etl = 1;
+
+    DROP TABLE IF EXISTS tmp_ctg_service_type_map;
+    CREATE TEMP TABLE tmp_ctg_service_type_map AS
+        SELECT product_ctg_id, his_service_type
+        FROM (
+            SELECT product_ctg_id, his_service_type,
+                ROW_NUMBER() OVER (PARTITION BY product_ctg_id ORDER BY COUNT(*) DESC) AS rn
+            FROM "staging_sci"."public"."stag_products"
+            WHERE product_ctg_id IS NOT NULL
+            GROUP BY product_ctg_id, his_service_type
+        ) t
+        WHERE rn = 1;
+
+    DROP TABLE IF EXISTS tmp_uu_tien_1;
+    CREATE TEMP TABLE tmp_uu_tien_1 AS
+        SELECT rel.crm_id, rel.brand_etl, rel.nhom_dich_vu_chinh, rel.product_category_id, 1 AS do_uu_tien
+        FROM (
+            SELECT
+                r.lead_id AS crm_id,
+                r.brand_etl,
+                pc.name AS nhom_dich_vu_chinh,
+                r.product_category_id,
+                ROW_NUMBER() OVER (PARTITION BY r.lead_id, r.brand_etl ORDER BY r.ingestion_timestamp ASC) AS rn
+            FROM "staging_sci"."public"."crm_lead_product_category_rel" r
+                LEFT JOIN "staging_sci"."public"."product_category" pc
+                    ON pc.id = r.product_category_id AND pc.brand_etl = r.brand_etl
+            WHERE r.product_category_id IS NOT NULL
+                AND r.brand_etl = 1
+                AND r.lead_id IN (SELECT DISTINCT crm_id FROM tmp_rnk_bl_cline)
+        ) rel
+        WHERE rel.rn = 1;
+
+    DROP TABLE IF EXISTS tmp_uu_tien_2;
+    CREATE TEMP TABLE tmp_uu_tien_2 AS
+        SELECT
+            cl.id AS crm_id,
+            cl.brand_etl,
+            CASE
+                WHEN ccf.value_lable LIKE '%]%' THEN TRIM(SPLIT_PART(ccf.value_lable, ']', 2))
+                ELSE TRIM(ccf.value_lable)
+            END AS nhom_dich_vu_chinh,
+            pc2.id AS product_category_id,
+            2 AS do_uu_tien
+        FROM "staging_sci"."public"."crm_lead" cl
+            INNER JOIN "staging_sci"."public"."cs_deal_detail_api_v2" cda ON cda.id = cl.ticket_id
+            CROSS JOIN LATERAL jsonb_array_elements(cda.custom_fields::jsonb) cf_elem
+            LEFT JOIN "staging_sci"."public"."cs_custom_fields" ccf
+                ON ccf.value_id = (cf_elem ->> 'value')
+                AND ccf.custom_field_id = '9794'
+            LEFT JOIN "staging_sci"."public"."product_category" pc2
+                ON pc2.code = SPLIT_PART(TRIM(SPLIT_PART(ccf.value_lable, ']', 1)), '[', 2)
+                AND pc2.brand_etl = cl.brand_etl
+                AND ccf.value_lable LIKE '%]%'
+        WHERE cf_elem ->> 'id' = '9794'
+            AND ccf.value_lable IS NOT NULL
+            AND cl.brand_etl = 1
+            AND cl.id IN (SELECT DISTINCT crm_id FROM tmp_rnk_bl_cline);
+
+    DROP TABLE IF EXISTS tmp_uu_tien_3;
+    CREATE TEMP TABLE tmp_uu_tien_3 AS
+        SELECT line.crm_id, line.brand_etl, line.nhom_dich_vu_chinh, line.product_category_id, 3 AS do_uu_tien
+        FROM (
+            SELECT
+                cln.crm_id,
+                cln.brand_etl,
+                sp.product_category AS nhom_dich_vu_chinh,
+                sp.product_ctg_id AS product_category_id,
+                ROW_NUMBER() OVER (PARTITION BY cln.crm_id, cln.brand_etl ORDER BY cln.create_date) AS rn
+            FROM "staging_sci"."public"."crm_line" cln
+                LEFT JOIN "staging_sci"."public"."view_stag_products" sp
+                    ON sp.product_id = cln.product_id AND sp.brand_etl = cln.brand_etl
+            WHERE cln.brand_etl = 1
+                AND cln.crm_id IN (SELECT DISTINCT crm_id FROM tmp_rnk_bl_cline)
+        ) line
+        WHERE line.rn = 1
+            AND line.nhom_dich_vu_chinh IS NOT NULL;
+
+    DROP TABLE IF EXISTS tmp_nhom_dich_vu_chinh;
+    CREATE TEMP TABLE tmp_nhom_dich_vu_chinh AS
+        SELECT
+            r.crm_id,
+            r.brand_etl,
+            r.nhom_dich_vu_chinh,
+            r.do_uu_tien AS nguon_uu_tien,
+            r.source_main_bl,
+            r.product_category_id,
+            csm.his_service_type,
+            CASE
+                WHEN csm.his_service_type = 'Surgery' THEN 'PTTM'
+                WHEN csm.his_service_type IN ('Spa','Laser','Card') THEN 'Beauty & Spa'
+                WHEN csm.his_service_type = 'Odontology' THEN 'Nha khoa'
+                WHEN csm.his_service_type = 'wellness' THEN 'Wellness'
+                WHEN csm.his_service_type = 'weight_loss' THEN 'Weight Loss'
+                WHEN r.nhom_dich_vu_chinh ~* 'TẠO HÌNH|PHẪU THU|CHUYỂN GIỚI' THEN 'PTTM'
+                WHEN r.nhom_dich_vu_chinh ~* ' DA|CHÀM|NÁM|TÀN NHANG|BỚT|LASER|LÔNG|ĐỒI MỒI|BAN VÀNG|SẸO|XĂM|TRẺ HÓA|MASSAG' THEN 'Beauty & Spa'
+                WHEN r.nhom_dich_vu_chinh ~* 'NHA KHOA' THEN 'Nha khoa'
+                ELSE 'Khác'
+            END AS business_line
+        FROM (
+            SELECT c.*,
+                ROW_NUMBER() OVER (PARTITION BY c.crm_id, c.brand_etl ORDER BY c.do_uu_tien) AS rn
+            FROM (
+                SELECT 'crm_lead_main_pc' AS source_main_bl, * FROM tmp_uu_tien_1
+                UNION ALL
+                SELECT 'ticket' AS source_main_bl, * FROM tmp_uu_tien_2
+                UNION ALL
+                SELECT 'crm_lead_history' AS source_main_bl, t.* FROM tmp_uu_tien_3 t
+            ) c
+            WHERE c.nhom_dich_vu_chinh IS NOT NULL
+        ) r
+            LEFT JOIN tmp_ctg_service_type_map csm ON csm.product_ctg_id = r.product_category_id
+        WHERE r.rn = 1;
+
+    DROP TABLE IF EXISTS tmp_customer_main_bl;
+    CREATE TEMP TABLE tmp_customer_main_bl AS
+        SELECT
+            cfb.code_customer,
+            ndc.business_line AS main_bl_customer,
+            ndc.source_main_bl
+        FROM (
+            SELECT crm_id, code_customer,
+                ROW_NUMBER() OVER (
+                    PARTITION BY code_customer
+                    ORDER BY booking_report_date, cline_created_date, cline_id
+                ) AS rn
+            FROM tmp_rnk_bl_cline
+        ) cfb
+            LEFT JOIN tmp_nhom_dich_vu_chinh ndc
+                ON ndc.crm_id = cfb.crm_id AND ndc.brand_etl = 1
+        WHERE cfb.rn = 1;
+
+    -- Bước 4: chỉ dòng có payment > 0, đánh số thứ tự riêng để tính khoảng cách 6 tháng.
+    DROP TABLE IF EXISTS tmp_paid_bl_cline;
+    CREATE TEMP TABLE tmp_paid_bl_cline AS
+        SELECT
+            cline_id,
+            crm_id,
+            code_booking,
+            code_customer,
+            business_line,
+            cline_payment_date,
+            ROW_NUMBER() OVER (PARTITION BY business_line, code_customer ORDER BY cline_payment_date, cline_id) AS cus_bl_paid_order
+        FROM tmp_rnk_bl_cline
+        WHERE coalesce(cline_total_payment, 0) > 0;
+
+    -- Bước 5: gắn nhãn is_main_service / is_line_over_6_months_in_bl / main_bl_customer / main_product_category / prev_bl_*
+    DROP TABLE IF EXISTS tmp_labeling_1;
+    CREATE TEMP TABLE tmp_labeling_1 AS
+        SELECT
+            rbc.*,
+            pbc.cus_bl_paid_order,
+            (rbc.cus_cline_order = 1) AS is_main_service,
+            (rbc.crm_cline_order = 1) AS is_main_service_bk,
+            (CASE
+                WHEN prev_pbc.cline_payment_date IS NULL THEN false
+                ELSE rbc.cline_payment_date > prev_pbc.cline_payment_date + interval '6 months'
+            END) AS is_line_over_6_months_in_bl,
+            cmb.main_bl_customer,
+            cmb.source_main_bl,
+            first_value(rbc.business_line) OVER (PARTITION BY rbc.crm_id ORDER BY rbc.cline_created_date, rbc.cline_id) AS main_bl_bk,
+            first_value(rbc.cline_product_category_id) OVER (PARTITION BY rbc.code_customer ORDER BY rbc.cline_created_date, rbc.cline_id) AS main_product_category_id,
+            first_value(rbc.cline_product_category) OVER (PARTITION BY rbc.code_customer ORDER BY rbc.cline_created_date, rbc.cline_id) AS main_product_category,
+            prev_pbc.cline_payment_date AS prev_bl_order_date,
+            (date(rbc.cline_payment_date) - date(prev_pbc.cline_payment_date)) AS diff_date_order_bl,
+            prev_pbc.crm_id AS prev_bl_crm_id,
+            prev_pbc.code_booking AS prev_bl_booking
+        FROM tmp_rnk_bl_cline rbc
+            LEFT JOIN tmp_paid_bl_cline pbc ON pbc.cline_id = rbc.cline_id
+            LEFT JOIN tmp_paid_bl_cline prev_pbc
+                ON prev_pbc.cus_bl_paid_order = pbc.cus_bl_paid_order - 1
+                AND prev_pbc.code_customer = pbc.code_customer
+                AND prev_pbc.business_line = pbc.business_line
+            LEFT JOIN tmp_customer_main_bl cmb ON cmb.code_customer = rbc.code_customer;
+
+    -- Bước 7 [ĐỔI 2026-08-27]: bỏ state='Completed' (chỉ giữ service_date_start IS NOT NULL), +7h
+    -- cho service_date_start.
+    DROP TABLE IF EXISTS tmp_main_bl_walkin_ranked;
+    CREATE TEMP TABLE tmp_main_bl_walkin_ranked AS
+        SELECT
+            cl.code_customer,
+            (w.service_date_start + interval '7 hours') AS service_date_start,
+            w.sale_order_id,
+            w.name AS code_walkin,
+            cl.name AS code_booking_org,
+            ROW_NUMBER() OVER (
+                PARTITION BY cl.code_customer
+                ORDER BY w.service_date_start, w.id
+            ) AS rn
+        FROM tmp_customer_main_bl cmb
+            INNER JOIN "staging_sci"."public"."crm_lead" cl
+                ON cl.code_customer = cmb.code_customer AND cl.brand_etl = 1
+            INNER JOIN "staging_sci"."public"."sh_medical_appointment_register_walkin" w
+                ON w.booking_id = cl.id AND w.brand_etl = cl.brand_etl
+            INNER JOIN "staging_sci"."public"."sh_walkin_service_rel" wsr
+                ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+            INNER JOIN "staging_sci"."public"."view_stag_products" sp
+                ON sp.service_id = wsr.service_id AND sp.brand_etl = w.brand_etl
+        WHERE w.service_date_start IS NOT NULL
+            AND cmb.main_bl_customer = CASE
+                WHEN sp.his_service_type = 'Surgery' THEN 'PTTM'
+                WHEN sp.his_service_type IN ('Spa','Laser','Card') THEN 'Beauty & Spa'
+                WHEN sp.his_service_type = 'Odontology' THEN 'Nha khoa'
+                WHEN sp.his_service_type = 'wellness' THEN 'Wellness'
+                WHEN sp.his_service_type = 'weight_loss' THEN 'Weight Loss'
+                ELSE 'Khác'
+            END;
+
+    DROP TABLE IF EXISTS tmp_main_bl_walkin;
+    CREATE TEMP TABLE tmp_main_bl_walkin AS
+        SELECT
+            code_customer,
+            service_date_start AS main_bl_completed_date,
+            sale_order_id AS main_bl_order_id,
+            code_walkin AS main_bl_walkin_done,
+            code_booking_org AS main_bl_booking_org
+        FROM tmp_main_bl_walkin_ranked
+        WHERE rn = 1;
+
+    -- Bước 8: TRUNCATE + INSERT vào bảng vật lý đích
+    TRUNCATE TABLE public.stag_crm_line_ecosystem;
+
+    INSERT INTO public.stag_crm_line_ecosystem
+    SELECT
+        lb.crm_id,
+        lb.code_booking,
+        lb.code_customer,
+        lb.brand_etl,
+        lb.cline_id,
+        lb.stage,
+        lb.product_id,
+        lb.cline_service_name,
+        lb.cline_product_category,
+        lb.cline_product_category_id,
+        lb.booking_report_date,
+        lb.cline_created_date,
+        lb.cline_payment_date,
+        lb.cline_total_payment,
+        lb.business_line,
+        lb.cus_bl_cline_order,
+        lb.crm_cline_order,
+        lb.cus_cline_order,
+        lb.cus_bl_paid_order,
+        lb.is_main_service,
+        lb.is_main_service_bk,
+        lb.is_line_over_6_months_in_bl,
+        lb.main_bl_customer,
+        lb.main_bl_bk,
+        lb.main_product_category_id,
+        lb.main_product_category,
+        lb.prev_bl_order_date,
+        lb.diff_date_order_bl,
+        lb.prev_bl_crm_id,
+        lb.prev_bl_booking,
+        mbw.main_bl_completed_date,
+        mbw.main_bl_order_id,
+        mbw.main_bl_walkin_done,
+        mbw.main_bl_booking_org,
+        CASE
+            WHEN lb.business_line = lb.main_bl_customer OR lb.main_bl_customer = 'Khác' OR lb.business_line = 'Khác' THEN false
+            WHEN lb.source_main_bl = 'crm_lead_history' AND lb.partner_create_date < '2025-08-01' THEN FALSE
+            WHEN NOT lb.has_completed_walkin THEN false
+            WHEN bool_or(
+                    coalesce(lb.cline_total_payment, 0) > 0
+                    AND (lb.cus_bl_paid_order = 1 OR lb.is_line_over_6_months_in_bl = true)
+                 ) OVER (PARTITION BY lb.crm_id, lb.business_line)
+                THEN true
+            ELSE false
+        END AS is_cross_sale,
+        lb.source_main_bl,
+        lb.cline_walkin_finish_date                                 -- [ĐỔI 2026-08-27] đổi tên
+    FROM tmp_labeling_1 lb
+        LEFT JOIN tmp_main_bl_walkin mbw ON mbw.code_customer = lb.code_customer;
+
+    -- Dọn bảng tạm khi chạy thành công
+    DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
+    DROP TABLE IF EXISTS tmp_service_walkin_completed;
+    DROP TABLE IF EXISTS tmp_cline;
+    DROP TABLE IF EXISTS tmp_rnk_bl_cline;
+    DROP TABLE IF EXISTS tmp_ctg_service_type_map;
+    DROP TABLE IF EXISTS tmp_uu_tien_1;
+    DROP TABLE IF EXISTS tmp_uu_tien_2;
+    DROP TABLE IF EXISTS tmp_uu_tien_3;
+    DROP TABLE IF EXISTS tmp_nhom_dich_vu_chinh;
+    DROP TABLE IF EXISTS tmp_customer_main_bl;
+    DROP TABLE IF EXISTS tmp_paid_bl_cline;
+    DROP TABLE IF EXISTS tmp_labeling_1;
+    DROP TABLE IF EXISTS tmp_main_bl_walkin_ranked;
+    DROP TABLE IF EXISTS tmp_main_bl_walkin;
+
+    EXCEPTION WHEN OTHERS THEN
+        DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
+        DROP TABLE IF EXISTS tmp_service_walkin_completed;
+        DROP TABLE IF EXISTS tmp_cline;
+        DROP TABLE IF EXISTS tmp_rnk_bl_cline;
+        DROP TABLE IF EXISTS tmp_ctg_service_type_map;
+        DROP TABLE IF EXISTS tmp_uu_tien_1;
+        DROP TABLE IF EXISTS tmp_uu_tien_2;
+        DROP TABLE IF EXISTS tmp_uu_tien_3;
+        DROP TABLE IF EXISTS tmp_nhom_dich_vu_chinh;
+        DROP TABLE IF EXISTS tmp_customer_main_bl;
+        DROP TABLE IF EXISTS tmp_paid_bl_cline;
+        DROP TABLE IF EXISTS tmp_labeling_1;
+        DROP TABLE IF EXISTS tmp_main_bl_walkin_ranked;
+        DROP TABLE IF EXISTS tmp_main_bl_walkin;
+        RAISE;
+    END main_block;
+END;
+$procedure$;
+```
+
+Sau khi chạy `CREATE OR REPLACE PROCEDURE`, cần `CALL public.func_stag_crm_line_ecosystem();` để bảng vật lý được tính lại với logic mới (TRUNCATE + INSERT nằm trong procedure, không tự chạy khi chỉ `CREATE OR REPLACE`).
