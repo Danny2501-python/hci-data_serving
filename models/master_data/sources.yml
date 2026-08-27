@@ -5,3 +5,5 @@ sources:
     tables:
       - name: cs_facebook_insight
       - name: m_inbox_kangnam
+      - name: utm_source
+      - name: utm_source_old_source_rel

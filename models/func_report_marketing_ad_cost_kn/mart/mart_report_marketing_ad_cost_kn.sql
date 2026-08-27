@@ -44,7 +44,13 @@ SELECT
     f.account_fb,
     COALESCE(f.actor_code,'KXĐ')::text                       AS actor,
     cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
-    null::text                                                AS nhom_dv_KH_quan_tam
+    null::text                                                AS nhom_dv_KH_quan_tam,
+    null::text                                                AS nhom_dv_chinh_booking,
+    -- Không có liên kết CRM, nhưng Stream 1 chỉ là chi phí quảng cáo Facebook
+    -- (int_frmack_fb_cost) -> mặc định cứng theo catalog utm_source thật của
+    -- Kangnam (id=751 'Facebook', category 'Online') thay vì NULL.
+    'Facebook'::text                                          AS nguon_moi_v2,
+    'Online'::text                                            AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_fb_cost') }} f
 -- Compute tinh_noi inline (same re_map formula as Pass 12)
 LEFT JOIN LATERAL (
@@ -95,7 +101,10 @@ SELECT
     m.account_fb                                             AS account_fb,
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
     cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
-    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam
+    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam,
+    m.nhom_dv_chinh_booking                                  AS nhom_dv_chinh_booking,
+    m.nguon_moi_v2                                           AS nguon_moi_v2,
+    m.nhom_nguon_moi_v2                                      AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
@@ -130,7 +139,10 @@ SELECT
     COALESCE(m.account_fb,'KXĐ')::text                       AS account_fb,
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
     COALESCE(cns_mt.nhom_dv,'KXĐ')::text                      AS nhom_dv_muc_tieu,
-    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam
+    COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam,
+    COALESCE(m.nhom_dv_chinh_booking,'KXĐ')::text             AS nhom_dv_chinh_booking,
+    COALESCE(m.nguon_moi_v2,'KXĐ')::text                      AS nguon_moi_v2,
+    COALESCE(m.nhom_nguon_moi_v2,'KXĐ')::text                 AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia

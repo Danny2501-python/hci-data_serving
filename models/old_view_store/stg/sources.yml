@@ -1,0 +1,53 @@
+version: 2
+
+# Nguồn cho các model trong old_view_store — các bảng gốc (raw, không phải
+# output của model dbt khác) mà các view cũ trên new_product/sandbox phụ
+# thuộc. stag_products/stag_payment_transfer/stag_employees/
+# view_stag_employees_user/view_stag_products/view_crm_old/view_crm_line_old
+# KHÔNG khai báo ở đây vì là output của model dbt khác (erp_staging/* hoặc
+# chính old_view_store) — dùng ref() thẳng trong model, không source().
+sources:
+  - name: ovs_source
+    schema: public
+    tables:
+      # -- từ 3 view đầu tiên (mv_lead_mb, mv_dc_mb, view_crm_old_pr) --
+      - name: crm_lead
+      - name: crm_line
+      - name: m_res_company
+      - name: res_users
+      - name: stag_sources
+      - name: ggs_kdtc_product_ctg_rate
+      - name: ggs_kdtc_service_type_revenue
+      - name: stag_crm_booking_arrival_company
+      - name: crm_sync_brand
+      - name: crm_stage
+      - name: crm_type
+      # -- phát hiện thêm khi backup 19 view còn lại từ sandbox --
+      - name: sh_medical_appointment_register_walkin
+      - name: sh_walkin_service_rel
+      - name: res_line_line_ids
+      - name: crm_line_product
+      - name: crm_sync_crm_line
+      - name: sh_evaluation_surgery_history_main_doctor_rel
+      - name: sh_evaluation_surgery_history_sub_doctor_rel
+      - name: sh_medical_evaluation
+      - name: sh_medical_evaluation_surgery_history
+      - name: sh_medical_evaluation_surgery_history_survey
+      - name: sh_medical_health_center_service
+      - name: sh_medical_physician
+      - name: stag_his_team_service
+      - name: ggs_import_kn_data_trading_confirmed
+      - name: ggs_kdtc_product_ctg
+      - name: import_kangnam_mua_ban_data_2024
+      - name: res_partner
+      - name: crm_lead_tag_rel
+      - name: res_brand
+      - name: stag_mail_message_erp
+      - name: ks_crm_line_product_trans_field
+      - name: ks_crm_line_trans_field
+      - name: crm_category_source
+      - name: stag_mua_ban_data_2024
+      - name: utm_source
+      - name: res_country_state
+      - name: mail_message
+      - name: mail_tracking_value

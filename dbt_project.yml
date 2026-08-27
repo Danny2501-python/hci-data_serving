@@ -248,6 +248,27 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_thv_convert:
+      +tags: ["report_thv_convert"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    old_view_store:
+      +tags: ["old_view_store"]
+      mart:
+        +materialized: view
+    report_pr_trust_360_TG:
+      +tags: ["report_pr_trust_360_TG"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+    
     import_banggia_sci:
       +tags: ["import_banggia_sci"]
       stg:

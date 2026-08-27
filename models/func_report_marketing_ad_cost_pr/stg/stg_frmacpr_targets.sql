@@ -14,6 +14,8 @@ SELECT
         WHEN type = 'Lead'      THEN 'target_lead'
         WHEN type = 'Chi phí'   THEN 'target_cost'
         ELSE type
-    END                         AS type_data
-FROM {{ source('paris', 'view_ggs_paris_sm_target_daily') }}
+    END                         AS type_data,
+    null::text                  AS nguon_moi_v2,
+    null::text                  AS nhom_nguon_moi_v2
+FROM {{ ref('stg_frmacpr_target_daily_view') }}
 WHERE type IN ('Lead', 'Chi phí')

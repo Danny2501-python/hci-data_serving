@@ -18,5 +18,7 @@ SELECT
     nhom_dv,
     chi_nhanh,
     metric  AS "dt",
-    type_data
+    type_data,
+    nguon_moi_v2,
+    nhom_nguon_moi_v2
 FROM {{ ref('int_frmacpr_union') }}

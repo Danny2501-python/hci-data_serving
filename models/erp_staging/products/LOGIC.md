@@ -75,6 +75,32 @@ Bảng `stag_products` thật lưu `group_id` và `product_id_kn` dạng
 `text` cho 2 cột này để khớp hợp đồng (contract) hiện tại của bảng, dù về logic
 chúng là số.
 
+## mart/view_stag_products.sql — port view thủ công `public.view_stag_products`
+
+Sau khi `mart/stag_products.sql` đã cutover (alias hiện tại = `stag_products` thật,
+xem mục Cutover bên dưới — comment trong file đó còn nhắc `stag_products_dbt` là
+**lỗi thời**, chưa cập nhật lại), thêm model `mart/view_stag_products.sql`
+(`materialized='view'`, alias `view_stag_products`) port 1:1 view Postgres thủ công
+cùng tên đang chạy thật trong DB `new_product` (không do dbt quản lý, DDL gốc do
+anh yêu paste trực tiếp, không lưu ở đâu khác trong repo trước đây).
+
+- `ref('stag_products')` (không phải `source()`) → dbt tự xếp model này chạy
+  **sau** khi bảng `stag_products` build xong, đúng yêu cầu ban đầu.
+- UNION ALL 5 nhánh theo `brand_etl` (0=sci, 1=kn, 3=pr, 4=hh, 8=thv) — **khác**
+  bảng mapping brand_etl ở phần "Bài toán gốc" phía trên (kn=1, pr=3, hh=4, sci=7)
+  vì đó là brand_etl của **bảng ERP nguồn** (`product_product`...), còn đây là
+  brand_etl **output của view**, tự đánh số theo view gốc — giữ nguyên, không sửa.
+- Cố ý giữ `service_id`/`product_ctg_id` lấy từ cột chung (`smhcsid`,
+  `product_ctg_id`) cho **mọi** nhánh, kể cả nhánh pr/hh/thv — dù bảng
+  `stag_products` có sẵn cột theo từng brand (`pr_smhcsid`, `pr_product_ctg_id`...)
+  — đúng y hệt view gốc, không "sửa" dù nhìn có vẻ thiếu nhất quán.
+- 2 join `product_template`/`product_category` dùng `ref('stg_stps_product_template')`
+  / `ref('stg_stps_product_category')` (đã có sẵn, ephemeral) thay vì `source()` trực
+  tiếp — không đổi logic, chỉ theo đúng convention layer `stg` của model group này.
+- Đã `dbt compile --select view_stag_products` thành công (2026-08-11) — resolve
+  ref/join đúng. **Chưa** `dbt run` (chưa tạo view thật trong DB) — cần xác nhận
+  trước vì đây là thay đổi schema DB production.
+
 ## Cutover — kế hoạch chuyển từ Python sang dbt
 
 Model hiện tại build ra bảng riêng `stag_products_dbt` (không đụng

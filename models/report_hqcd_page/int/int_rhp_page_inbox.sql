@@ -1,3 +1,8 @@
+{{
+  config(
+    materialized = 'table'
+  )
+}}
 -- =============================================================================
 -- int_rhp_page_inbox
 -- Stream: Inbox Facebook (cs_ticket_api)

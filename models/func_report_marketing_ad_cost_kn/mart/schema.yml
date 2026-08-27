@@ -84,11 +84,108 @@ models:
         description: >
           Customer's first product group of interest, from
           `stg_dv_khach_hang_quan_tam.first_product_group` (the
-          `product_group` of the customer's earliest `crm_line`), joined by
-          `crm_id`/`brand_etl` into `stg_frmack_crm_base` (DC/Lead/TC/BK/HL)
-          and separately into `stg_frmack_doanh_so` (DS). Populated for
-          DC/Lead/TC/BK/HL/DS (all branches with a `crm_lead` linkage); raw
-          NULL for Inbox, Google, and DealCS, none of which have a CRM
-          customer linkage. Stream 1 (FB Cost) exposes this raw (always NULL, same as
-          `page`/`account_fb`/`nhom_dv_muc_tieu` there); Stream 2 & 3
-          (non-FB) COALESCE to `'KXĐ'` — same treatment as `actor`.
+          `product_group` of the customer's earliest `crm_line`, tie-break
+          `cline_id`), joined by `crm_id`/`brand_etl` into `stg_frmack_crm_base`
+          (DC/Lead/TC/BK/HL) and separately into `stg_frmack_doanh_so` (DS).
+          **[Changed 2026-08-05]** `product_group` now comes straight from
+          `view_stag_products.product_group` (a CASE WHEN baked into the view
+          itself, verified byte-identical between this project's `new_product`
+          DB and the `staging_sci` sandbox reference DB — see
+          `common/knowledge.md` mục 8), instead of a hand-rolled CASE. Values:
+          `PTTM MẮT`, `PTTM MŨI`, `PTTM HÀM MẶT`, `PTTM NGỰC/MÔNG`, `CẤY MỠ`,
+          `BEAUTY & SPA`, `BÉO ĐA CHUYÊN KHOA`, `WELLNESS`, `DỊCH VỤ KHÁC`,
+          `SẢN PHẨM` (new bucket, physical products — didn't exist under the
+          old hand-rolled CASE). No numeric prefix anymore (old values were
+          `1.MẮT`...`9.WELLNESS`); the `category_source_code='MBS'` special
+          case (routed some non-Spa/Laser/Card products into Beauty & Spa
+          based on the lead's source) has been dropped — sandbox doesn't use
+          it. Populated for DC/Lead/TC/BK/HL/DS (all branches with a
+          `crm_lead` linkage); raw NULL for Inbox, Google, and DealCS, none
+          of which have a CRM customer linkage. Stream 1 (FB Cost) exposes
+          this raw (always NULL, same as `page`/`account_fb`/`nhom_dv_muc_tieu`
+          there); Stream 2 & 3 (non-FB) COALESCE to `'KXĐ'` — same treatment
+          as `actor`.
+      - name: nhom_dv_chinh_booking
+        description: >
+          Booking-level "main service group", bucketed into 9 groups
+          (`1.MẮT`, `2.MŨI`, `3.HÀM MẶT/NHA KHOA`, `4.NGỰC/MÔNG`, `5.CẤY MỠ`,
+          `6.DỊCH VỤ KHÁC`, `7.BÉO ĐA CHUYÊN KHOA`, `8.BEAUTY & SPA`,
+          `9.WELLNESS`). Source: `stg_booking_nhom_dich_vu_chinh` (common/).
+          **[Changed 2026-08-05]** The underlying `common` model was
+          re-aligned to match `view_stag_crm_lead_first_product_group` on the
+          `staging_sci` sandbox DB (see `common/knowledge.md` mục 8): dropped
+          the old 3-tier priority sourcing (crm_lead_product_category_rel /
+          custom field 9794 / fallback cline), now uses a **single source** —
+          the cline with the smallest `cln.id` in the booking — and
+          `nhom_dich_vu_chinh` is now `view_stag_products.product_group`
+          directly (an already-bucketed label: `PTTM MẮT`, `BEAUTY & SPA`,
+          `PTTM HÀM MẶT`, `WELLNESS`, `BÉO ĐA CHUYÊN KHOA`, `PTTM MŨI`,
+          `CẤY MỠ`, `PTTM NGỰC/MÔNG`, `DỊCH VỤ KHÁC`, `SẢN PHẨM`), not a raw
+          category name. Because of that, the CASE in `stg_frmack_crm_base`/
+          `stg_frmack_doanh_so` is now a **direct value match** (no more
+          `his_service_type`/ILIKE guessing):
+          `BEAUTY & SPA→8`, `PTTM HÀM MẶT→3`, `WELLNESS→9`,
+          `BÉO ĐA CHUYÊN KHOA→7`, `PTTM MẮT→1`, `PTTM MŨI→2`, `CẤY MỠ→5`,
+          `PTTM NGỰC/MÔNG→4`, else `6.DỊCH VỤ KHÁC` (covers `SẢN PHẨM` too —
+          no dedicated bucket for it here). Verified against real July 2026
+          revenue data cross-checked with the sandbox DB (via
+          `stg_dv_khach_hang_quan_tam`, same `product_group` mechanism):
+          `DỊCH VỤ KHÁC` and `WELLNESS` match sandbox exactly (100%), other
+          groups within 99.8–101.9%. NULL when `stg_booking_nhom_dich_vu_chinh`
+          found no matching product for the booking's earliest cline. Also
+          distinct from `nhom_dv_chinh_cs` (`stg_frmack_cs_tickets`, still
+          commented out/unused) — that one is ticket-grain, sourced from the
+          same custom field id=9794 but on `cs_ticket_api` (a different
+          source table). Populated for DC/Lead/TC/BK/HL/DS; raw NULL for
+          Inbox, Google, and DealCS (no CRM customer linkage). Stream 1 (FB
+          Cost) exposes this raw (always NULL). Stream 2 exposes raw
+          (possibly NULL); Stream 3 COALESCEs to `'KXĐ'` — same treatment as
+          `page`/`account_fb`/`nhom_dv_muc_tieu`.
+      - name: nguon_moi_v2
+        description: >
+          Detailed source name from the "new source" system: `crm_lead.new_source_id`
+          → `utm_source.name` (join on `utm_source.id = crm_lead.new_source_id AND
+          utm_source.brand_id = crm_lead.brand_etl` — verified 100% match rate,
+          34,614/34,614 leads with `new_source_id` populated). Examples: `Facebook`,
+          `Zalo`, `Google_Ads`, `Tiktok`, `Hotline`, `Return_Customer (KH cũ quay
+          lại)`, `Referral_Customer (KH giới thiệu KH)`. **Not** the same table as
+          the legacy `nguon`/`Nguon` column (which comes from `stag_sources` via
+          `crm_lead.source_id`) — `crm_lead.new_source_id` does **not** match
+          `stag_sources.id`/`stag_sources.old_id` at all (0 matches tested); the
+          correct source-of-truth table is `utm_source`, a separate "new source
+          system" table unrelated to `stag_sources`. Joined by `crm_id`/`brand_etl`
+          — same mechanism as `nhom_dv_KH_quan_tam`/`nhom_dv_chinh_booking` —
+          into `stg_frmack_crm_base` (DC/Lead/TC/BK/HL) and `stg_frmack_doanh_so`
+          (DS). Với DC/Lead/TC/BK/HL/DS: ưu tiên `crm_lead.new_source_id`,
+          nếu NULL thì fallback suy ra từ nguồn cũ `crm_lead.source_id` qua
+          bảng mapping `m_utm_source_old_new_map` (`master_data`, xem
+          README.md mục 17) — coverage sau fallback gần như tuyệt đối
+          (99.9-100% tuỳ type_data, xem README.md mục 17 để biết số liệu chi
+          tiết theo từng nhánh).
+
+          Các nhánh KHÔNG có liên kết CRM nhưng kênh đã biết rõ từ chính loại
+          dữ liệu (không cần tra CRM) được mặc định cứng theo tên thật trong
+          catalog `utm_source` của Kangnam thay vì để NULL: Stream 1 (FB Cost,
+          `int_frmack_fb_cost`), `inbox` (Inbox Facebook,
+          `stg_frmack_inbox`), và `DealCS` (Caresoft ticket có FB `ad_id`,
+          `stg_frmack_deal` — nguồn Facebook, **khác** `DealCS` bên
+          `func_report_marketing_ad_cost_pr` là nguồn Google Search) → đều
+          `'Facebook'`; `Google_cd`/`Google_th` (`stg_frmack_google`) →
+          `'Google_Ads'`. Stream 2/3 (từ `int_frmack_region`) nay nhận thẳng
+          giá trị đã mặc định này từ `int_frmack_union`, không còn COALESCE
+          `'KXĐ'` cho các type_data trên (giá trị thật luôn có sẵn).
+      - name: nhom_nguon_moi_v2
+        description: >
+          Higher-level source group for the "new source" system: `utm_source.category_id`
+          → `crm_category_source.name`. Values: `Online`, `Offline`, `Partner`,
+          `Referral`, `CRM/Return`, `Khác`. **Gotcha:** `crm_category_source.id` is
+          NOT globally unique — it's duplicated across `brand_etl` (e.g. id=121 is
+          `Online` for `brand_etl=1` but `Partner` for `brand_etl=8` — the general
+          "id collides across brand_etl" gotcha documented in `common/knowledge.md`
+          mục 1). The join **must** include `crm_category_source.brand_etl =
+          crm_lead.brand_etl`, or it fans out 2x and silently returns the wrong
+          brand's category (verified: without the brand_etl condition, joining
+          34,614 rows produces 2 rows each for most; with it, exactly 34,614 —
+          no fan-out). Same population/mặc định cứng treatment as
+          `nguon_moi_v2` (Facebook/Google_Ads đều thuộc nhóm `'Online'` trong
+          catalog của Kangnam).
