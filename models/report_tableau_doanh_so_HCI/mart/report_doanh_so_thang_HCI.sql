@@ -25,5 +25,5 @@ select
     count(*) as so_giao_dich,
     count(distinct ma_khach_hang) as so_khach_hang,
     count(distinct ma_booking) as so_booking
-from {{ ref('mart_rtds_doanh_so') }}
+from {{ ref('report_doanh_so_HCI') }}
 group by 1, 2, 3, 4, 5, 6, 7, 8

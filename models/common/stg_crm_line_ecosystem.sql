@@ -31,6 +31,16 @@
 --      (theo yêu cầu, cover nhiều trường hợp hợp lệ hơn — không giới hạn đúng state 'Completed').
 --      LƯU Ý: tên CTE/cột has_completed_walkin/service_walkin_completed vẫn giữ nguyên dù không
 --      còn lọc theo state Completed nữa -- nếu thấy gây hiểu nhầm, cân nhắc đổi tên ở đợt sau.
+--
+-- [MỚI 2026-08-28] Thêm điều kiện wsr.snapshot_date IS NOT NULL ở CẢ 2 chỗ join
+-- sh_walkin_service_rel (CTE service_walkin_completed VÀ main_bl_walkin_ranked) -- loại các dòng
+-- "orphan" trong sh_walkin_service_rel: dòng đã bị xóa/sửa ở nguồn ERP nhưng pipeline ETL
+-- (data_ops/app/call_functions/direct_postgres_ingestion.py, cơ chế DELETE+INSERT theo PK khớp
+-- batch hiện tại) không xóa được rows đã biến mất khỏi nguồn -> kẹt lại vĩnh viễn ở target, luôn
+-- có snapshot_date/ingestion_timestamp/source_server = NULL vì chưa từng được pipeline ghi/đè kể
+-- từ khi 3 cột metadata này tồn tại. Phát hiện qua case thật: crm_id=2363791/cline_id=4277370 bị
+-- gán sai cline_walkin_finish_date do dòng orphan (walkin_id=699905, service_id=23025) không còn
+-- tồn tại ở nguồn (đối chiếu new_product) -- xem knowledge.md mục 9 để biết chi tiết điều tra.
 
 WITH service_walkin_completed as (
     -- [MỚI 2026-08-26, ĐỔI 2026-08-27] (crm_id, service_id, brand_etl) đã có phiếu khám với ngày
@@ -49,6 +59,7 @@ WITH service_walkin_completed as (
         inner join {{ source('crm_base', 'sh_walkin_service_rel') }} wsr
             on wsr.walkin_id = w.id and wsr.brand_etl = w.brand_etl
     where w.service_date_start is not null
+        and wsr.snapshot_date is not null      -- [MỚI 2026-08-28] loại dòng orphan (xem knowledge.md mục 9)
         and w.booking_id in (select crm_id from {{ ref('stg_booking_id_co_tien_tc') }})
     group by w.booking_id, wsr.service_id, w.brand_etl
 ), cline as (
@@ -337,6 +348,7 @@ FROM rnk_bl_cline rbc
         INNER JOIN {{ source('crm_base', 'view_stag_products') }} sp
             ON sp.service_id = wsr.service_id AND sp.brand_etl = w.brand_etl
     WHERE w.service_date_start IS NOT NULL
+        AND wsr.snapshot_date IS NOT NULL      -- [MỚI 2026-08-28] loại dòng orphan (xem knowledge.md mục 9)
         AND cmb.main_bl_customer = CASE
             WHEN sp.his_service_type = 'Surgery' then 'PTTM'
             WHEN sp.his_service_type IN ('Spa','Laser','Card') then 'Beauty & Spa'

@@ -97,6 +97,12 @@ sử khách hàng như `main_bl_walkin`).
   trường hợp hợp lệ hơn, không giới hạn đúng state `'Completed'`. Áp dụng đồng thời cho cả CTE
   `main_bl_walkin_ranked` bên dưới (tính `main_bl_completed_date`) để nhất quán.
 
+**[Mới 2026-08-28]** Thêm điều kiện `wsr.snapshot_date IS NOT NULL` — loại các dòng "orphan" trong
+`sh_walkin_service_rel` (đã bị xóa/sửa ở nguồn ERP nhưng pipeline ETL không dọn ở target, kẹt lại
+vĩnh viễn với `snapshot_date`/`ingestion_timestamp`/`source_server` NULL). Phát hiện qua case thật
+`crm_id=2363791`/`cline_id=4277370` — xem `knowledge.md` mục 9 để biết chi tiết root cause và cách
+verify (đối chiếu 75/75 dòng NULL với DB `new_product`, tất cả đều không còn tồn tại ở nguồn).
+
 Join vào CTE `cline` (theo `crm_id = cl.id`, `service_id` khớp `view_stag_products.service_id` của
 product trên dòng đó, kèm `brand_etl`), sinh ra 2 cột trên mỗi dòng dịch vụ (cline):
 
@@ -190,6 +196,10 @@ Dùng `ROW_NUMBER()` (không phải `MIN()`) để chốt đúng 1 bản ghi wal
 Liên hệ: `sh_medical_appointment_register_walkin.booking_id = crm_lead.id` →
 `sh_walkin_service_rel.walkin_id = walkin.id` → `service_id` → **`view_stag_products.service_id`**
 (không phải `product_id` — xem `knowledge.md`).
+
+**[Mới 2026-08-28]** Cũng thêm `wsr.snapshot_date IS NOT NULL` ở đây (giống CTE
+`service_walkin_completed` phía trên) — cùng lý do lọc dòng orphan trong `sh_walkin_service_rel`,
+xem `knowledge.md` mục 9.
 
 ### Quy tắc `is_cross_sale` (final SELECT)
 

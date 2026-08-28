@@ -203,3 +203,44 @@ tháng 1–5/2026 chỉ đạt 19.6%–49.2% (dữ liệu backlog/cũ đồng b�
 đạt đúng 100%** (có vẻ đã có 1 đợt đồng bộ bù đầu tháng 6). Khi cần dùng `new_product` cho báo cáo
 dữ liệu gần đây (từ tháng 6/2026 trở đi), coverage đáng tin cậy; dữ liệu lịch sử xa hơn (đầu 2026
 trở về trước) cần thận trọng, có thể thiếu đáng kể.
+
+## 9. `sh_walkin_service_rel` có dòng "orphan" — đã xóa ở nguồn nhưng ETL không dọn ở target
+
+**[2026-08-28]** Phát hiện qua case thật: `crm_id=2363791`/`cline_id=4277370` (`crm_line.stage =
+'new'`, chưa đi khám) vẫn bị gán `cline_walkin_finish_date` sai trong `stg_crm_line_ecosystem.sql`.
+
+**Root cause:** pipeline ETL nạp `sh_walkin_service_rel` từ ERP (`data_ops/app/call_functions/
+direct_postgres_ingestion.py`, DAG `call_functions_erp_direct_dag`) dùng cơ chế UPSERT theo PK:
+mỗi lần chạy chỉ `DELETE` + `INSERT` lại đúng những dòng khớp trong batch đồng bộ hiện tại (dựa
+trên filter incremental phía nguồn). **Không có bước nào xóa dòng đã biến mất hẳn khỏi nguồn** —
+nếu 1 dòng `(walkin_id, service_id)` từng tồn tại ở ERP rồi bị sửa/xóa sau đó, dòng cũ kẹt lại
+**vĩnh viễn** ở target, không bao giờ được touch lại.
+
+**Cách nhận diện dòng orphan:** pipeline luôn ghi `snapshot_date`/`ingestion_timestamp`/
+`source_server` cùng lúc cho mọi dòng nó chèn/đè (xem code, không có nhánh nào cố tình để trống)
+→ dòng nào có **3 cột này NULL** chắc chắn chưa từng được pipeline ghi/đè kể từ khi 3 cột metadata
+tồn tại, tức nhiều khả năng là orphan.
+
+**Đã verify 100% bằng data thật:** đối chiếu toàn bộ 75 dòng NULL trong `sh_walkin_service_rel` ở
+sandbox (`staging_sci`, tổng 171,631 dòng) với DB `new_product` (nguồn "gần ERP" hơn, cùng cấu
+trúc bảng) — **cả 75/75 dòng đều không còn tồn tại** ở `new_product`. Case cụ thể: walkin_id
+`699905` (phiếu `PK-2026-116196`) ở sandbox có 2 dòng service (`23025` NULL metadata, `27248` có
+metadata mới); ở `new_product` chỉ còn đúng 1 dòng — `27248`. `service_id=23025` không tồn tại ở
+nguồn nữa nhưng vẫn kẹt lại ở sandbox, trùng ngẫu nhiên với `service_id` sản phẩm của cline
+`4277370` trong cùng booking → gây gắn sai `has_completed_walkin`/`cline_walkin_finish_date`.
+
+**Fix áp dụng (2026-08-28):** thêm điều kiện `wsr.snapshot_date IS NOT NULL` khi join
+`sh_walkin_service_rel` ở **cả 2 chỗ** dùng trong `stg_crm_line_ecosystem.sql` (CTE
+`service_walkin_completed` và `main_bl_walkin_ranked`) và ở procedure `func_stag_crm_line_ecosystem()`
+(bước 1.5 và bước 7) — xem `LOGIC.md` mục 3 và `func_stag_crm_line_ecosystem.md`.
+
+**Lưu ý:** đây là fix ở tầng lọc dữ liệu bẩn (phòng vệ), **không phải fix root cause** — root cause
+thật nằm ở pipeline `data_ops` thiếu cơ chế dọn dẹp dòng đã mất ở nguồn (chưa xử lý, ngoài phạm vi
+`data_serving`). Dòng orphan mới phát sinh sau này (nếu ETL không được sửa) sẽ tiếp tục tích lũy và
+tiếp tục được lọc đúng bởi điều kiện `snapshot_date IS NOT NULL` này, miễn pipeline vẫn giữ cách
+ghi metadata như hiện tại.
+
+**Phạm vi áp dụng:** filter này chỉ nên đặt trên `sh_walkin_service_rel` — **không** áp dụng tương
+tự cho bảng cha `sh_medical_appointment_register_walkin`: bảng đó có tỷ lệ NULL `snapshot_date` rất
+cao (~82%, do phần lớn dữ liệu lịch sử cũ không được touch lại gần đây, không phải orphan) — lọc
+theo `snapshot_date` ở bảng này sẽ loại nhầm phần lớn walkin hợp lệ.
