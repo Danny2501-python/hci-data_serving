@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: rpdc
+    schema: public
+    tables:
+      - name: google_ad_paris
+      - name: tiktok_raw_ad
+      - name: cs_facebook_insight

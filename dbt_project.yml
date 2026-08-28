@@ -278,6 +278,20 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_hh_sale_online:
+      +tags: ["report_hh_sale_online"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
+    report_pr_daily_chinhanh:
+      +tags: ["report_pr_daily_chinhanh"]
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
     
 
 # report_table_definitions/report_column_definitions: business context for
