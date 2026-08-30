@@ -11,11 +11,22 @@ WITH a AS (
         sp.product                                     AS ten_dv,
         ss.source                                      AS nguon,
         ss.category_source                             AS nhom_nguon,
-        CASE WHEN ss.source ~~ '%Facebook%' THEN 'FB'
+        -- [Sửa 2026-08-31 — xem README.md mục 20] Đồng bộ với stg_frmack_crm_base.sql:
+        -- ưu tiên channel/utm_source thật của ticket (ctsd) trước khi fallback text-match
+        -- trên ss.source.
+        -- [Sửa 2026-08-31 — xem README.md mục 21] Chặn riêng nhóm "Cộng đồng" về 'Khác'
+        -- trước khi xét channel/utm_source — xem giải thích đầy đủ ở stg_frmack_crm_base.sql.
+        CASE WHEN ss.source IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube',
+                                  'MD - Phát triển cộng đồng (Seeding)','MD - Phát triển cộng đồng')
+                  THEN 'Khác'
+             WHEN ctsd.channel ILIKE 'web'
+                  AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
+                  THEN 'Web'
+             WHEN ctsd.channel ILIKE 'web' THEN 'Web - SEO'
+             WHEN ss.source ~~ '%Facebook%' THEN 'FB'
              WHEN ss.source ~~ '%Seo%'      THEN 'Web'
              WHEN ss.source ~~ '%Google%'   THEN 'Web'
              WHEN ss.source ~~ '%Hotline%'  THEN 'Web'
-             when ctsd.source_name not like '%utm_source%' THEN 'Web - SEO'
              ELSE 'Khác'
         END                                            AS kenh,
         std.payment_date                               AS ngay,

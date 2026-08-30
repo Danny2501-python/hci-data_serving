@@ -795,3 +795,142 @@ là nguyên nhân).
 IS NOT NULL` khi được thêm vào (loại lead rác/test data?). Nếu về sau phát
 hiện lại rác lẫn vào do bỏ điều kiện này, cần tìm lọc khác đặc thù hơn (ví dụ
 theo nguồn tạo lead) thay vì lọc chung theo `create_by_department`.
+
+## 20. [Đã fix] Cột `kenh` phân loại sai Google Ads trả phí và giao thoa với Facebook/Cộng đồng (2026-08-31)
+
+**Bối cảnh phát hiện:** Đối chiếu logic ticket-level (`cs_ticket_api` →
+`cs_ticket_source_api` → `cs_ticket_source_detail_api`, lấy `channel`/
+`utm_source` thật) với cột `kenh` đang tính trong `stg_frmack_crm_base.sql`/
+`stg_frmack_doanh_so.sql` (text-match trên `nguon_moi`/`ss.source`). Kết quả
+đối chiếu trên toàn bộ ticket có `ctsd.channel ILIKE 'web'`:
+
+| Phân loại đúng theo ticket (channel/utm_source) | `kenh` cũ đang gán | Số lượng | Tỷ lệ |
+|---|---|---|---|
+| Ads – Google Search (utm_source chứa "google"+"search") | `Khác` | 6.360 | 99,9% nhóm này |
+| Ads – Google Search | `FB` | 8 | 0,1% |
+| SEO (channel=Web, không phải Google Ads) | `Web - SEO` | 24.245 | 66,5% nhóm này |
+| SEO | `Khác` | 10.348 | 28,4% |
+| SEO | `FB` | 1.688 | 4,6% |
+| SEO | `Web` | 160 | 0,4% |
+
+**Nguyên nhân:** CASE cũ chỉ dựa vào text-match trên `nguon_moi` (trường do
+CRM/sale tự gán thủ công), hoàn toàn không dùng `channel`/`utm_source` thật
+của ticket:
+
+```sql
+-- CŨ:
+CASE WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
+     WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
+     WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'
+     WHEN stks.nguon_moi ~~ '%Hotline%'  THEN 'Web'
+     when ctsd.source_name not like '%utm_source%' THEN 'Web - SEO'
+     ELSE 'Khác'
+END AS kenh
+```
+
+Hai lỗi cụ thể:
+1. **Google Ads Search/Display trả phí rơi vào `Khác`**: `nguon_moi` của các
+   lead này ghi `'MD - Search'` — không chứa chữ "Google" nên không khớp
+   `~~ '%Google%'`; đồng thời vì ticket có tracking UTM thật,
+   `ctsd.source_name` có chứa chuỗi `'utm_source'` nên cũng trượt luôn nhánh
+   fallback `'Web - SEO'` → rơi thẳng xuống `ELSE 'Khác'`. Gần như 100%
+   Google Ads Search trả phí bị mất khỏi kênh `Web`.
+2. **SEO thật bị "cướp" sang `FB`/`Khác`**: điều kiện `nguon_moi ~~
+   '%Facebook%'` được xét trước tiên, nên ticket `channel='Web'` (SEO/Google
+   Ads xác định rõ ràng) nhưng `nguon_moi` bị gán nhầm `'MD - Facebook'`/
+   `'MBS - Facebook'` vẫn bị tính là kênh Facebook. Tương tự, phần lớn SEO có
+   `ctsd.source_name` chứa `'utm_source'` (tracking rõ ràng) lại trượt nhánh
+   fallback cũ, rơi vào `Khác`.
+
+**Fix đã áp dụng:** thêm 2 nhánh mới lên **đầu** CASE, dùng trực tiếp
+`ctsd.channel`/`ctsd.utm_source` — ưu tiên dữ liệu ticket-level thật hơn
+text-match trên `nguon_moi` (theo yêu cầu người dùng: ticket-level thắng khi
+có xung đột):
+
+```sql
+-- MỚI:
+CASE WHEN ctsd.channel ILIKE 'web'
+          AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
+          THEN 'Web'
+     WHEN ctsd.channel ILIKE 'web'       THEN 'Web - SEO'
+     WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
+     WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
+     WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'
+     WHEN stks.nguon_moi ~~ '%Hotline%'  THEN 'Web'
+     ELSE 'Khác'
+END AS kenh
+```
+
+Giữ nguyên nhãn `'Web'`/`'Web - SEO'` (không đổi tên) để không phải sửa công
+thức `Platform kênh` bên Tableau — Google Ads trả phí giờ khớp đúng
+`kenh = 'Web'` (điều kiện `[kenh]='Web' AND [Nguon] IN (...)` trong công thức
+Tableau sẽ cần bổ sung thêm giá trị `Nguon` thực tế là `'MD - Search'` nếu
+muốn hiển thị đúng — cột `Nguon` này đã có sẵn trong danh sách kiểm tra của
+công thức). Nhánh `nguon_moi ~~ '%Seo%'/'%Google%'/'%Hotline%'` cũ được giữ
+lại làm fallback cho các ticket không có `ctsd.channel = 'Web'` (ví dụ nguồn
+Hotline qua kênh `Voice`/`Api`, không đi qua channel `Web`).
+
+**Tác động số liệu:** sau fix, kênh `Web` sẽ tăng thêm ~6.368 bản ghi (Google
+Ads Search trả phí, trước đó nằm trong `Khác`); kênh `Web - SEO` tăng thêm
+~10.508 bản ghi (10.348 từ `Khác` + 160 từ `Web`); kênh `FB` giảm 1.688 bản
+ghi (chuyển sang `Web`/`Web - SEO` tuỳ theo có phải Google Ads hay không);
+kênh `Khác` giảm tương ứng ~16.708 bản ghi. Số liệu ước tính dựa trên dữ liệu
+đối chiếu tại thời điểm phát hiện (2026-08-31), **chưa build lại dbt để xác
+nhận số cuối cùng sau khi filter theo `int_frmack_union`/`mart`** — cần chạy
+`dbt run --select func_report_marketing_ad_cost_kn` và đối chiếu lại trước
+khi publish báo cáo Tableau.
+
+**Chưa xác nhận được:** ngưỡng phân biệt "Google Ads trả phí" hiện chỉ dựa
+`utm_source` chứa cả 2 từ "google" và "search"/"display" — nếu về sau xuất
+hiện thêm kênh trả phí khác cần phân biệt riêng (Facebook Ads đi qua
+`channel='Web'`, TikTok Ads, ...), cần mở rộng thêm điều kiện tương tự thay
+vì gộp chung vào `'Web - SEO'`.
+
+## 21. Chặn cứng nhóm "Cộng đồng" (Tiktok/Zalo/Youtube) về `'Khác'` — an toàn khi đọc thẳng cột `kenh` (2026-08-31)
+
+**Bối cảnh:** Sau khi áp fix mục 20, kiểm tra riêng các bản ghi `nguon_moi ~~
+'%Tiktok%'` (tương tự cho Zalo/Youtube) phát hiện: ~10.284/11.407 bản ghi có
+`ctsd.channel = 'Web'` (chỉ mang mã tracking chung `utm_source = MD007`,
+không có dấu hiệu TikTok thật) → theo logic mục 20, các bản ghi này bị gán
+`kenh = 'Web - SEO'`.
+
+Điều này **không ảnh hưởng số liệu hiển thị trên Tableau**, vì công thức
+`Platform kênh` đã có nhánh riêng, ưu tiên cao hơn nhánh Web:
+
+```
+ELSEIF [kenh] IN ('Tiktok','Zalo','Youtube')
+   OR [Nguon] IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube', ...)
+THEN 'Cộng đồng'
+```
+
+→ Bất kể `kenh` (dbt) là gì, `Nguon = 'MD - Tiktok'` luôn hiển thị `'Cộng
+đồng'` trên report. Đã verify: trường `[kenh]` thô không được đặt trực tiếp
+lên rows/cols/marks ở bất kỳ worksheet nào trong workbook (chỉ dùng bên trong
+công thức `Platform kênh` + 1 action filter ẩn) — nên hiện tại không có rủi ro
+thực tế.
+
+**Fix bổ sung theo yêu cầu người dùng (chủ động phòng ngừa):** dù không ảnh
+hưởng Tableau hiện tại, để tránh rủi ro cho các báo cáo/tính toán khác sau
+này lỡ đọc thẳng cột `kenh` (không qua công thức `Platform kênh`), thêm 1
+nhánh **lên đầu CASE**, chặn cứng toàn bộ danh sách `Nguon` thuộc nhóm "Cộng
+đồng" (đúng theo danh sách trong công thức Tableau) về `'Khác'`, đứng trước
+cả nhánh channel/utm_source lẫn Facebook:
+
+```sql
+CASE WHEN <nguồn> IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube',
+                        'MD - Phát triển cộng đồng (Seeding)','MD - Phát triển cộng đồng')
+          THEN 'Khác'
+     WHEN ctsd.channel ILIKE 'web' AND (...) THEN 'Web'
+     ...
+END AS kenh
+```
+
+**Tác động số liệu:** kênh `Web - SEO` giảm lại ~10.371 bản ghi (đúng phần
+Tiktok mục 20 vừa thêm vào), quay về `Khác`. Facebook (`kenh = 'FB'`) **không
+đổi** — nhóm này vẫn ưu tiên channel/utm_source thật như mục 20 (người dùng
+chỉ yêu cầu chặn riêng "Cộng đồng", không yêu cầu chặn Facebook).
+
+**Chưa xác nhận được:** danh sách `Nguon` thuộc "Cộng đồng" lấy đúng y hệt
+danh sách trong công thức Tableau hiện tại — nếu công thức Tableau đổi danh
+sách này sau này, cần đồng bộ lại cả 2 file `stg_frmack_crm_base.sql`/
+`stg_frmack_doanh_so.sql` theo.
