@@ -41,8 +41,39 @@
 -- từ khi 3 cột metadata này tồn tại. Phát hiện qua case thật: crm_id=2363791/cline_id=4277370 bị
 -- gán sai cline_walkin_finish_date do dòng orphan (walkin_id=699905, service_id=23025) không còn
 -- tồn tại ở nguồn (đối chiếu new_product) -- xem knowledge.md mục 9 để biết chi tiết điều tra.
+--
+-- [SỬA 2026-08-28] Điều kiện "wsr.snapshot_date IS NOT NULL" ở trên KHÔNG đủ: đối chiếu trực tiếp
+-- sh_walkin_service_rel sandbox vs kangnam_erp (nguồn ERP thật) cho thấy pipeline touch lại
+-- snapshot_date cho MỌI dòng còn khớp trong batch nguồn mỗi lần chạy (không chỉ dòng có thay đổi
+-- dữ liệu) -- 112,753 dòng cùng có snapshot_date = ngày chạy batch gần nhất, khớp đúng số
+-- "Total: 112753" trong log Airflow. Do đó orphan không chỉ là dòng NULL (74 dòng, phát sinh trước
+-- khi 3 cột metadata tồn tại) mà còn 132 dòng khác có snapshot_date NOT NULL nhưng CŨ HƠN ngày
+-- batch gần nhất (đã từng được touch, sau đó bị xóa/sửa ở nguồn, không bao giờ được touch lại) --
+-- tổng 206/206 dòng orphan thật (đối chiếu 1-1 với kangnam_erp) đều lọt qua nếu chỉ check IS NOT
+-- NULL. Đổi điều kiện sang so sánh với ngày batch gần nhất mỗi brand_etl (CTE wsr_last_snapshot) --
+-- xem knowledge.md mục 9 (cập nhật 2026-08-28).
+--
+-- [SỬA 2026-08-28] Bug khác, không liên quan orphan ở trên: `cline_walkin_finish_date` bị "mượn"
+-- nhầm ngày walkin từ 1 dòng cline KHÁC cùng service_id trong cùng booking, khi khách mua CÙNG 1
+-- dịch vụ NHIỀU LẦN trong cùng booking (vd đã dùng xong 1 buổi lẻ trước đó, sau đó mua thêm 1 gói
+-- nhiều buổi mới, đã trả tiền nhưng CHƯA dùng buổi nào của gói mới) — vì swc (service_walkin_
+-- completed) chỉ khớp theo (crm_id, service_id), không phân biệt được ĐÚNG dòng cline nào đã dùng.
+-- Case thật: crm_id=2419648 (cline mua 1 buổi, done, có walkin) và cline mua thêm gói 8 buổi cùng
+-- dịch vụ, number_used=0/stage='new' nhưng vẫn bị gán cline_walkin_finish_date của dòng kia. Fix:
+-- chỉ giữ cline_walkin_finish_date khi CHÍNH dòng cline đó có number_used > 0 hoặc stage = 'done',
+-- ngược lại NULL. KHÔNG đổi has_completed_walkin/is_cross_sale (vẫn tính theo toàn booking như cũ,
+-- theo yêu cầu — is_cross_sale không nhất thiết đồng nghĩa "dòng NÀY đã dùng", chỉ đổi cột NGÀY
+-- hoàn thành để phản ánh đúng dòng nào thực sự đã hoàn thành).
 
-WITH service_walkin_completed as (
+WITH wsr_last_snapshot as (
+    -- Ngày batch ETL gần nhất đã touch sh_walkin_service_rel, theo từng brand_etl -- dùng làm mốc
+    -- để giữ đúng các dòng còn tồn tại ở nguồn tại lần chạy gần nhất (xem ghi chú [SỬA 2026-08-28]
+    -- ở trên).
+    select brand_etl, MAX(date(snapshot_date)) as last_snapshot_date
+    from {{ source('crm_base', 'sh_walkin_service_rel') }}
+    where snapshot_date is not null
+    group by brand_etl
+), service_walkin_completed as (
     -- [MỚI 2026-08-26, ĐỔI 2026-08-27] (crm_id, service_id, brand_etl) đã có phiếu khám với ngày
     -- khám hợp lệ, kèm ngày sớm nhất (cline_walkin_finish_date) -- port từ procedure
     -- func_stag_crm_line_ecosystem() bước 1.5 (tmp_service_walkin_completed), mở rộng thêm
@@ -58,8 +89,9 @@ WITH service_walkin_completed as (
     from {{ source('crm_base', 'sh_medical_appointment_register_walkin') }} w
         inner join {{ source('crm_base', 'sh_walkin_service_rel') }} wsr
             on wsr.walkin_id = w.id and wsr.brand_etl = w.brand_etl
+        inner join wsr_last_snapshot ls                -- [SỬA 2026-08-28] loại dòng orphan, xem ghi chú đầu file
+            on ls.brand_etl = wsr.brand_etl and date(wsr.snapshot_date) = ls.last_snapshot_date
     where w.service_date_start is not null
-        and wsr.snapshot_date is not null      -- [MỚI 2026-08-28] loại dòng orphan (xem knowledge.md mục 9)
         and w.booking_id in (select crm_id from {{ ref('stg_booking_id_co_tien_tc') }})
     group by w.booking_id, wsr.service_id, w.brand_etl
 ), cline as (
@@ -90,8 +122,17 @@ WITH service_walkin_completed as (
             ELSE 'Khác'
         END as business_line,
         rp.create_date + interval '7 hours' as partner_create_date,
-        swc.cline_walkin_finish_date,                                  -- [MỚI 2026-08-26, ĐỔI 2026-08-27]
-        (swc.crm_id is not null) as has_completed_walkin               -- [MỚI 2026-08-26]
+        -- [SỬA 2026-08-28] Chỉ giữ ngày hoàn thành nếu CHÍNH dòng cline này đã thực sự dùng
+        -- (number_used > 0 hoặc stage = 'done') -- tránh "mượn" nhầm ngày walkin của 1 dòng KHÁC
+        -- cùng service_id trong cùng booking (vd khách mua thêm 1 gói mới của cùng dịch vụ, đã trả
+        -- tiền nhưng CHƯA dùng buổi nào -- has_completed_walkin/is_cross_sale vẫn tính như cũ theo
+        -- toàn booking, KHÔNG đổi ở đây, chỉ đổi cline_walkin_finish_date). Case thật:
+        -- crm_id=2419648 (đã dùng 1 buổi trước đó, mua thêm gói 8 buổi mới chưa dùng buổi nào).
+        CASE
+            WHEN coalesce(cln.number_used, 0) > 0 OR cln.stage = 'done' THEN swc.cline_walkin_finish_date
+            ELSE NULL
+        END as cline_walkin_finish_date,
+        (swc.crm_id is not null) as has_completed_walkin               -- [MỚI 2026-08-26], KHÔNG đổi ở đây
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
         left join (
@@ -345,10 +386,11 @@ FROM rnk_bl_cline rbc
             ON w.booking_id = cl.id AND w.brand_etl = cl.brand_etl
         INNER JOIN {{ source('crm_base', 'sh_walkin_service_rel') }} wsr
             ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+        INNER JOIN wsr_last_snapshot ls             -- [SỬA 2026-08-28] loại dòng orphan, xem ghi chú đầu file
+            ON ls.brand_etl = wsr.brand_etl AND date(wsr.snapshot_date) = ls.last_snapshot_date
         INNER JOIN {{ source('crm_base', 'view_stag_products') }} sp
             ON sp.service_id = wsr.service_id AND sp.brand_etl = w.brand_etl
     WHERE w.service_date_start IS NOT NULL
-        AND wsr.snapshot_date IS NOT NULL      -- [MỚI 2026-08-28] loại dòng orphan (xem knowledge.md mục 9)
         AND cmb.main_bl_customer = CASE
             WHEN sp.his_service_type = 'Surgery' then 'PTTM'
             WHEN sp.his_service_type IN ('Spa','Laser','Card') then 'Beauty & Spa'

@@ -244,3 +244,64 @@ ghi metadata như hiện tại.
 tự cho bảng cha `sh_medical_appointment_register_walkin`: bảng đó có tỷ lệ NULL `snapshot_date` rất
 cao (~82%, do phần lớn dữ liệu lịch sử cũ không được touch lại gần đây, không phải orphan) — lọc
 theo `snapshot_date` ở bảng này sẽ loại nhầm phần lớn walkin hợp lệ.
+
+**[Cập nhật 2026-08-28] Điều kiện `snapshot_date IS NOT NULL` KHÔNG đủ — chỉ chặn được ~36%
+orphan thật:** đối chiếu trực tiếp `sh_walkin_service_rel` ở sandbox (`staging_sci`, brand_etl=1)
+với DB nguồn ERP thật `kangnam_erp` (bảng gốc chỉ có `(walkin_id, service_id)`, không qua trung
+gian `new_product` như lần kiểm tra trước):
+
+- Sandbox brand_etl=1: 112,959 dòng. Kangnam ERP: 113,005 dòng.
+- So 1-1 theo `(walkin_id, service_id)`: **206 dòng orphan thật** (có ở sandbox, hết ở
+  kangnam_erp) — trong đó chỉ **74 dòng** có `snapshot_date IS NULL` (khớp con số cũ ở trên,
+  không đổi), còn **132 dòng** có `snapshot_date IS NOT NULL` nhưng **cũ hơn ngày batch gần
+  nhất** — tức đã từng được pipeline touch ít nhất 1 lần rồi sau đó bị xóa/sửa ở nguồn, không bao
+  giờ được touch lại. Điều kiện `IS NOT NULL` không phân biệt được nhóm này với dữ liệu hợp lệ.
+- Cũng phát hiện thêm 252 dòng "missing" (có ở kangnam_erp, chưa có ở sandbox) — đây chỉ là độ trễ
+  ingest bình thường theo lịch chạy DAG, không phải vấn đề.
+
+**Root cause đầy đủ hơn:** kiểm tra phân bố `snapshot_date`/`ingestion_timestamp` cho thấy pipeline
+**touch lại timestamp cho MỌI dòng còn khớp trong batch nguồn mỗi lần chạy** (không chỉ dòng có
+thay đổi dữ liệu) — 112,753 dòng cùng có `snapshot_date` = ngày chạy batch gần nhất, khớp chính
+xác số `Total: 112753` trong log Airffow (`log_dag.txt`) của lần chạy đó. Vì vậy mốc đáng tin để
+nhận diện orphan không phải "có/không có metadata" mà là "**có được touch trong lần batch gần
+nhất hay không**": 74 (NULL) + 132 (cũ hơn ngày batch gần nhất) = đúng 206, khớp 100% với số đo
+trực tiếp qua đối chiếu `kangnam_erp`.
+
+**Fix đã đổi (2026-08-28):** thay `wsr.snapshot_date IS NOT NULL` bằng so sánh với ngày batch gần
+nhất theo từng `brand_etl` (CTE `wsr_last_snapshot`: `MAX(date(snapshot_date)) GROUP BY brand_etl`,
+join thêm điều kiện `date(wsr.snapshot_date) = ls.last_snapshot_date`) ở cả 2 chỗ join
+`sh_walkin_service_rel` — xem `stg_crm_line_ecosystem.sql` (dbt, đã sửa) và
+`func_stag_crm_line_ecosystem.md` mục 7 (script sandbox cập nhật, anh tự chạy tay).
+
+**Lưu ý:** vẫn là fix ở tầng lọc dữ liệu bẩn (phòng vệ), root cause thật (pipeline `data_ops`
+thiếu cơ chế dọn dòng đã mất ở nguồn) vẫn chưa xử lý — xem đoạn trên.
+
+## 10. `cline_walkin_finish_date` bị "mượn" nhầm ngày walkin của cline KHÁC cùng service_id `[MỚI 2026-08-28]`
+
+**Phát hiện qua** `sql_check_case.sql` (chạy lại sau khi fix mục 9): còn **6 dòng** `is_cross_sale
+= true` với `cline.stage = 'new'`, `number_used = 0` (chưa dùng buổi nào) — nhưng **không phải**
+orphan (toàn bộ walkin liên quan đều có `snapshot_date` = ngày batch gần nhất, hợp lệ 100%).
+
+**Root cause:** trong cùng 1 booking, khách mua **cùng 1 dịch vụ nhiều lần** (nhiều dòng `crm_line`
+cùng `product_id`/`service_id`) — ví dụ đã dùng xong 1 buổi lẻ trước đó (`done`, có walkin), sau đó
+mua thêm 1 gói nhiều buổi mới của CÙNG dịch vụ, đã trả tiền nhưng **chưa dùng buổi nào**
+(`number_used = 0`, `stage = 'new'`). CTE `service_walkin_completed`/`tmp_service_walkin_completed`
+chỉ khớp theo `(crm_id, service_id, brand_etl)` — không phân biệt được ĐÚNG dòng cline nào đã dùng
+— nên `cline_walkin_finish_date` của dòng CHƯA dùng bị "mượn" ngày walkin của dòng ĐÃ dùng kia.
+
+**Case thật:** `crm_id=2419648` — cline `4342127` (product `4949` "Triệt lông nách", quantity=1,
+`number_used=1`, `stage='done'`, tạo 21/08) đã đi khám (walkin `711073`, ngày 22/08); cline
+`4342626` (cùng product, **quantity=8** — gói mới mua thêm, tạo 22/08, `number_used=0`,
+`stage='new'`) bị gán nhầm `cline_walkin_finish_date` = ngày walkin của cline `4342127`. Tương tự
+4 case khác (`crm_id` 2381559, 2418668, 2339098, 2399088).
+
+**Quyết định xử lý (đã xác nhận):** chỉ sửa `cline_walkin_finish_date`, **KHÔNG đổi**
+`has_completed_walkin`/`is_cross_sale` — 2 cờ này vẫn tính theo toàn booking như cũ (is_cross_sale
+không nhất thiết đồng nghĩa "dòng NÀY đã dùng", theo đúng công thức `bool_or(...)` hiện có). Chỉ
+giữ `cline_walkin_finish_date` khi **CHÍNH dòng cline đó** có `number_used > 0` **HOẶC**
+`stage = 'done'`, ngược lại trả về `NULL`.
+
+**Trạng thái thực thi (2026-08-28):**
+- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong (CTE `cline`).
+- ⏳ **Sandbox**: chưa thực thi — xem `func_stag_crm_line_ecosystem.md` mục 9 (script cập nhật, anh
+  tự chạy tay).
