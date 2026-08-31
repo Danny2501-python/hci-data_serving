@@ -20,5 +20,9 @@ sources:
       - name: ehc_tb_patientrecord_thv
       - name: ehc_tb_nguoigioithieu_thv
       - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_thv
+      - name: ggs_target_company
       # stag_payment_transfer: KHÔNG khai báo ở đây — đã cutover sang dbt
       # (models/erp_staging/payment_transfer), dùng ref('stag_payment_transfer') thẳng.
+      # ggs_target_company cũng đã khai báo ở report_tong_quan_ds_kn/stg/sources.yml (source name
+      # 'rtqdk_source') — khai lại ở đây dưới tên 'rtds_source' là CỐ Ý (mỗi report tự đứng riêng,
+      # đúng convention "mỗi report_<code> có sources.yml của chính nó"), KHÔNG phải trùng lặp lỗi.
