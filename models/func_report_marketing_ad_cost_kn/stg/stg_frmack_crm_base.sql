@@ -41,11 +41,30 @@ WITH x AS (
         stks.fk,
         stks.tien_ap,
         stks.reason_cancel_booking,
-        CASE WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
+        -- [Sửa 2026-08-31 — xem README.md mục 20] Ưu tiên channel/utm_source THẬT của
+        -- ticket (ctsd) trước khi fallback về text-match trên nguon_moi — tránh 2 lỗi:
+        -- (1) Google Ads Search/Display trả phí bị rơi vào 'Khác' vì nguon_moi='MD - Search'
+        --     không chứa chữ "Google", và ctsd.source_name có chứa 'utm_source' nên trượt
+        --     luôn nhánh fallback SEO cũ;
+        -- (2) ticket channel='Web' (SEO/Google Ads thật) nhưng nguon_moi bị gán nhầm
+        --     Facebook... vẫn bị tính vào kênh đó thay vì Web.
+        -- [Sửa 2026-08-31 — xem README.md mục 21] Chặn RIÊNG nhóm "Cộng đồng"
+        -- (Tiktok/Zalo/Youtube/Phát triển cộng đồng) về thẳng 'Khác' TRƯỚC khi xét
+        -- channel/utm_source — an toàn cho các sheet/tính toán khác lỡ đọc thẳng cột
+        -- `kenh` (không qua công thức "Platform kênh" của Tableau, vốn đã tách nhóm
+        -- này ra thành 'Cộng đồng' bằng điều kiện riêng trên Nguon) — tránh trường hợp
+        -- ticket của nhóm này đi qua channel='Web' bị gộp nhầm vào Web/Web - SEO.
+        CASE WHEN stks.nguon_moi IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube',
+                                      'MD - Phát triển cộng đồng (Seeding)','MD - Phát triển cộng đồng')
+                  THEN 'Khác'
+             WHEN ctsd.channel ILIKE 'web'
+                  AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
+                  THEN 'Web'
+             WHEN ctsd.channel ILIKE 'web' AND ctsd.source_name ILIKE '%Web%'       THEN 'Web - SEO'
+             WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
              WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Hotline%'  THEN 'Web'
-             when ctsd.source_name not like '%utm_source%' THEN 'Web - SEO'
              ELSE 'Khác'
         END                                                  AS kenh,
         CASE WHEN rcs.name = 'Thành phố Hồ Chí Minh' THEN 'SÀI GÒN'
