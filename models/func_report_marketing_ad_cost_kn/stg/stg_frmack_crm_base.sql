@@ -60,7 +60,7 @@ WITH x AS (
              WHEN ctsd.channel ILIKE 'web'
                   AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
                   THEN 'Web'
-             WHEN ctsd.channel ILIKE 'web'       THEN 'Web - SEO'
+             WHEN ctsd.channel ILIKE 'web' AND ctsd.source_name ILIKE '%Web%'       THEN 'Web - SEO'
              WHEN stks.nguon_moi ~~ '%Facebook%' THEN 'FB'
              WHEN stks.nguon_moi ~~ '%Seo%'      THEN 'Web'
              WHEN stks.nguon_moi ~~ '%Google%'   THEN 'Web'

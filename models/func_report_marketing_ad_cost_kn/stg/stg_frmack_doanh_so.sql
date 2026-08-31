@@ -22,7 +22,7 @@ WITH a AS (
              WHEN ctsd.channel ILIKE 'web'
                   AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
                   THEN 'Web'
-             WHEN ctsd.channel ILIKE 'web' THEN 'Web - SEO'
+             WHEN ctsd.channel ILIKE 'web' AND ctsd.source_name ILIKE '%Web%'       THEN 'Web - SEO'
              WHEN ss.source ~~ '%Facebook%' THEN 'FB'
              WHEN ss.source ~~ '%Seo%'      THEN 'Web'
              WHEN ss.source ~~ '%Google%'   THEN 'Web'
