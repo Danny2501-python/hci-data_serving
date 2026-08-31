@@ -312,3 +312,12 @@ seeds:
         table_name: varchar(63)
         column_name: varchar(63)
         description: text
+    # 2026-08-31 (data_demo -> Tableau "Doanh so" report, xem report_tableau_doanh_so/mart/
+    # mart_rtds_doanh_so_thang_tableau.sql + mart_rtds_target_thang_tableau.sql): gia tri tien
+    # VND vuot range integer 32-bit (>2,1 ty) - ep bigint tranh loi "integer out of range".
+    seed_doanh_so_2025_mockup:
+      +column_types:
+        tong_so_tien: bigint
+    seed_target_thv_2026_mockup:
+      +column_types:
+        target: bigint
