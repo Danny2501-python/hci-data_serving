@@ -1,7 +1,11 @@
 {{
   config(
-    materialized = 'view',
-    alias        = 'mv_dc_mb_from_t8_2025_fix_dc'
+    materialized = 'table',
+    alias        = 'mv_dc_mb_from_t8_2025_fix_dc',
+    indexes = [
+      {'columns': ['company_id', 'nhom_dv_id']},
+      {'columns': ['bang', 'book_id']}
+    ]
   )
 }}
 -- =============================================================================
@@ -13,6 +17,13 @@
 -- thẳng bảng vật lý nên bị DROP CASCADE theo mỗi khi dbt rebuild các bảng
 -- đó (xem model report_mv_lead_mb_kn/mart/mv_lead_mb_from_t8_2025_fix.sql,
 -- cùng nguyên nhân).
+--
+-- 2026-09-01: đổi materialized 'view' -> 'table' (kèm index) — cùng lý do với
+-- mv_lead_mb_from_t8_2025_fix.sql (xem comment ở file đó): view "mv_" này bị
+-- tính lại từ đầu mỗi lần Custom SQL của báo cáo Tableau "BÁO CÁO HIỆU QUẢ
+-- KHAI THÁC DATA CƠ HỘI KHÁCH HÀNG" chạy, gây extract >120 phút và bị Tableau
+-- tự huỷ.
+--
 -- Logic giữ NGUYÊN VẸN so với view gốc trên new_product, chỉ thay tên bảng
 -- thô bằng macro source()/ref(), không sửa bất kỳ điều kiện lọc nào.
 -- =============================================================================
