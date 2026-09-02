@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'mart_bao_cao_mua_ban_data',
+    alias        = 'report_bao_cao_mua_ban_data',
     indexes = [
       {'columns': ['work_email']},
       {'columns': ['company_id', 'chi_nhanh']},
