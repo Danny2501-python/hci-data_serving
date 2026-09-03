@@ -18,13 +18,26 @@ cho từng dòng.
 
 Giống `import_dichvu_sci`/`import_banggia_sci`: seed
 `seeds/import_danhmuc_nhomdichvu_sci_seed.csv` (name
-`import_danhmuc_nhomdichvu_sci_seed`, khai báo ở `seeds/seeds.yml`). Hiện chỉ
-có dòng header — chưa có dữ liệu test thật. Chỉ khai báo 3 cột
-`code`/`name`/`"brand_id/name"` vì đó là toàn bộ những cột câu query gốc trong
-`Readme.md` thực sự dùng tới (bảng thật có thể còn cột khác — cần đối chiếu
-CSV export thật trước khi nạp dữ liệu). `stg_indvs_import_danhmuc_nhomdichvu_sci`
-đọc từ `{{ ref('import_danhmuc_nhomdichvu_sci_seed') }}` thay vì
+`import_danhmuc_nhomdichvu_sci_seed`, khai báo ở `seeds/seeds.yml`). Chỉ khai
+báo 3 cột `code`/`name`/`"brand_id/name"` vì đó là toàn bộ những cột câu query
+gốc trong `Readme.md` thực sự dùng tới (bảng thật có thể còn cột khác — cần
+đối chiếu CSV export thật trước khi nạp thêm dữ liệu khác lô này).
+`stg_indvs_import_danhmuc_nhomdichvu_sci` đọc từ
+`{{ ref('import_danhmuc_nhomdichvu_sci_seed') }}` thay vì
 `source('indvs_erp', 'import_danhmuc_nhomdichvu_sci')`.
+
+**Dữ liệu nạp 2026-09-03** (4 dòng, dự án "Cấy tóc thổ nhĩ kỳ"): lấy từ sheet
+"Mã nhóm" trong `Import_master_data/2026-09-03/Cấy tóc thổ nhĩ kỳ/0. TEMPLATE
+BẢNG GIÁ CẤY TÓC TNK _ 2026.xlsx`. Sheet gốc có 4 cột: "NHÓM DỊCH VỤ" (tên
+nhóm dịch vụ), "MÃ NHÓM" (đã ở dạng `__import__.<code>` — **không** dùng cột
+này làm `code` vì đây là định dạng `id` do `int_indvs_output_data` tự suy ra
+`concat('__import__.', code)`, không phải input thô), 1 cột không tên chứa mã
+thô (`QTTNK0001`...) — dùng cột này làm `code`, và 1 cột không tên chứa ghi
+chú ("Thêm mới _ 31/09/2026") — bỏ qua, không đưa vào seed vì không cột CTE
+nào trong query gốc dùng tới. Cột `"brand_id/name"` không có sẵn trong sheet —
+theo yêu cầu người dùng dùng brand **Kangnam** cho cả 4 dòng, đã tra
+`res_brand` (đọc, không sửa) xác nhận tên chính xác `name = 'Kangnam'`
+(`id = 1`).
 
 ## Ánh xạ CTE gốc -> model dbt
 

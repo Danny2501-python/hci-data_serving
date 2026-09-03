@@ -125,8 +125,10 @@ seeds:
     description: >
       Template nhập liệu tay cho "nhóm dịch vụ" (import_danhmuc_nhomdichvu_sci
       trong models/import_nhomdichvu_sci/Readme.md) - chỉ 3 cột code/name/
-      "brand_id/name" được câu query gốc dùng tới. Hiện chỉ có dòng header
-      (chưa có dữ liệu test thật) - xem models/import_nhomdichvu_sci/LOGIC.md.
+      "brand_id/name" được câu query gốc dùng tới. Dữ liệu 2026-09-03: 4 nhóm
+      dịch vụ "Cấy tóc thổ nhĩ kỳ" (brand Kangnam), lấy từ sheet "Mã nhóm" file
+      "Import_master_data/2026-09-03/Cấy tóc thổ nhĩ kỳ/0. TEMPLATE BẢNG GIÁ CẤY
+      TÓC TNK _ 2026.xlsx" - xem models/import_nhomdichvu_sci/LOGIC.md.
     config:
       column_types:
         code: varchar
