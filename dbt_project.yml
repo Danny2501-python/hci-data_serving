@@ -294,6 +294,18 @@ models:
         +materialized: table
       mart:
         +materialized: table
+
+    import_nhomdichvu_sci:
+      +tags: ["import_nhomdichvu_sci"]
+      stg:
+        +materialized: ephemeral
+      # int is table here for the same reason as import_dichvu_sci/import_banggia_sci:
+      # 'output_data' được cả note_data và type_data_nhomdichvu (2 lần: trực tiếp 'nd'
+      # + subquery 'f') cùng ref - ephemeral sẽ tính lại toàn bộ CTE cha mỗi lần ref.
+      int:
+        +materialized: table
+      mart:
+        +materialized: table
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
 # these seed CSVs instead of a separate admin UI. +column_types forces

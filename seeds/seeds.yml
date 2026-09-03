@@ -121,6 +121,17 @@ seeds:
         "tính hoa hồng ctv": varchar
         ghi_chu: varchar
         brand: integer
+  - name: import_danhmuc_nhomdichvu_sci_seed
+    description: >
+      Template nhập liệu tay cho "nhóm dịch vụ" (import_danhmuc_nhomdichvu_sci
+      trong models/import_nhomdichvu_sci/Readme.md) - chỉ 3 cột code/name/
+      "brand_id/name" được câu query gốc dùng tới. Hiện chỉ có dòng header
+      (chưa có dữ liệu test thật) - xem models/import_nhomdichvu_sci/LOGIC.md.
+    config:
+      column_types:
+        code: varchar
+        name: varchar
+        "brand_id/name": varchar
   - name: ucbt_country_continent
     config:
       column_types:

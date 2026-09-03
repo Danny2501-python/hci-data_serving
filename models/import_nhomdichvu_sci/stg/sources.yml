@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: indvs_erp
+    schema: public
+    tables:
+      - name: sh_medical_health_center_service_category
+      - name: product_category
+      - name: ir_model_data
+      - name: res_brand
