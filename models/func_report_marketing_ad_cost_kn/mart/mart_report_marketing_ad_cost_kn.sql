@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    alias        = 'report_marketing_ad_cost_kn_v4'
+    alias        = 'report_marketing_ad_cost_kn_v2'
   )
 }}
 -- =============================================================================
