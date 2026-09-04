@@ -85,6 +85,8 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    "report tester":
+      +enabled: false
     report_erp_source_change:
       +tags: ["report_erp_source_change"]
       stg:

@@ -1,4 +1,17 @@
-{{ config(alias='stag_payment_transfer') }}
+{{
+  config(
+    alias   = 'stag_payment_transfer',
+    indexes = [
+      {'columns': ['crm_id', 'payment_date']},
+      {'columns': ['clineid']}
+    ]
+  )
+}}
+-- 2026-09-01: thêm indexes (crm_id, payment_date) + (clineid) — bảng này được nhiều
+-- report/model khác join/window-function trên crm_id (vd ROW_NUMBER PARTITION BY
+-- crm_id ORDER BY payment_date DESC trong models/old_view_store/mart/mart_bao_cao_mua_ban_data.sql
+-- và mv_lead_mb_from_t8_2025_fix.sql) và trên clineid, nhưng bảng chưa từng có index
+-- nào (874K dòng, Seq Scan trần) — xem trao đổi 2026-09-01. Không đổi logic/dữ liệu.
 
 -- Tương đương write_stag_payment_transfer() trong quentk_1_stag_crm_New_sys.py.
 -- (2026-08-27) ĐÃ CUTOVER — alias ghi thẳng bảng thật 'stag_payment_transfer', task Airflow cũ
