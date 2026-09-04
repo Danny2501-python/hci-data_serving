@@ -19,7 +19,9 @@ WITH a AS (
         CASE WHEN ss.source IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube',
                                   'MD - Phát triển cộng đồng (Seeding)','MD - Phát triển cộng đồng')
                   THEN 'Khác'
-             WHEN ctsd.channel ILIKE 'web'
+                 WHEN ctsd.utm_source ILIKE '%chat%gpt%'
+                        THEN 'AI'
+                 WHEN ctsd.channel ILIKE 'web'
                   AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
                   THEN 'Web'
              WHEN ctsd.channel ILIKE 'web' AND ctsd.source_name ILIKE '%Web%'       THEN 'Web - SEO'
