@@ -7,7 +7,9 @@ sources:
       - name: crm_lead
       - name: m_res_company
       - name: stag_sources
-      - name: view_stag_products
+      # view_stag_products: KHÔNG khai báo ở đây — là VIEW do dbt quản lý
+      # (models/erp_staging/products/mart/view_stag_products.sql), dùng ref() thẳng trong
+      # stg_rtds_view_stag_products.sql (xem chú thích ở đó lý do không dùng source()).
       - name: crm_line
       - name: crm_line_product
       - name: ehc_tb_invoice
