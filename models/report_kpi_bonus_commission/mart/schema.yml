@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: report_kpi_bonus_commission
+    description: >
+      Doanh số/Thưởng chênh lệch cấp Payment (1 dòng = 1 lần thanh toán). Port từ
+      step_report_kpi_commission() trong quentk_3_report_kpi_bonus_commission_New_sys.py. Bảng MỚI,
+      KHÔNG PHẢI bảng production tại sandbox staging_sci mà DAG Airflow legacy đang ghi mỗi ngày —
+      chỉ trùng tên.
+    columns:
+      - name: id
+        description: >
+          ID phiếu thanh toán (khoá của stag_payment_transfer). PHẢI unique — bản gốc chỉ print
+          WARNING rồi âm thầm bỏ qua cả batch nếu trùng (Airflow vẫn báo SUCCESS), bản dbt này cố ý
+          fail-loudly bằng test bên dưới.
+        tests:
+          - unique
+          - not_null
+
+  - name: report_kpi_bonus_commission_transpose
+    description: >
+      Doanh số/Thưởng đã "unpivot" theo Tư vấn viên (Kangnam/Hồng Hà/brand7 + Paris). Port từ
+      step_report_kpi_commission_transpose(). Bảng MỚI, KHÔNG PHẢI bảng production tại sandbox
+      staging_sci — chỉ trùng tên.
+    columns:
+      - name: id_etl
+        description: >
+          Khoá chống trùng, ghép từ id-clineid-product_id-consultants-ordinal_consult-
+          chinhanhphanquyen_fix. PHẢI unique — id_etl trùng từng gây sự cố thật ở bản gốc (báo cáo
+          Tableau đứng 4 ngày mà Airflow vẫn báo SUCCESS do bị âm thầm bỏ qua, xem
+          bao_cao_tableau/fix_bao_cao_ds_ban_co_so_20260830.md). Bản dbt này cố ý fail-loudly bằng
+          test bên dưới thay vì lặp lại lỗi đó.
+        tests:
+          - unique
+          - not_null

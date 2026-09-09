@@ -1,5 +1,10 @@
 -- Doanh số Paris (brand_etl=3) — y hệt logic int_rtds_kangnam.sql, chỉ khác brand_etl. Xem chú
 -- thích đầy đủ ở file đó.
+-- ⚠ LOẠI các chi nhánh đã đóng cửa (var `closed_company_ids`) — danh sách lấy từ Tableau workbook
+-- KANGNAM (áp dụng chung cho cả Kangnam/Paris vì Custom SQL gốc gộp brand_id IN (1,3) rồi mới lọc
+-- company_id, KHÔNG tách riêng theo brand) — mới verify số Kangnam, Paris CHƯA đối chiếu số thực tế,
+-- xem lịch sử trao đổi 2026-09-08.
+-- (Lỗi is_delete/tombstone CDC đã sửa NGAY TẠI GỐC — xem chú thích ở int_rtds_kangnam.sql.)
 
 {{ config(materialized='table') }}
 
@@ -30,3 +35,4 @@ left join (
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = spt.product_id and sp.brand_etl = spt.brand_etl
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = cl.source_id
 where spt.brand_etl = 3
+  and coalesce(spt.company_id, 0) not in ({{ var('closed_company_ids') | join(',') }})

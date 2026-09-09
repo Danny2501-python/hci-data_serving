@@ -245,6 +245,12 @@ kpi_trans as (
 
 select
     t.*,
+    -- (Phát hiện khi đối chiếu lại 2026-09-08) Dòng 649 gốc: `kpi_concat.rename(columns={'ext':
+    -- 'extensive_cross_upsell'})` — bản port int trước đó GIỮ NGUYÊN tên `ext`, thiếu đổi tên này.
+    -- Giữ cả `ext` (t.* ở trên, để không phá vỡ gì đang tham chiếu cột này) và THÊM
+    -- `extensive_cross_upsell` làm alias đúng tên cuối cùng bản gốc trả về — cần thiết để khớp tên cột
+    -- với int_rkbc_step3_paris.sql (đã có sẵn `extensive_cross_upsell`) khi UNION ở tầng mart.
+    t.ext as extensive_cross_upsell,
     -- Dòng 693-695 gốc: dòng gốc BỊ nhân bản (nr_clone_permission=1) mất doanh số cá nhân/phòng ban
     -- (đã ghi nhận ở dòng nhân bản/branch B thay), dòng nhân bản (=2) và dòng không nhân bản (=0) giữ
     -- nguyên giá trị.

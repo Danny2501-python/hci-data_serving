@@ -4,6 +4,8 @@
 -- thích đầy đủ ở int_rtds_hongha.sql. Cầu id_booking cho THV đã verify coverage tốt hơn Hồng Hà
 -- (~87-88% xuyên suốt, không giới hạn từ 1 mốc thời gian cụ thể như Hồng Hà) — xem lịch sử trao đổi
 -- 2026-08-26/27, model report_thv_sale_online cũng dùng đúng cầu này.
+-- (Var `closed_company_ids` trong dbt_project.yml — loại chi nhánh Kangnam/Paris đã đóng cửa theo
+-- Tableau — KHÔNG áp dụng ở đây, xem chú thích ở int_rtds_hongha.sql.)
 
 {{ config(materialized='table') }}
 

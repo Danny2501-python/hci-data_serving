@@ -16,6 +16,10 @@
 -- của booking đó) — ưu tiên id nhỏ nhất, chọn tuỳ ý vì mục đích chỉ để có 1 nhãn dịch vụ tham khảo,
 -- KHÔNG phải để tính lại doanh số theo dịch vụ (doanh số vẫn lấy nguyên từ invoice, không bị ảnh
 -- hưởng bởi việc chọn dòng nào).
+--
+-- (Var `closed_company_ids` trong dbt_project.yml — loại chi nhánh Kangnam/Paris đã đóng cửa theo
+-- Tableau — KHÔNG áp dụng ở đây: hệ EHC không có company_id/m_res_company tương ứng, chi_nhanh
+-- Hồng Hà luôn hardcode 1 giá trị duy nhất.)
 
 {{ config(materialized='table') }}
 

@@ -6,6 +6,14 @@
 -- thêm cột dịch vụ/sản phẩm/mã booking mà model đó chưa có.
 -- ⚠ PHẢI lọc brand_etl TRƯỚC khi join theo id (crm_id/company_id) — id có thể trùng chéo giữa các
 -- brand (đã xác minh nhiều lần trong dự án này, xem lịch sử trao đổi 2026-08-26/27).
+-- ⚠ LOẠI các chi nhánh đã đóng cửa (var `closed_company_ids`) để khớp logic Tableau workbook
+-- "KANGNAM - BỘ CHỈ SỐ KINH DOANH - 2025.twbx" (đã đối chiếu khớp số Kangnam T8/2026: 77.241.180.359đ,
+-- xem lịch sử trao đổi 2026-09-08) — Tableau dùng ZN([company_id]) IN (...) nên company_id NULL
+-- KHÔNG bị loại, giữ nguyên hành vi đó bằng coalesce(spt.company_id, 0) dưới đây.
+-- (Lỗi is_delete/tombstone CDC ở crm_account_payment_detail (từng gây lệch +56.300.000đ T8/2026 so
+-- với Tableau) đã sửa NGAY TẠI GỐC — models/erp_staging/payment_transfer/stg/stg_sptr_crm_account_*
+-- /stg_sptr_crm_transfer_payment_line.sql — stag_payment_transfer giờ đã sạch, không cần lọc lại ở
+-- report này nữa. Xem models/erp_staging/payment_transfer/knowledge.md mục 3.)
 
 {{ config(materialized='table') }}
 
@@ -36,3 +44,4 @@ left join (
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = spt.product_id and sp.brand_etl = spt.brand_etl
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = cl.source_id
 where spt.brand_etl = 1
+  and coalesce(spt.company_id, 0) not in ({{ var('closed_company_ids') | join(',') }})
