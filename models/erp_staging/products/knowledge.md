@@ -243,3 +243,28 @@ lần chạy kế tiếp. Thay vào đó:
 Áp dụng lại được cho mọi gap đồng bộ ERP dạng "thiếu hẳn 1 brand/nhóm id" ở
 các bảng `stag_*` khác: seed + union + anti-join theo khoá tự nhiên, không
 đụng vào bảng ERP nguồn lẫn bảng mart.
+
+## 9. Thêm 1 điều kiện `OR` vào giữa `CASE WHEN` không đảm bảo có tác dụng — phải kiểm tra dữ liệu thật khớp nhánh nào TRƯỚC nó
+
+Case thực tế (2026-09-10, `view_stag_products.sql` cột `product_group`):
+thêm `OR (product_category = 'GIẢM BÉO KHÔNG PT')` vào nhánh `BÉO ĐA CHUYÊN
+KHOA` (nhánh thứ 5 trong CASE) *nhìn qua tưởng đúng* — category đó tồn tại
+thật, không viết sai regex/tên. Nhưng verify bằng cách join thẳng
+`sh_medical_health_center_service` mới phát hiện: toàn bộ dòng thuộc category
+này có `his_service_type IN ('Laser','Spa')` — trùng đúng điều kiện của nhánh
+thứ **2** (`BEAUTY & SPA`), đứng **trước** nhánh 5. `CASE WHEN` dừng ở nhánh
+đầu tiên khớp, nên điều kiện mới thêm ở nhánh 5 **không bao giờ được xét
+tới** — sửa xong tưởng đã fix nhưng số liệu không đổi.
+
+**Bài học:** khi thêm 1 `OR`/nhánh mới vào `CASE WHEN` đã có sẵn nhiều nhánh,
+không đủ để kiểm tra "điều kiện mới có đúng không" — phải tự hỏi thêm: **dữ
+liệu thoả điều kiện mới có khả năng thoả luôn 1 điều kiện của nhánh nào đứng
+TRƯỚC nó không?** Cách kiểm chứng chắc chắn: join thẳng ra các cột dùng trong
+mọi nhánh phía trước (ở đây là `his_service_type`) cho đúng tập dữ liệu vừa
+thêm điều kiện, xem có dòng nào khớp nhánh trước không — nếu có, phải dời
+nhánh mới/sửa lên trước nhánh đó, không chỉ thêm `OR` tại chỗ.
+
+Tổng quát hơn: đây là hệ quả của **short-circuit theo thứ tự khai báo** —
+giống hệt bẫy khi thêm 1 `ELIF`/`if` mới vào giữa chuỗi `if/elif` đã có trong
+bất kỳ ngôn ngữ nào, không riêng SQL. Luôn liệt kê lại toàn bộ điều kiện của
+**các nhánh đứng trước** nhánh vừa sửa, không chỉ nhìn nhánh đang sửa.
