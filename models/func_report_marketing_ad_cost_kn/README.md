@@ -934,3 +934,45 @@ chỉ yêu cầu chặn riêng "Cộng đồng", không yêu cầu chặn Facebo
 danh sách trong công thức Tableau hiện tại — nếu công thức Tableau đổi danh
 sách này sau này, cần đồng bộ lại cả 2 file `stg_frmack_crm_base.sql`/
 `stg_frmack_doanh_so.sql` theo.
+
+## 22. `nhom_dv_KH_quan_tam` = 'DỊCH VỤ KHÁC' cho lead campaign Metakids ("beokid") — root cause nằm ở `view_stag_products`, không phải model này (2026-09-10)
+
+**Bối cảnh:** kiểm tra vì sao lead đến từ campaign quảng cáo "beokid" (map
+`nhom_dv_muc_tieu = 'Metakids'` theo `seeds/campaign_name_split.csv:108`,
+`kid → Metakids`) lại bị `nhom_dv_KH_quan_tam` gán `'DỊCH VỤ KHÁC'` (hoặc
+`'KXĐ'`), không khớp dịch vụ campaign nhắm tới.
+
+**2 cột đo 2 khái niệm khác nhau, không kỳ vọng khớp nhau:**
+- `nhom_dv_muc_tieu` — dịch vụ **campaign quảng cáo nhắm tới**, suy từ tên
+  campaign (marketing).
+- `nhom_dv_KH_quan_tam` — dịch vụ khách **THỰC SỰ có booking đầu tiên** trong
+  CRM (xem mục 11), lấy qua `view_stag_products.product_group`.
+
+**Root cause thật (không nằm ở model này):** `view_stag_products.product_group`
+(`models/erp_staging/products/mart/view_stag_products.sql`) có nhánh
+`BÉO ĐA CHUYÊN KHOA` chỉ khớp `his_service_type IN ('weight_loss','Surgery')
+AND product_category ~* 'HÚT MỠ'` — quá hẹp, chỉ bắt đúng case hút mỡ phẫu
+thuật. Đối chiếu trực tiếp DB: cả 3 nhóm chính của `his_service_type =
+'weight_loss'` (176 dòng — "Giảm béo Dịch vụ lẻ" 96, **"Giảm Béo Trẻ Em
+(MetaKid)" 24**, "Giảm Béo Người Lớn (Metacore)" 22) đều **không** chứa chữ
+"HÚT MỠ" trong `product_category` → 80% (142/176) rơi vào `ELSE 'DỊCH VỤ
+KHÁC'`, kể cả đúng dịch vụ MetaKid đứng sau campaign "beokid".
+
+**Đã fix tại nguồn** (`view_stag_products.sql`, xem
+`models/erp_staging/products/LOGIC.md` mục "product_group"): nới điều kiện
+thành `his_service_type = 'weight_loss' OR (his_service_type = 'Surgery' AND
+product_category ~* 'HÚT MỠ') OR (product_category = 'GIẢM BÉO KHÔNG PT')`,
+đồng thời sửa thứ tự CASE (đưa nhánh này lên trước `BEAUTY & SPA` — xem
+bẫy thứ tự `CASE WHEN` ở `models/erp_staging/products/knowledge.md` mục 9).
+
+**Tác động tới model này:** sau khi `view_stag_products` được `dbt run` lại,
+lead campaign Metakids sẽ được `nhom_dv_KH_quan_tam` gán đúng `'BÉO ĐA CHUYÊN
+KHOA'` thay vì `'DỊCH VỤ KHÁC'` — không cần sửa gì trong
+`func_report_marketing_ad_cost_kn`, chỉ cần build lại `erp_staging/products`
+rồi build lại model này để nhận giá trị mới.
+
+**Chưa xác nhận được:** chưa `dbt run` để kiểm chứng số liệu cuối cùng sau
+fix (mới sửa code, chưa build lại DB) — cần chạy
+`dbt run --select view_stag_products+ func_report_marketing_ad_cost_kn` và
+đối chiếu lại phân bố `nhom_dv_KH_quan_tam` cho các lead nguồn Metakids trước
+khi coi là đã xong.
