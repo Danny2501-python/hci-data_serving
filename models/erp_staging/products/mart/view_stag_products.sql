@@ -192,10 +192,20 @@ select
     dm_sp.brand_etl,
     case
         when dm_sp.product_category = 'SAN PHAM' then 'SẢN PHẨM'
+        -- [Sửa — xem README.md] Đặt TRƯỚC nhánh BEAUTY & SPA: riêng category
+        -- 'GIẢM BÉO KHÔNG PT' có his_service_type = 'Laser'/'Spa' (không phải
+        -- 'weight_loss' — khác với 3 nhóm "Giảm béo Dịch vụ lẻ"/MetaKid/Metacore,
+        -- 3 nhóm đó có his_service_type='weight_loss' thật, khớp ngay điều kiện đầu
+        -- của nhánh này, KHÔNG phụ thuộc thứ tự CASE). Vì 'GIẢM BÉO KHÔNG PT' trùng
+        -- đúng điều kiện nhánh Spa/Laser/Card phía dưới, nếu để nhánh này đứng SAU như
+        -- cũ, CASE WHEN khớp nhánh đầu tiên rồi dừng — 'GIẢM BÉO KHÔNG PT' sẽ luôn bị
+        -- bắt nhầm vào 'BEAUTY & SPA', điều kiện vừa thêm không bao giờ được xét tới.
+        when dm_sp.his_service_type = 'weight_loss'
+            OR (dm_sp.his_service_type = 'Surgery' and dm_sp.product_category ~* 'HÚT MỠ')
+            OR (dm_sp.product_category = 'GIẢM BÉO KHÔNG PT') then 'BÉO ĐA CHUYÊN KHOA'
         when dm_sp.his_service_type in ('Spa', 'Laser', 'Card') then 'BEAUTY & SPA'
         when dm_sp.his_service_type = 'Odontology' or dm_sp.product_category ~* 'HÀM MẶT' then 'PTTM HÀM MẶT'
         when dm_sp.his_service_type = 'wellness' then 'WELLNESS'
-        when dm_sp.his_service_type in ('weight_loss', 'Surgery') and dm_sp.product_category ~* 'HÚT MỠ' then 'BÉO ĐA CHUYÊN KHOA'
         when dm_sp.product_category ~* 'MẮT' then 'PTTM MẮT'
         when dm_sp.product_category ~* 'MŨI' then 'PTTM MŨI'
         when dm_sp.product_category ~* 'CẤY MỠ' then 'CẤY MỠ'
