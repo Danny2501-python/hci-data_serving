@@ -37,6 +37,19 @@ vars:
   # xem lịch sử trao đổi 2026-09-08). CHỈ áp dụng cho Kangnam/Paris (report_tableau_doanh_so_tap_doan_HCI
   # int_rtds_kangnam.sql/int_rtds_paris.sql) — Hồng Hà/THV dùng hệ EHC, không có company_id tương ứng.
   closed_company_ids: [1, 5, 9, 23, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 49, 54, 55, 56, 62]
+  # Bộ điều kiện "is_kpi_branch" — copy từ Tableau workbook KANGNAM (sheet GB_result, calculated
+  # field "is_kpi_branch") — các nguồn (source_id/tên nguồn) KHÔNG tính vào doanh số KPI chi nhánh
+  # (nhân viên nội bộ mua dịch vụ, quan hệ đối ngoại, thuê phòng mổ, bác sĩ hợp tác nội bộ). Đã đối
+  # chiếu khớp GB_result T6/2026 (80.943.387.448đ) — xem lịch sử trao đổi 2026-09-11. CHỈ áp dụng cho
+  # Kangnam/Paris (cùng lý do closed_company_ids ở trên) — dùng cho cột "doanh số tính KPI", KHÔNG
+  # thay thế "doanh số tổng" (đã khớp DOANH SỐ TỔNG trước đó).
+  kpi_exclude_source_ids_cbnv: [80, 81, 82, 215, 216, 287, 288, 289, 569]
+  kpi_exclude_source_ids_doi_ngoai: [83, 84, 124, 217, 292]
+  kpi_exclude_source_ids_tpm: [87, 88, 89, 90, 219, 278, 279, 280, 535, 570]
+  kpi_exclude_source_ids_bs_hop_tac: [75, 218, 224, 300]
+  # Nguồn "bác sĩ hợp tác nội bộ" chỉ bị loại từ mốc này trở đi (đúng theo comment gốc trong Tableau:
+  # "Nguồn BS nội bộ từ 13/06/2024") — trước mốc này KHÔNG loại.
+  kpi_exclude_bs_hop_tac_tu_ngay: '2024-06-13'
 
 # Model configurations
 models:

@@ -14,6 +14,18 @@
 -- với Tableau) đã sửa NGAY TẠI GỐC — models/erp_staging/payment_transfer/stg/stg_sptr_crm_account_*
 -- /stg_sptr_crm_transfer_payment_line.sql — stag_payment_transfer giờ đã sạch, không cần lọc lại ở
 -- report này nữa. Xem models/erp_staging/payment_transfer/knowledge.md mục 3.)
+--
+-- ⚠⚠ (2026-09-11) `so_tien` giờ là "DOANH SỐ TÍNH KPI" (khớp sheet GB_result trong Tableau workbook
+-- KANGNAM, T6/2026: 80.943.387.448đ), KHÔNG CÒN khớp tab "DOANH SỐ TỔNG" (77.241.180.359đ T8/2026,
+-- xem comment phía trên) nữa — đây là 2 khái niệm CỐ Ý khác nhau trong chính Tableau, không phải
+-- lỗi. GB_result loại thêm (ngoài closed_company_ids ở trên):
+--   1. Sản phẩm/dịch vụ có view_stag_products.is_no_kpi = true.
+--   2. Nguồn khách CBNV (nhân viên nội bộ mua dịch vụ), "đối ngoại", "thuê phòng mổ (TPM)".
+--   3. Nguồn "bác sĩ hợp tác nội bộ" — CHỈ loại từ 13/06/2024 trở đi (đúng comment gốc Tableau).
+-- Danh sách source_id lấy từ Tableau workbook KANGNAM (sheet GB_result, field is_kpi_branch) — xem
+-- lịch sử trao đổi 2026-09-11. Nguồn khách ở đây lấy qua cl.source_id/ss.source (booking source) —
+-- ĐÚNG khớp cách Tableau/report_kpi_bonus_commission tự lấy source_id/source (cùng join
+-- ss.old_id = cl.source_id, xem int_rkbc_base_payment.sql).
 
 {{ config(materialized='table') }}
 
@@ -45,3 +57,25 @@ left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = spt.pro
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = cl.source_id
 where spt.brand_etl = 1
   and coalesce(spt.company_id, 0) not in ({{ var('closed_company_ids') | join(',') }})
+  and not coalesce(sp.is_no_kpi, false)
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_cbnv') | join(',') }})
+    or ss.source ilike '%cbnv%'
+  )
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_doi_ngoai') | join(',') }})
+    or ss.source ilike '%đối ngoại%'
+  )
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_tpm') | join(',') }})
+    or ss.source ilike '%thuê phòng mổ%'
+    or ss.source ilike '%tpm%'
+  )
+  and not (
+    spt.payment_date >= date '{{ var("kpi_exclude_bs_hop_tac_tu_ngay") }}'
+    and (
+      coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_bs_hop_tac') | join(',') }})
+      or ss.source ilike '%bác sĩ hợp tác%'
+    )
+  )
+  and coalesce(ss.source, '') <> 'All services'

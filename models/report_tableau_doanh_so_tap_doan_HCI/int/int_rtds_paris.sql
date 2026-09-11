@@ -5,6 +5,9 @@
 -- company_id, KHÔNG tách riêng theo brand) — mới verify số Kangnam, Paris CHƯA đối chiếu số thực tế,
 -- xem lịch sử trao đổi 2026-09-08.
 -- (Lỗi is_delete/tombstone CDC đã sửa NGAY TẠI GỐC — xem chú thích ở int_rtds_kangnam.sql.)
+-- ⚠⚠ (2026-09-11) `so_tien` giờ là "DOANH SỐ TÍNH KPI" (loại thêm is_no_kpi + nguồn CBNV/đối ngoại/
+-- TPM/bác sĩ hợp tác nội bộ), KHÔNG CÒN khớp "DOANH SỐ TỔNG" — xem chú thích đầy đủ + lý do ở
+-- int_rtds_kangnam.sql. Paris CHƯA verify riêng số GB_result (mới verify Kangnam T6/2026).
 
 {{ config(materialized='table') }}
 
@@ -36,3 +39,25 @@ left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = spt.pro
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = cl.source_id
 where spt.brand_etl = 3
   and coalesce(spt.company_id, 0) not in ({{ var('closed_company_ids') | join(',') }})
+  and not coalesce(sp.is_no_kpi, false)
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_cbnv') | join(',') }})
+    or ss.source ilike '%cbnv%'
+  )
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_doi_ngoai') | join(',') }})
+    or ss.source ilike '%đối ngoại%'
+  )
+  and not (
+    coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_tpm') | join(',') }})
+    or ss.source ilike '%thuê phòng mổ%'
+    or ss.source ilike '%tpm%'
+  )
+  and not (
+    spt.payment_date >= date '{{ var("kpi_exclude_bs_hop_tac_tu_ngay") }}'
+    and (
+      coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_bs_hop_tac') | join(',') }})
+      or ss.source ilike '%bác sĩ hợp tác%'
+    )
+  )
+  and coalesce(ss.source, '') <> 'All services'
