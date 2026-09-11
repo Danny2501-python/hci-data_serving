@@ -101,6 +101,42 @@ anh yêu paste trực tiếp, không lưu ở đâu khác trong repo trước đ
   ref/join đúng. **Chưa** `dbt run` (chưa tạo view thật trong DB) — cần xác nhận
   trước vì đây là thay đổi schema DB production.
 
+## product_group — CASE phân loại nhóm dịch vụ (sửa 2026-09-10)
+
+Cột `product_group` (SELECT cuối `view_stag_products.sql`) là CASE WHEN theo
+thứ tự ưu tiên, dùng để phân loại mọi sản phẩm/dịch vụ vào 9 nhóm nghiệp vụ.
+Đây là chỗ nhiều report khác (vd `func_report_marketing_ad_cost_kn` — cột
+`nhom_dv_KH_quan_tam`, xem README.md model đó mục #22) join gián tiếp qua
+`stg_dv_khach_hang_quan_tam` để suy ra "dịch vụ khách quan tâm/đã đặt".
+
+**Bug đã phát hiện + sửa (2026-09-10):** nhánh `BÉO ĐA CHUYÊN KHOA` bản gốc
+chỉ khớp `his_service_type IN ('weight_loss','Surgery') AND product_category
+~* 'HÚT MỠ'` — quá hẹp, chỉ bắt đúng case hút mỡ phẫu thuật. Đối chiếu trực
+tiếp trên `sh_medical_health_center_service` (DB `new_product`):
+
+| `his_service_type` | Tổng | Ghi chú |
+|---|---|---|
+| `weight_loss` | 176 | 96 "Giảm béo Dịch vụ lẻ" + 24 "Giảm Béo Trẻ Em (MetaKid)" + 22 "Giảm Béo Người Lớn (Metacore)" + ~34 nhóm phụ khác — **KHÔNG** dòng nào chứa chữ "HÚT MỠ" trong `product_category` |
+| `Laser`/`Spa`, category = `'GIẢM BÉO KHÔNG PT'` | 40 (25 Laser + 15 Spa) | Giảm béo không phẫu thuật — `his_service_type` không phải `weight_loss`/`Surgery` |
+
+→ **80% dòng `weight_loss`** (142/176, gồm cả MetaKid — dịch vụ đứng sau
+campaign marketing "Metakids"/tên chiến dịch chứa "beokid") bị lọt qua nhánh
+này, rơi vào `ELSE 'DỊCH VỤ KHÁC'` — không phải hành vi cố ý.
+
+**Fix:** nới điều kiện thành `his_service_type = 'weight_loss' OR
+(his_service_type = 'Surgery' AND product_category ~* 'HÚT MỠ') OR
+(product_category = 'GIẢM BÉO KHÔNG PT')`.
+
+**Bẫy thứ 2 khi thêm điều kiện `GIẢM BÉO KHÔNG PT` (đã sửa cùng lúc):**
+`CASE WHEN` khớp nhánh đầu tiên thoả rồi dừng — 40 dòng `GIẢM BÉO KHÔNG PT`
+đều có `his_service_type IN ('Laser','Spa')`, nên nếu nhánh `BÉO ĐA CHUYÊN
+KHOA` đứng **sau** nhánh `BEAUTY & SPA` (`his_service_type IN ('Spa','Laser',
+'Card')`) như thứ tự gốc, toàn bộ 40 dòng này luôn bị nhánh `BEAUTY & SPA`
+bắt trước — điều kiện `GIẢM BÉO KHÔNG PT` không bao giờ được xét tới (dead
+code). **Đã sửa bằng cách đưa nhánh `BÉO ĐA CHUYÊN KHOA` lên TRƯỚC nhánh
+`BEAUTY & SPA`** trong CASE (xem comment trong file). Bài học tổng quát về
+bẫy thứ tự `CASE WHEN` xem `knowledge.md` mục 9.
+
 ## Cutover — kế hoạch chuyển từ Python sang dbt
 
 Model hiện tại build ra bảng riêng `stag_products_dbt` (không đụng
