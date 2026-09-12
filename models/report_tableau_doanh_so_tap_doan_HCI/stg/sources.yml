@@ -17,6 +17,9 @@ sources:
       - name: ehc_tb_patientrecord
       - name: ehc_tb_nguoigioithieu
       - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu
+      # ehc_tb_servicedata: dùng để loại trừ chi phí vật tư túi ngực/túi mông của bệnh nhân thuê
+      # phòng mổ khỏi doanh số Hồng Hà — xem int_rtds_hongha.sql, lịch sử trao đổi 2026-09-12.
+      - name: ehc_tb_servicedata
       - name: ehc_tb_invoice_thv
       - name: ehc_tb_invoicerequest_thv
       - name: ehc_tb_patientrecord_thv

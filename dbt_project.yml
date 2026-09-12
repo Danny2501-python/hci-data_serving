@@ -50,6 +50,13 @@ vars:
   # Nguồn "bác sĩ hợp tác nội bộ" chỉ bị loại từ mốc này trở đi (đúng theo comment gốc trong Tableau:
   # "Nguồn BS nội bộ từ 13/06/2024") — trước mốc này KHÔNG loại.
   kpi_exclude_bs_hop_tac_tu_ngay: '2024-06-13'
+  # Riêng Paris: thêm điều kiện loại theo category_source_id (dịch vụ test covid, phụ thu hóa đơn) —
+  # copy từ Tableau workbook "PARIS - TỔNG HỢP DOANH SỐ THƯƠNG HIỆU.twbx" (field
+  # T/F_category_source_no_kpi). Kangnam GB_result KHÔNG có điều kiện category_source_id này (chỉ có
+  # source_id) — user xác nhận 2026-09-12 đây là điều kiện riêng của Paris, KHÔNG áp dụng chung sang
+  # Kangnam trừ khi có xác nhận thêm. Field dùng: ss.category_id (bảng stag_sources), join sẵn qua
+  # ss.old_id = cl.source_id trong int_rtds_paris.sql.
+  kpi_exclude_category_source_ids_paris: [68, 69, 71]
 
 # Model configurations
 models:

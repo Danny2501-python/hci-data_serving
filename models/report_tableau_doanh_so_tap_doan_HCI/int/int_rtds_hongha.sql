@@ -20,6 +20,32 @@
 -- (Var `closed_company_ids` trong dbt_project.yml — loại chi nhánh Kangnam/Paris đã đóng cửa theo
 -- Tableau — KHÔNG áp dụng ở đây: hệ EHC không có company_id/m_res_company tương ứng, chi_nhanh
 -- Hồng Hà luôn hardcode 1 giá trị duy nhất.)
+--
+-- ⚠⚠ (2026-09-12) LOẠI THÊM chi phí vật tư túi ngực/túi mông của bệnh nhân thuê phòng mổ (yêu cầu
+-- riêng, KHÔNG liên quan is_kpi_branch của Kangnam/Paris) — cộng thêm 1 dòng "âm" (so_tien < 0) cho
+-- mỗi dòng vật tư khớp điều kiện, lấy từ `ehc_tb_servicedata` (KHÔNG qua `ehc_tb_invoice` — đã xác
+-- minh `invoiceid` trên các dòng vật tư này luôn = 0, không nối được với invoice, nên dùng thẳng
+-- `servicedatadate` làm mốc tháng thay vì `invoicedate`).
+--
+-- Phạm vi bệnh nhân: "cách 1" đã chốt — CHỈ CẦN bệnh nhân từng dùng dịch vụ thuê phòng mổ
+-- (`dm_report_groupid = 5`) BẤT KỲ lúc nào, thì loại TOÀN BỘ chi phí túi ngực/túi mông của bệnh nhân
+-- đó ở MỌI lần khám khác — KHÔNG giới hạn theo cùng 1 lần khám/hồ sơ với lần thuê phòng mổ.
+--
+-- Điều kiện nhận diện đúng vật tư túi ngực/túi mông (đã verify thực tế, tránh 2 bẫy dữ liệu):
+--   1. `servicecode LIKE 'VT%'` (vật tư, KHÔNG phải dịch vụ) — loại các dòng DỊCH VỤ PTTM/gây mê có
+--      tên MÔ TẢ nhắc tới "túi ngực, túi mông" chỉ để nói KHÔNG BAO GỒM (servicecode dạng
+--      DVHH.../HHPTTM_.../HHTPM_...) — nếu không lọc theo servicecode, các dòng phí dịch vụ này bị
+--      tính nhầm thành "chi phí túi ngực" (đã gặp thực tế, phóng đại chi phí gấp ~2 lần).
+--   2. `servicename` phải có tiền tố dạng `(X)` ở đầu (VD "(L) Túi ngực Perle") — theo yêu cầu
+--      user: CHỈ loại các dòng có tiền tố size, KHÔNG loại các dòng túi ngực không tiền tố (VD "Túi
+--      ngực Mentor MemoryGel BOOST") lẫn phụ kiện không tiền tố (VD "Cây đẩy túi ngực" — dụng cụ hỗ
+--      trợ phẫu thuật, không phải bản thân túi ngực).
+-- Danh sách 21 mã tiền tố quan sát được: L, XS, CH, TH, QT, KH, C, TL, K, TA, D, ĐT, VA, Đ, BD,
+-- DUNG, M, HG, B, HT (không cần liệt kê tường minh — chỉ cần regex bắt có tiền tố `(...)`, không cần
+-- khớp đúng danh sách này).
+--
+-- Đã đối chiếu T1-T9/2026, mức trừ ~18-30%/tháng doanh số Hồng Hà — user đã xác nhận số liệu và
+-- cách lọc này (xem lịch sử trao đổi 2026-09-12).
 
 {{ config(materialized='table') }}
 
@@ -66,6 +92,26 @@ bridge as (
     select id as crm_lead_id, name as ma_booking, source_id
     from {{ ref('stg_rtds_crm_lead') }}
     where brand_etl = 4
+),
+
+-- ⚠ Dùng EXISTS (không phải IN (SELECT DISTINCT ...)) — đã đo bằng EXPLAIN ANALYZE trên DB thật:
+-- IN(subquery) khiến planner chọn Nested Loop so sánh dư 68 triệu lượt (~18-27s), EXISTS cho
+-- planner chọn Nested Loop Semi Join dùng đúng index `patientrecordid` (~8s, nhanh hơn 2,2 lần) —
+-- xem lịch sử trao đổi 2026-09-12.
+tui_nguc_mong as (
+    select
+        sd.servicedataid,
+        sd.patientrecordid,
+        sd.servicedatadate,
+        -sd.tongbenhnhan as so_tien
+    from {{ ref('stg_rtds_ehc_tb_servicedata') }} sd
+    where sd.servicecode like 'VT%'
+      and sd.servicename ~ '^\s*\('
+      and (sd.servicename ilike '%túi ngực%' or sd.servicename ilike '%túi mông%')
+      and exists (
+          select 1 from {{ ref('stg_rtds_ehc_tb_servicedata') }} s2
+          where s2.patientrecordid = sd.patientrecordid and s2.dm_report_groupid = 5
+      )
 )
 
 select
@@ -93,3 +139,27 @@ left join bridge on bridge.ma_booking = pr.id_booking
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = bridge.source_id
 left join cline_one cl2 on cl2.crm_id = bridge.crm_lead_id
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = cl2.product_id and sp.brand_etl = cl2.brand_etl
+
+union all
+
+-- Dòng "âm" loại trừ chi phí túi ngực/túi mông — xem chú thích đầu file. ma_giao_dich tiền tố
+-- "tuimong-" để không trùng ma_giao_dich với invoice thật (đang là invoiceid số nguyên dạng text).
+select
+    'Hồng Hà' as brand,
+    'EHC' as nguon_he_thong,
+    'tuimong-' || tnm.servicedataid::text as ma_giao_dich,
+    false as co_chi_tiet_booking,
+    tnm.servicedatadate::date as ngay,
+    extract(year from tnm.servicedatadate)::int as nam,
+    extract(month from tnm.servicedatadate)::int as thang,
+    pr2.patientcode as ma_khach_hang,
+    pr2.patientname as ten_khach_hang,
+    null::text as ma_booking,
+    'Vật tư túi ngực/túi mông (loại trừ)' as nhom_dich_vu,
+    null::text as san_pham,
+    'Hồng Hà' as chi_nhanh,
+    null::text as nguon,
+    null::text as nhom_nguon_khach,
+    tnm.so_tien::numeric as so_tien
+from tui_nguc_mong tnm
+left join pr pr2 on pr2.patientrecordid = tnm.patientrecordid

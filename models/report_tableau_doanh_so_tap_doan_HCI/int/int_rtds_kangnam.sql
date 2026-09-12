@@ -26,6 +26,12 @@
 -- lịch sử trao đổi 2026-09-11. Nguồn khách ở đây lấy qua cl.source_id/ss.source (booking source) —
 -- ĐÚNG khớp cách Tableau/report_kpi_bonus_commission tự lấy source_id/source (cùng join
 -- ss.old_id = cl.source_id, xem int_rkbc_base_payment.sql).
+-- ⚠ [2026-09-12, ĐÃ SỬA] `ss.source ilike '...'` khi ss.source NULL (source_id không có trong
+-- stag_sources, VD source_id=783 "Mobile app") trả về NULL chứ không phải false — NOT(false OR NULL)
+-- = NULL, WHERE loại mất dòng đó dù đáng lẽ phải giữ (gây thiếu 98 dòng/366.185.000đ T8/2026 so với
+-- report_kpi_bonus_commission — phát hiện qua đối chiếu T6-T8/2026, GB_result T6 khớp nhưng T7/T8
+-- lệch). Tableau gốc luôn bọc IFNULL(...,FALSE) quanh các CONTAINS/REGEXP này — PHẢI bọc
+-- coalesce(... , false) quanh từng `ss.source ilike` dưới đây, không được bỏ sót.
 
 {{ config(materialized='table') }}
 
@@ -60,22 +66,22 @@ where spt.brand_etl = 1
   and not coalesce(sp.is_no_kpi, false)
   and not (
     coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_cbnv') | join(',') }})
-    or ss.source ilike '%cbnv%'
+    or coalesce(ss.source ilike '%cbnv%', false)
   )
   and not (
     coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_doi_ngoai') | join(',') }})
-    or ss.source ilike '%đối ngoại%'
+    or coalesce(ss.source ilike '%đối ngoại%', false)
   )
   and not (
     coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_tpm') | join(',') }})
-    or ss.source ilike '%thuê phòng mổ%'
-    or ss.source ilike '%tpm%'
+    or coalesce(ss.source ilike '%thuê phòng mổ%', false)
+    or coalesce(ss.source ilike '%tpm%', false)
   )
   and not (
     spt.payment_date >= date '{{ var("kpi_exclude_bs_hop_tac_tu_ngay") }}'
     and (
       coalesce(cl.source_id, 0) in ({{ var('kpi_exclude_source_ids_bs_hop_tac') | join(',') }})
-      or ss.source ilike '%bác sĩ hợp tác%'
+      or coalesce(ss.source ilike '%bác sĩ hợp tác%', false)
     )
   )
   and coalesce(ss.source, '') <> 'All services'
