@@ -26,6 +26,14 @@ sources:
       - name: ehc_tb_nguoigioithieu_thv
       - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_thv
       - name: ggs_target_company
+      # report_crm_lead_customer_out_sold: bảng do job Python/Airflow NGOÀI dbt tạo (xem
+      # quentk_3_report_crm_lead_customer_out_sold_New_sys.py), sống sẵn trong new_product. Dùng cho
+      # tính năng "Khách hàng đến cửa/thành công" — xem int_rtds_khach_hang_den_cua_thanh_cong.sql,
+      # lịch sử trao đổi 2026-09-14, LOGIC.md mục 4f.
+      # ⚠ (2026-09-14) brand_etl của bảng này đang HỎNG (100% = 0, lỗi đồng bộ sandbox→new_product,
+      # CHƯA khắc phục) — KHÔNG dùng brand_etl để lọc brand, dùng report_brand (text) thay thế. User
+      # xác nhận cứ dev logic trước, backfill dữ liệu đúng sau.
+      - name: report_crm_lead_customer_out_sold
       # stag_payment_transfer: KHÔNG khai báo ở đây — đã cutover sang dbt
       # (models/erp_staging/payment_transfer), dùng ref('stag_payment_transfer') thẳng.
       # ggs_target_company cũng đã khai báo ở report_tong_quan_ds_kn/stg/sources.yml (source name
