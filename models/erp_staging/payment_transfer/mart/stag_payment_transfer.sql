@@ -1,7 +1,24 @@
-{{ config(alias='stag_payment_transfer') }}
+{{
+  config(
+    alias   = 'stag_payment_transfer',
+    indexes = [
+      {'columns': ['crm_id', 'payment_date']},
+      {'columns': ['clineid']}
+    ]
+  )
+}}
+-- 2026-09-01: thêm indexes (crm_id, payment_date) + (clineid) — bảng này được nhiều
+-- report/model khác join/window-function trên crm_id (vd ROW_NUMBER PARTITION BY
+-- crm_id ORDER BY payment_date DESC trong models/old_view_store/mart/mart_bao_cao_mua_ban_data.sql
+-- và mv_lead_mb_from_t8_2025_fix.sql) và trên clineid, nhưng bảng chưa từng có index
+-- nào (874K dòng, Seq Scan trần) — xem trao đổi 2026-09-01. Không đổi logic/dữ liệu.
 
 -- Tương đương write_stag_payment_transfer() trong quentk_1_stag_crm_New_sys.py.
--- Alias 'stag_payment_transfer_dbt' để không ghi đè bảng thật cho tới khi được đối chiếu/duyệt.
+-- (2026-08-27) ĐÃ CUTOVER — alias ghi thẳng bảng thật 'stag_payment_transfer', task Airflow cũ
+-- (write_stag_payment_transfer trong quentk_1_stag_crm_New_sys.py) đã tắt/xoá (user xác nhận). Các
+-- model/report khác trong repo giờ nên dùng ref('stag_payment_transfer') thay vì
+-- source(..., 'stag_payment_transfer') khi có thể — xem mục "Cutover" trong LOGIC.md để biết các
+-- bước còn lại CHƯA xác nhận xong (đặc biệt bảng đi kèm stag_payment_transfer_grby_date).
 --
 -- 3 phần, UNION ALL:
 --   1. legacy (brand_etl=0)      -- đóng băng, không ETL nào tái tạo được

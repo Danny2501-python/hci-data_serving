@@ -13,8 +13,45 @@
 -- ở uu_tien_2) để khớp 100% với bảng vật lý, KHÔNG tự sửa. KHÔNG đụng/không revert
 -- stg_booking_nhom_dich_vu_chinh.sql (model đó đã chủ động đơn giản hóa bỏ 3 tầng, đang dùng chung
 -- với stg_dv_khach_hang_quan_tam) — 3 tầng ưu tiên ở đây là bản viết riêng, độc lập.
+--
+-- [MỚI 2026-08-26] Port CTE service_walkin_completed + cột line_walkin_finish_date/
+-- has_completed_walkin + gate "WHEN NOT has_completed_walkin THEN false" trong is_cross_sale, đồng
+-- bộ theo procedure func_stag_crm_line_ecosystem() (đã deploy sandbox trước, xem
+-- func_stag_crm_line_ecosystem.md mục 4/5).
+--
+-- [ĐỔI 2026-08-27] 3 thay đổi, chỉ mới áp dụng bên dbt — sandbox CHƯA sửa, chờ chạy tay:
+--   1. Đổi tên cột line_walkin_finish_date -> cline_walkin_finish_date (rõ nghĩa "theo từng cline"
+--      hơn, tránh nhầm với main_bl_completed_date theo "line"/business_line).
+--   2. Cộng thêm interval '7 hours' cho service_date_start (nguồn sh_medical_appointment_register_
+--      walkin) ở CẢ 2 chỗ dùng — CTE service_walkin_completed (cline_walkin_finish_date) VÀ CTE
+--      main_bl_walkin_ranked (main_bl_completed_date) — bảng gốc lưu UTC, giống các cột
+--      booking_report_date/cline_created_date/partner_create_date đã +7h từ trước; đây là cột
+--      chưa được cộng, phát hiện qua đối chiếu giờ khám bất thường (01h-05h sáng) khi verify data.
+--   3. Bỏ điều kiện w.state = 'Completed' ở CẢ 2 chỗ trên, chỉ giữ service_date_start IS NOT NULL
+--      (theo yêu cầu, cover nhiều trường hợp hợp lệ hơn — không giới hạn đúng state 'Completed').
+--      LƯU Ý: tên CTE/cột has_completed_walkin/service_walkin_completed vẫn giữ nguyên dù không
+--      còn lọc theo state Completed nữa -- nếu thấy gây hiểu nhầm, cân nhắc đổi tên ở đợt sau.
 
-WITH cline as (
+WITH service_walkin_completed as (
+    -- [MỚI 2026-08-26, ĐỔI 2026-08-27] (crm_id, service_id, brand_etl) đã có phiếu khám với ngày
+    -- khám hợp lệ, kèm ngày sớm nhất (cline_walkin_finish_date) -- port từ procedure
+    -- func_stag_crm_line_ecosystem() bước 1.5 (tmp_service_walkin_completed), mở rộng thêm
+    -- MIN(service_date_start + 7h) -- xem func_stag_crm_line_ecosystem.md mục 4/5. Chỉ tính trong
+    -- CÙNG booking (crm_id = booking_id), không gộp theo toàn lịch sử khách hàng.
+    -- [ĐỔI 2026-08-27] Bỏ điều kiện w.state = 'Completed' (chỉ giữ service_date_start IS NOT NULL,
+    -- cover nhiều trường hợp hợp lệ hơn); +7h cho service_date_start (bảng gốc lưu UTC).
+    select
+        w.booking_id as crm_id,
+        wsr.service_id,
+        w.brand_etl,
+        MIN(w.service_date_start + interval '7 hours') as cline_walkin_finish_date
+    from {{ source('crm_base', 'sh_medical_appointment_register_walkin') }} w
+        inner join {{ source('crm_base', 'sh_walkin_service_rel') }} wsr
+            on wsr.walkin_id = w.id and wsr.brand_etl = w.brand_etl
+    where w.service_date_start is not null
+        and w.booking_id in (select crm_id from {{ ref('stg_booking_id_co_tien_tc') }})
+    group by w.booking_id, wsr.service_id, w.brand_etl
+), cline as (
     SELECT
         cl.id as crm_id,
         cl.name as code_booking,
@@ -41,7 +78,9 @@ WITH cline as (
             WHEN sp.his_service_type = 'weight_loss' then 'Weight Loss'
             ELSE 'Khác'
         END as business_line,
-        rp.create_date + interval '7 hours' as partner_create_date
+        rp.create_date + interval '7 hours' as partner_create_date,
+        swc.cline_walkin_finish_date,                                  -- [MỚI 2026-08-26, ĐỔI 2026-08-27]
+        (swc.crm_id is not null) as has_completed_walkin               -- [MỚI 2026-08-26]
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
         left join (
@@ -51,6 +90,8 @@ WITH cline as (
         ) spt on spt.clineid = cln.id and spt.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'view_stag_products') }} sp on sp.product_id = cln.product_id and sp.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'res_partner') }} rp on cl.partner_id = rp.id and cl.brand_etl = rp.brand_etl
+        left join service_walkin_completed swc                          -- [MỚI 2026-08-26]
+            on swc.crm_id = cl.id and swc.service_id = sp.service_id and swc.brand_etl = cln.brand_etl
     WHERE cl.id in (SELECT crm_id FROM {{ ref('stg_booking_id_co_tien_tc') }})
         AND cl.type = 'opportunity'
 ), rnk_bl_cline as (
@@ -260,8 +301,8 @@ FROM rnk_bl_cline rbc
         and prev_pbc.business_line = pbc.business_line
     left join customer_main_bl cmb on cmb.code_customer = rbc.code_customer
 ), main_bl_walkin_ranked as (
-    -- Phiếu khám (walkin) đầu tiên đã hoàn thành (Completed, service_date_start sớm nhất) thuộc
-    -- dịch vụ có business line = business line chính (main_bl_customer) của khách hàng.
+    -- Phiếu khám (walkin) đầu tiên có ngày khám hợp lệ (service_date_start sớm nhất) thuộc dịch vụ
+    -- có business line = business line chính (main_bl_customer) của khách hàng.
     -- Liên hệ: sh_medical_appointment_register_walkin (phiếu khám) <- sh_walkin_service_rel
     -- (walkin_id, service_id) -> service_id = view_stag_products.service_id (view_stag_products có
     -- CẢ product_id lẫn service_id, là 2 cột khác nhau -> phải nối đúng service_id, không phải
@@ -273,9 +314,12 @@ FROM rnk_bl_cline rbc
     -- đúng cặp bảng (không chỉ join theo id) để tránh dính chéo dữ liệu giữa các brand.
     -- Dùng ROW_NUMBER() (kèm w.id tie-break) thay vì MIN() để lấy đúng 1 bản ghi walkin cụ thể,
     -- từ đó lấy kèm được sale_order_id/booking gốc của đúng bản ghi đó (MIN() không cho phép).
+    -- [ĐỔI 2026-08-27] Bỏ điều kiện w.state = 'Completed' (chỉ giữ service_date_start IS NOT NULL,
+    -- cover nhiều trường hợp hợp lệ hơn); +7h cho service_date_start (bảng gốc lưu UTC, giống
+    -- cline_walkin_finish_date ở CTE service_walkin_completed).
     SELECT
         cl.code_customer,
-        w.service_date_start,
+        (w.service_date_start + interval '7 hours') as service_date_start,
         w.sale_order_id,
         w.name as code_walkin,
         cl.name as code_booking_org,
@@ -292,8 +336,7 @@ FROM rnk_bl_cline rbc
             ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
         INNER JOIN {{ source('crm_base', 'view_stag_products') }} sp
             ON sp.service_id = wsr.service_id AND sp.brand_etl = w.brand_etl
-    WHERE w.state = 'Completed'
-        AND w.service_date_start IS NOT NULL
+    WHERE w.service_date_start IS NOT NULL
         AND cmb.main_bl_customer = CASE
             WHEN sp.his_service_type = 'Surgery' then 'PTTM'
             WHEN sp.his_service_type IN ('Spa','Laser','Card') then 'Beauty & Spa'
@@ -327,6 +370,11 @@ select
         -- nhóm khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy) — khớp logic mới nhất của
         -- procedure (bước 8).
         when lb.source_main_bl = 'crm_lead_history' and lb.partner_create_date < '2025-08-01' then false
+        -- [MỚI 2026-08-26, ĐỔI 2026-08-27] port gate has_completed_walkin từ procedure
+        -- func_stag_crm_line_ecosystem() -- dòng dịch vụ này, TRONG CÙNG BOOKING, chưa có phiếu
+        -- khám nào khớp đúng service_id (có ngày khám hợp lệ, không còn giới hạn state = 'Completed')
+        -- thì không tính bán chéo, bất kể điều kiện payment/6 tháng bên dưới có thỏa hay không.
+        when not lb.has_completed_walkin then false
         -- Trong cùng booking (crm_id) và cùng BL này, chỉ cần TỒN TẠI 1 dòng "kích hoạt" bán chéo
         -- (có payment > 0, và là lần mua đầu tiên của BL đó hoặc cách lần mua liền trước của BL đó
         -- > 6 tháng) thì MỌI dòng dịch vụ của cùng BL trong cùng booking đó đều được tính là bán
