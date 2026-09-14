@@ -12,14 +12,40 @@ models:
         description: Nhóm nguồn (MD, ...)
       - name: kenh
         description: Kênh (FB / Web / marketing / Khác)
-      - name: ngay
-        description: Ngày ghi nhận dữ liệu
+      - name: date
+        description: >
+          Ngày ghi nhận dữ liệu. Sửa 2026-09-11: tên cột thật trong bảng là
+          `date` (`r.ngay::timestamp AS "date"` trong mart SQL) — trước đó
+          tài liệu ghi nhầm là `ngay`, không khớp cột thật.
       - name: nhom_dv
         description: Nhóm dịch vụ (Implant / Niềng răng khay trong / ...)
       - name: chi_nhanh
         description: Chi nhánh (HÀ NỘI / HỒ CHÍ MINH / ...)
-      - name: Metric
-        description: Giá trị đo lường (chi phí, số lượng, doanh số – dạng text)
+      - name: dt
+        description: >
+          Cột giá trị, Ý NGHĨA PHỤ THUỘC `type_data` — verify thực tế
+          2026-09-11 bằng query trên bảng thật:
+
+          - `Lead`/`BK`/`BKHL`/`DC`/`TC`/`Deal_cs`: **số điện thoại khách
+          hàng** (`crm_lead.phone` hoặc parse từ `cs_ticket_api.requester`
+          cho `Deal_cs`), KHÔNG PHẢI giá trị số đo lường — dùng để đếm
+          `COUNT(DISTINCT dt)` (số lead/booking/khách duy nhất) ở tầng báo
+          cáo, không phải `SUM(dt)`. Ví dụ giá trị thật: `'0905615127'`.
+          - `Cost_fb_cd`/`Cost_fb_th`/`google`/`tiktok`: chi phí quảng cáo
+          (VND, dạng số qua `::text`). Ví dụ: `'189036'`.
+          - `DS`: doanh số thanh toán (VND). Ví dụ: `'1000000.0'`.
+          - `ib`: số cuộc trò chuyện Inbox (đã `SUM` theo nhóm). Ví dụ: `'2'`.
+          - `target_lead`/`target_cost`: giá trị mục tiêu (KPI). Ví dụ:
+          `'4.29'`.
+
+          Tên cột thật trong bảng là `dt` (`r.metric AS "dt"` trong mart SQL,
+          xác nhận 2026-09-11) — **khác với `func_report_marketing_ad_cost_kn`**
+          (cột tương ứng bên đó tên `Metric`, cùng kiểu overload — vd. KN tự
+          document rõ `DealCS`: "Metric = phone number"; các nhánh CRM khác
+          của KN cũng dùng `sdt` làm metric nhưng KN không ghi chú tường
+          minh trong schema.yml). Khác biệt tên cột `dt` vs `Metric` là quy
+          ước có sẵn từ trước giữa 2 brand — giữ nguyên theo yêu cầu người
+          dùng, không đổi tên/không thêm cột trùng.
       - name: type_data
         description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / tiktok / ib / target_lead / target_cost)
       - name: nguon_moi_v2
@@ -63,3 +89,159 @@ models:
           `common/knowledge.md` mục 1). Cùng population/mặc định cứng như
           nguon_moi_v2 (Facebook/Google_Ads/Tiktok đều thuộc nhóm `'Online'`
           trong catalog utm_source của Paris).
+      - name: campaign
+        description: >
+          Tên campaign quảng cáo gốc. Dùng phục vụ trang báo cáo `camp_actor`
+          — xem LOGIC.md mục "Thêm `campaign`/`actor`" để biết nguồn/coverage
+          chi tiết theo từng `type_data`. Luôn có giá trị (`'KXĐ'` khi không
+          xác định được), trừ `target_lead`/`target_cost` để `NULL` (không
+          phải traffic thật).
+      - name: actor
+        description: >
+          Mã người thực hiện campaign — token vị trí 8 (1-based) của
+          `campaign` theo convention đặt tên chung tập đoàn
+          `{brand}_{page}_{local}_{chinhanh}_{nhomdichvu}_{muctieu}_{funnel}_
+          {actor}_{angle}...`, chỉ tách khi token 1 nằm trong
+          `var('all_brand_mkt_camp')` (giống `func_report_marketing_ad_cost_kn`,
+          xem README.md mục 7 bên đó). Không join sang seed nào để lấy tên/email
+          — chỉ chứa mã thô. Luôn `COALESCE(..., 'KXĐ')` ở mart, không bao giờ
+          `NULL`. Coverage thực tế (verify 2026-09-10) rất khác nhau theo kênh:
+          100% cho Cost_fb_cd/th (campaign mới) và tiktok; luôn `'KXĐ'` cho
+          google/Deal_cs/Inbox (campaign không theo convention 9-token này);
+          chỉ ~13,5% cho Lead/BK/BKHL/DC/TC và ~3,4% cho DS (do phần lớn
+          `cs_ticket_api.ad_id_value` không khớp được `ad_id` Facebook).
+      - name: nhom_dv_muc_tieu
+        description: >
+          "Nhóm dịch vụ mục tiêu" — tên chuẩn tra được từ token vị trí 5
+          (1-based) của cột `campaign` qua bảng mapping `campaign_name_split`
+          (join `UPPER(campain_name_split) = UPPER(nhom_dv_muc_tieu_code)`,
+          LATERAL LIMIT 1, case-insensitive). Cùng cơ chế/cùng bảng vật lý đã
+          dùng ở `func_report_marketing_ad_cost_kn` (xem README.md mục 10 bên
+          đó) — `campaign_name_split` không brand-scoped, dùng chung cho quy
+          ước đặt tên campaign toàn tập đoàn.
+
+          `nhom_dv_muc_tieu_code` (mã thô, trước khi tra bảng mapping) chỉ
+          tách được khi token 1 của `campaign` nằm trong
+          `var('all_brand_mkt_camp')` — cùng guard với `actor`, KHÔNG có tầng
+          fallback nào (khác `nhom_dv` hiện có, vốn có fallback vị trí 2/3 khi
+          guard fail). **Độc lập hoàn toàn với cột `nhom_dv`** — `nhom_dv` cho
+          Lead/BK/BKHL/DC/TC/DS đến từ CRM/product (`m_nhom_dv_adnet_paris`),
+          hoàn toàn không liên quan campaign name; `nhom_dv` cho FB/Google/
+          TikTok/Inbox tách trực tiếp bằng CASE WHEN trong từng `stg`, không
+          qua `campaign_name_split`.
+
+          Luôn `COALESCE(..., 'KXĐ')` ở mart — không bao giờ `NULL`, nhất
+          quán với cách xử lý `actor`/`campaign` ở model này (khác
+          `func_report_marketing_ad_cost_kn`, nơi cột này để raw `NULL` ở 2/3
+          stream). Coverage phụ thuộc `actor` — nơi nào `actor` tách được thì
+          `nhom_dv_muc_tieu_code` cũng tách được (cùng điều kiện guard), nhưng
+          giá trị cuối cùng còn phụ thuộc thêm việc token 5 đó có khớp dòng
+          nào trong `campaign_name_split` hay không.
+      - name: vk
+        description: >
+          Cờ Việt Kiều đơn giản: `'VIỆT KIỀU'` khi `crm_lead.overseas_vietnamese
+          = 'marketing'`, ngược lại `'no'`. Chỉ populate cho Lead/BK/BKHL/DC/
+          TC/DS (có liên kết CRM); `'KXĐ'` cho các nhánh cost/target. **Khác
+          `func_report_marketing_ad_cost_kn`**: dữ liệu `overseas_vietnamese`
+          của Paris (verify 2026-09-11) chỉ có giá trị thật `'marketing'` cho
+          Việt Kiều — không có `'expat'`/`'mkt_oversea'` như KN — nên không
+          tách được `'QUỐC TẾ'`/`'exp'` riêng biệt như bên KN.
+      - name: ten_dv
+        description: >
+          Tên dịch vụ/sản phẩm cụ thể (`view_stag_products.product`, bảng
+          `sp` đã join sẵn cho `nhom_dv`). Chỉ populate cho Lead/BK/BKHL/DC/
+          TC/DS khi lead có product_id/line — `'KXĐ'` cho các nhánh cost/
+          target (không có khái niệm "dịch vụ" theo dòng dữ liệu).
+      - name: local_k
+        description: >
+          Vị trí thô. Với Lead/BK/BKHL/DC/TC/DS: tên tỉnh/thành từ
+          `res_country_state` (qua `crm_lead.state_id`, kèm `brand_etl`),
+          `'VIỆT KIỀU'` khi `res_country_state.code` không phải mã Việt Nam,
+          `'KXĐ'` khi không có `state_id`. Với Cost_fb_cd/Cost_fb_th: giá trị
+          thô `region` (`vung`) từ Facebook Ads (`cs_facebook_insight.region`
+          cho v2, `vung` gốc cho v1 legacy) — khác định dạng với
+          `res_country_state.name` (tiếng Anh vs tiếng Việt), nên khớp `region`
+          (miền) thấp hơn nhiều so với nhóm CRM. `'KXĐ'` cho các nhánh còn lại.
+      - name: tinh_noi
+        description: >
+          `local_k` đã chuẩn hoá (bỏ tiền tố "Tỉnh"/"Thành phố", gộp case đặc
+          biệt Bà Rịa/Việt Kiều) — cùng regex đã dùng ở
+          `func_report_marketing_ad_cost_kn` (`int_frmack_region.sql`).
+      - name: region
+        description: >
+          Miền/khu vực kinh doanh, tra `ggs_region_map` (bảng dùng chung với
+          KN, `location -> region`) theo `tinh_noi`, kèm vài override thủ công
+          (Bà Rịa/Lào Cai/Yên Bái/Huế) **nguyên bản từ KN** — các override này
+          hiệu chỉnh theo mạng lưới chi nhánh/vùng miền của Kangnam, CHƯA được
+          rà soát lại có phù hợp với cách Paris tự phân vùng kinh doanh hay
+          không. `'KXĐ'` khi không khớp `ggs_region_map` — coverage thấp ở
+          Cost_fb_cd/th vì lý do định dạng đã nêu ở `local_k`.
+      - name: quoc_gia
+        description: >
+          Quốc gia (`res_country.name` qua `crm_lead.country_id`, kèm
+          `brand_etl`). Verify 2026-09-11: populate ~100% cho Lead/BK/BKHL/DC/
+          TC/DS (đa số `'Việt Nam'`, có đuôi thật US/Australia/Taiwan/Japan/
+          Korea/Germany/Canada/...). `'KXĐ'` cho các nhánh cost/target.
+      - name: chau_luc
+        description: >
+          Châu lục, tra `ucbt_country_continent` (bảng dùng chung KN) theo
+          `quoc_gia`. **Verify 2026-09-11: bảng này KHÔNG có dòng nào cho
+          `'Việt Nam'`** (chỉ map các quốc gia nước ngoài) — nên coverage rất
+          thấp trên dữ liệu Paris (đa số khách Việt Nam) dù `quoc_gia` gần như
+          populate 100%; đây là giới hạn có sẵn của bảng mapping dùng chung,
+          không phải lỗi join ở model này.
+      - name: page
+        description: >
+          Tên Trang (Fanpage) Facebook. Cost_fb_cd/Cost_fb_th: tra `dim_page`
+          (master_data, build từ `cs_facebook_insight.facebook_page_id`,
+          KHÔNG lọc brand — dùng chung KN) theo `facebook_page_id` (v1 legacy
+          không có cột này → luôn `'KXĐ'`). Inbox (`ib`): tra `dim_page` theo
+          `inbox_paris_fb."id page"` — trực tiếp hơn cách KN làm cho Inbox (KN
+          phải suy ra qua campaign_id vì `m_inbox_kangnam` không có sẵn page
+          id); coverage cao (~94%). Lead/BK/BKHL/DC/TC/DS: tra
+          `ucbt_page_config` theo `page_code` = token vị trí 2 của `campaign`
+          (cùng guard whitelist/pfa với `actor`). **Đơn giản hoá có chủ đích
+          so với KN**: bỏ qua bước ưu tiên "page theo ticket/service"
+          (`cs_services_api` qua `ticket_id`) mà KN có — chỉ dùng
+          `ucbt_page_config` làm nguồn duy nhất cho các nhánh CRM, giảm độ
+          phức tạp/rủi ro implement, coverage vẫn bám sát `actor`. `'KXĐ'` cho
+          Google/TikTok/Deal_cs/Targets (không có khái niệm FB Page).
+      - name: page_id
+        description: >
+          Mã Trang/mã tra cứu thô đứng sau `page` — `facebook_page_id`
+          (Cost_fb_cd/th/ib, cùng namespace với `dim_page.page_id`) hoặc
+          `page_code` (Lead/BK/BKHL/DC/TC/DS, token vị trí 2 của `campaign`,
+          cùng namespace với `ucbt_page_config.page_code`). **Lưu ý: 2 nhánh
+          dùng 2 hệ mã khác nhau trong cùng 1 cột** (cùng cách `func_report_
+          marketing_ad_cost_kn` làm — `page_id` bên đó cũng lẫn `facebook_page_id`
+          thô và `page_code` dạng text tuỳ stream), không phải lỗi trộn dữ
+          liệu — 2 hệ giá trị không trùng nhau nên không có rủi ro khớp nhầm.
+      - name: account_fb
+        description: >
+          Tên tài khoản quảng cáo Facebook, tra `dim_account` (master_data,
+          dùng chung KN). Cost_fb_cd/Cost_fb_th: theo `ad_account_id` trực
+          tiếp từ `cs_facebook_insight`/`stg_fb_insight_old_pr`. Lead/BK/BKHL/
+          DC/TC/DS: theo `dcaa.account_id` đã verify thuộc Paris qua
+          `paris_fb_accounts`/`pfa` (an toàn trước gotcha lẫn brand, xem
+          LOGIC.md). `'KXĐ'` cho Inbox/Google/TikTok/Deal_cs/Targets (Inbox
+          Paris không có cột account/ad_account trong nguồn).
+      - name: nhom_dv_kh_quan_tam
+        description: >
+          Nhóm dịch vụ khách hàng quan tâm ĐẦU TIÊN (từ `crm_line` sớm nhất
+          của khách, tie-break `cline_id`) — nguồn
+          `common/stg_dv_khach_hang_quan_tam_paris.sql`, bản Paris (brand_etl
+          = 3) của `common/stg_dv_khach_hang_quan_tam.sql` (bản gốc chỉ tính
+          Kangnam). Chỉ populate cho Lead/BK/BKHL/DC/TC/DS (có `crm_id`).
+          `'KXĐ'` cho các nhánh cost/target.
+      - name: nhom_dv_chinh_booking
+        description: >
+          Nhóm dịch vụ chính cấp booking, bucket theo 9 nhóm chuẩn hoá dùng
+          chung toàn hệ thống (`view_stag_products.product_group`, nguồn
+          `common/stg_booking_nhom_dich_vu_chinh_paris.sql` — bản Paris của
+          `common/stg_booking_nhom_dich_vu_chinh.sql`). **Verify 2026-09-11:
+          trên dữ liệu Paris thật, hầu như 100% rơi vào đúng 1 bucket
+          `'3.HÀM MẶT/NHA KHOA'`** — taxonomy 9 nhóm này thiết kế cho danh mục
+          dịch vụ đa dạng của Kangnam (thẩm mỹ/spa/giảm béo/wellness/nha
+          khoa...), nên với Paris (chỉ chuyên nha khoa) cột này gần như không
+          có giá trị phân biệt — vẫn thêm để đối chiếu cấu trúc với KN theo
+          yêu cầu, nhưng độ hữu ích thực tế thấp hơn nhiều so với bên KN.
