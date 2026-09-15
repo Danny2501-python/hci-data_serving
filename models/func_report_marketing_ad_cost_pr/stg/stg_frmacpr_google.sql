@@ -6,6 +6,7 @@ WITH a AS (
     SELECT
         gap.date::date                                              AS ngay_chi_phi,
         gap.cost::text                                              AS chi_phi,
+        gap.campaign                                                AS campaign_raw,
         SPLIT_PART(gap.campaign, '_', 2)                           AS nhom_dv_raw,
         SPLIT_PART(gap.campaign, '_', 1)                           AS chi_nhanh_raw,
         SPLIT_PART(gap.campaign, '_', 3)                           AS extra_info
@@ -56,5 +57,26 @@ SELECT
     -- -> mặc định cứng theo catalog utm_source thật của Paris (id=735
     -- 'Google_Ads', category 'Online').
     'Google_Ads'::text                                              AS nguon_moi_v2,
-    'Online'::text                                                  AS nhom_nguon_moi_v2
+    'Online'::text                                                  AS nhom_nguon_moi_v2,
+    -- campaign: raw gap.campaign. actor: luôn NULL — campaign Google Ads Paris
+    -- đặt tên theo {chi_nhanh}_{nhom_dv}_{extra} (token 1 = mã chi nhánh),
+    -- KHÔNG theo convention 9-token all_brand_mkt_camp của FB/TikTok, nên
+    -- không tách actor được (giống Google bên func_report_marketing_ad_cost_kn).
+    COALESCE(campaign_raw, 'KXĐ')::text                             AS campaign,
+    NULL::text                                                      AS actor_code,
+    -- nhom_dv_muc_tieu_code: luôn NULL, cùng lý do với actor_code — campaign
+    -- Google Ads Paris không theo convention 9-token all_brand_mkt_camp.
+    NULL::text                                                      AS nhom_dv_muc_tieu_code,
+    -- vk/ten_dv/local_k_raw/quoc_gia/page_id_raw/account_id_raw: thêm
+    -- 2026-09-11 — nhánh Google không có liên kết CRM lẫn khái niệm FB
+    -- Page/Account -> luôn NULL.
+    NULL::text                                                      AS vk,
+    NULL::text                                                      AS ten_dv,
+    NULL::text                                                      AS local_k_raw,
+    NULL::text                                                      AS quoc_gia,
+    NULL::text                                                      AS page_id_raw,
+    NULL::text                                                      AS account_id_raw,
+    NULL::text                                                      AS page_code_raw,
+    NULL::text                                                      AS nhom_dv_kh_quan_tam,
+    NULL::text                                                      AS nhom_dv_chinh_booking
 FROM a

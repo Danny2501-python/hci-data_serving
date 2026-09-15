@@ -32,6 +32,15 @@ sources:
       - name: m_res_company
       - name: utm_source
       - name: crm_category_source
+      # Địa lý (vk/local_k/quoc_gia/chau_luc) — dùng chung với
+      # func_report_marketing_ad_cost_kn, không brand-scoped.
+      - name: res_country_state
+      - name: res_country
+      - name: ucbt_country_continent
+      - name: ggs_region_map
+      # Page Facebook (page/page_id/account_fb) — dùng chung với KN, đã verify
+      # có dữ liệu Paris (ucbt_page_config.brand = 'Paris - Dental').
+      - name: ucbt_page_config
       # Revenue
       - name: stag_payment_transfer
       - name: view_stag_products
@@ -40,5 +49,10 @@ sources:
       - name: ty_gia_techcombank
       - name: local_paris_adnet
       - name: m_nhom_dv_adnet_paris
+      # campaign_name_split: bảng mapping token->nhom_dv dùng chung cho quy ước
+      # đặt tên campaign toàn tập đoàn (var('all_brand_mkt_camp')), cùng bảng
+      # vật lý đã dùng ở func_report_marketing_ad_cost_kn (source 'kangnam',
+      # cùng schema public/database staging_sci) — không brand-scoped.
+      - name: campaign_name_split
       # Targets
       - name: ggs_paris_sm_target

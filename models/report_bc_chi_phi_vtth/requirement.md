@@ -1,0 +1,140 @@
+Các bảng cần tham khảo:
+- stag_his_form_supply_2: nguồn từ model stag_his_supply, chứa các cột sau:
+  - brand_etl: mã hệ thống dữ liệu của thương hiệu được tích hợp về DWH (1: kangnam, 3: paris)
+  - data_union: chứa thông tin của phiếu chuyên khoa
+   + specialty: phiếu chuyên khoa khác
+   + surgery: phiếu phẫu thuật thủ thuật
+   + lab_test: phiếu xét nghiệm
+   + inpatient: phiếu nội trú
+   + evaluation: phiếu tái khám
+  - form_supply_id
+  - rn_form_supply
+  - form_id
+  - crm_id: id hệ thống của booking
+  - booking: mã booking
+  - walkin: mã phiếu khám tương ứng 
+  - code_customer: mã khách hàng
+  - contact_name: tên khách hàng
+  - form_name: mã phiếu
+  - services_date: ngày sử dụng
+  - supply_category: loại vật tư sử dụng
+  - supply: tên vật tư sử dụng
+  - uom: đơn vị tính
+  - uom_id: id đơn vị tính
+  - qty_used: số lượng đã sử dụng
+  - qty: 
+  - explanation_supply: giải trình sử dụng vật tư
+  - notes: ghi chú
+  - "location": vị trí lấy vật tư
+  - location_department: khoa/phòng nơi lấy vật tư
+  - department_type: loại hình khoa phòng
+  - company: công ty sử dụng
+  - service_id: id hệ thống của dịch vụ tương ứng sử dụng vật tư
+  - product_id: id hệ thống của sản phẩm tương úng sử dụng vật tư
+  - supply_id: id hệ thống của phiếu cung ứng tương ứng
+  - supply_product_id: id hệ thống của sản phẩm trong phiếu cung ứng tương ứng
+  - patient: tên bệnh nhân
+  - walkinid: id phiếu khám tương ứng với phiếu cung ứng
+  - ward_id: id hệ thống của khoa phòng tương ứng
+  - room_id: id hệ thống của phòng ban tương ứng
+  - location_id: id hệ thống của vị trí tương ứng
+  - picking_id: id phiếu xuất kho tương ứng
+  - picking: mã phiếu xuất kho tương ứng
+  - company_id: id hệ thống của công ty tương ứng
+  - id_etl
+- bảng sh_surgery_bom_rel: bảng quan hệ của phiếu phẫu thuật với bảng BOM vật tư (định mức vật tư tương ứng với từng loại thủ thuật/phẫu thuật)
+- bảng sh_specialty_bom_rel: bảng quan hệ của phiếu chuyên khoa với bảng BOM vật tư (định mức vật tư tương ứng với từng loại dịch vụ chuyên khoa)
+- bảng sh_evaluation_bom_rel: bảng quan hệ của phiếu tái khám với bảng BOM vật tư (định mức vật tư tương ứng với từng loại tái khám)
+- report_kpi_team_service: bảng điểm KPI/hiệu suất thực hiện dịch vụ theo nhân sự phòng dịch vụ, chứa các cột sau:
+  - team_service_id: id hệ thống của lượt nhân sự thực hiện dịch vụ (unique)
+  - ck_pttt: mã loại phiếu thực hiện (PTTT: phẫu thuật thủ thuật, NHA: nha khoa, LASE/SPA/WELL: chuyên khoa...)
+  - is_new_request: dịch vụ có phải yêu cầu thực hiện mới hay không
+  - services_date: ngày giờ bắt đầu thực hiện dịch vụ
+  - services_end_date: ngày giờ kết thúc thực hiện dịch vụ
+  - walkinid: id phiếu khám tương ứng
+  - walkin: mã phiếu khám
+  - state_walkin: trạng thái phiếu khám
+  - crm_id: id booking trong CRM
+  - type_crm_id: loại booking CRM
+  - booking: mã booking
+  - code_customer: mã khách hàng
+  - contact_name: tên khách hàng
+  - room: tên phòng thực hiện dịch vụ
+  - order_product_id: id dòng dịch vụ trên đơn hàng (dạng sale_order_id-product_id-brand_etl)
+  - rn_order_product_id: thứ hạng ưu tiên tính điểm phòng cho dòng dịch vụ (1 = được tính điểm)
+  - product_ctg_id: id nhóm dịch vụ/sản phẩm
+  - product_id: id dịch vụ/sản phẩm thực hiện
+  - his_service_type: loại hình dịch vụ (Surgery, Laser, Spa, ChiPhi...)
+  - surgery_type: loại phẫu thuật (major/minor)
+  - max_surgery_type_form: loại phẫu thuật cao nhất trong phiếu (2: major, 1: minor, 0: khác)
+  - max_surgery_type_walkin: loại phẫu thuật cao nhất trong phiếu khám
+  - agg_surgery_type: danh sách loại phẫu thuật gộp theo phiếu khám
+  - product_category: nhóm dịch vụ
+  - product: tên dịch vụ/sản phẩm
+  - drk_walkin_product: thứ hạng dịch vụ trùng lặp theo phiếu khám
+  - drk_crm_product: thứ hạng dịch vụ theo booking CRM
+  - product_uom_qty: số lượng quy đổi dùng để tính điểm (số lượng x đơn giá quy đổi)
+  - revenue: doanh thu ghi nhận của dịch vụ (đã áp hệ số rto_kpi)
+  - kpi_point: điểm KPI chuẩn (định mức) của dịch vụ
+  - kpi_point_num: số lần thực hiện tính điểm của dịch vụ (liệu trình)
+  - product_group_id: id nhóm dịch vụ dùng để gộp tính thứ hạng bảo hành/liệu trình
+  - is_oms: dịch vụ có thuộc nhóm Hàm mặt hay không
+  - overtime: hệ số làm thêm giờ (mặc định = 1)
+  - employee_id: id nhân viên thực hiện
+  - employee_code: mã nhân viên thực hiện
+  - employee: tên nhân viên thực hiện
+  - job: chức danh nhân viên thực hiện
+  - department: khoa/phòng ban của nhân viên thực hiện
+  - company_employee: công ty/chi nhánh của nhân viên thực hiện
+  - role: tên vai trò thực hiện (BS chính, BS phụ, Điều dưỡng...)
+  - roleid: id vai trò thực hiện
+  - aggroleid: danh sách id vai trò gộp theo dòng dịch vụ
+  - order_priorole: thứ tự ưu tiên vai trò nhập trên phiếu
+  - dr_order_role: thứ hạng ưu tiên vai trò sau xử lý
+  - rto_kpi: hệ số điểm KPI áp dụng cho nhân sự/vai trò
+  - rto_bh: hệ số bảo hành áp dụng (cộng/trừ điểm bảo hành)
+  - kpi_perf_point: điểm hiệu suất cá nhân
+  - kpi_perf_point_department: điểm hiệu suất tính cho phòng dịch vụ
+  - kpi_perf_revenue: doanh thu hiệu suất tính theo hệ số KPI
+  - type_kpi_ekip: loại cơ chế tính điểm ekip đặc biệt (source_rent_room, collaborator_surgeon, discount_doctor_approved, Trừ bảo hành...)
+  - pricelist: tên bảng giá áp dụng cho dòng dịch vụ
+  - initial_booking: mã booking của dịch vụ gốc (bị bảo hành)
+  - initial_services_date: ngày thực hiện dịch vụ gốc bị bảo hành
+  - initial_his_service_type: loại hình dịch vụ gốc bị bảo hành
+  - initial_product_ctg_id: id nhóm dịch vụ gốc bị bảo hành
+  - initial_product_id: id dịch vụ gốc bị bảo hành
+  - initial_product_category: nhóm dịch vụ gốc bị bảo hành
+  - initial_product: tên dịch vụ gốc bị bảo hành
+  - initial_kpi_point: điểm KPI của dịch vụ gốc bị bảo hành
+  - initial_kpi_perf: điểm hiệu suất dịch vụ gốc (chưa sử dụng)
+  - initial_total: giá trị (thành tiền) của dịch vụ gốc bị bảo hành
+  - type_guarantee: loại hình bảo hành
+  - max_type_guarantee: loại bảo hành cao nhất trong booking
+  - bh_ngoai_goi: cờ bảo hành ngoài gói
+  - reason_guarantee_id: id lý do bảo hành
+  - reason_guarantee: tên lý do bảo hành
+  - lead_id: id lead CRM liên quan
+  - initial_employee_id: id nhân viên thực hiện dịch vụ gốc bị bảo hành
+  - initial_employee_code: mã nhân viên thực hiện dịch vụ gốc
+  - initial_employee: tên nhân viên thực hiện dịch vụ gốc
+  - initial_job: chức danh nhân viên thực hiện dịch vụ gốc
+  - initial_role: vai trò nhân viên thực hiện dịch vụ gốc
+  - initial_company_employee: công ty/chi nhánh nhân viên thực hiện dịch vụ gốc
+  - form_id: id phiếu chuyên khoa/phẫu thuật
+  - partner_id: id khách hàng (đối tác)
+  - category_source_id: id nhóm nguồn khách hàng
+  - source_id: id nguồn khách hàng
+  - is_no_kpi: dịch vụ không tính KPI (BS duyệt miễn phí, CTV nội bộ thực hiện...)
+  - brand_id: id thương hiệu theo hệ thống gốc (khác brand_etl)
+  - company_id: id công ty/chi nhánh nơi thực hiện dịch vụ
+  - company: tên công ty/chi nhánh thực hiện dịch vụ
+  - nhanvienphanquyen_fix: id nhân viên dùng để phân quyền báo cáo
+  - phongbanphanquyen_fix: id phòng ban dùng để phân quyền báo cáo
+  - chinhanhphanquyen_fix: id chi nhánh dùng để phân quyền báo cáo
+  - thuonghieuphanquyen: id thương hiệu dùng để phân quyền báo cáo
+  - id: id ghép của phiếu (dạng pt-/ck- + form_id + brand_etl)
+  - anesthetist_type: mã loại hình gây mê/gây tê
+  - anesthetist_type_name: tên loại hình gây mê/gây tê
+  - kpi_first_time: hệ số điểm cho lần thực hiện đầu tiên (liệu trình)
+  - brand_etl: mã hệ thống dữ liệu của thương hiệu được tích hợp về DWH (1: kangnam, 3: paris) — NOT NULL
+- 

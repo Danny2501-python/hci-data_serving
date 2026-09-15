@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: dwh_public
+    schema: public
+    tables:
+      - name: report_kpi_team_service
+      - name: stock_move
+      - name: stock_valuation_layer
+      - name: sh_surgery_bom_rel
+      - name: sh_medical_product_bundle
+      - name: sh_medical_health_center_service
+      - name: sh_medical_products_line
