@@ -1,5 +1,6 @@
--- Tổng hợp THEO THÁNG số khách hàng đến cửa / thành công theo brand + chi nhánh (Kangnam/Paris — xem
--- int_rtds_khach_hang_den_cua_thanh_cong.sql) — dùng làm mẫu số cho 2 chỉ số "Doanh số KPI / Khách
+-- Tổng hợp THEO THÁNG số khách hàng đến cửa / thành công theo brand + chi nhánh (cả 4 thương hiệu
+-- Kangnam/Paris/Hồng Hà/Tiêu Hóa Việt — xem int_rtds_khach_hang_den_cua_thanh_cong.sql) — dùng làm
+-- mẫu số cho 2 chỉ số "Doanh số KPI / Khách
 -- hàng đến cửa" và "Doanh số KPI / Khách hàng thành công" trên Tableau. Join sang
 -- mart_rtds_doanh_so_thang qua brand + chi_nhanh + nam + thang (cùng cách join bảng target hiện tại —
 -- xem comment trong mart_rtds_doanh_so_thang.sql).
