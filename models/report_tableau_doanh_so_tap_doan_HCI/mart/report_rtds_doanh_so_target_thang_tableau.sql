@@ -14,11 +14,11 @@
 -- (2026-09-15) Thêm so_khach_den_cua/so_khach_thanh_cong (nguồn report_rtds_khach_hang_den_cua_
 -- thanh_cong, xem file đó + LOGIC.md mục 4f) để lên 2 chỉ số "Doanh số KPI / Khách hàng đến cửa" và
 -- "Doanh số KPI / Khách hàng thành công" — cùng cách gộp brand+nam+thang + rule "HCI Group" như
--- tong_so_tien/target ở trên (tính riêng độc lập với 2 field kia).
--- ⚠ Hồng Hà gần như KHÔNG có dữ liệu 2 field này từ T2/2026 trở đi (lỗi pipeline riêng của Hồng Hà,
--- CHƯA xử lý — xem cảnh báo chi tiết trong int_rtds_khach_hang_den_cua_thanh_cong.sql) → do rule "HCI
--- Group chỉ tính khi đủ 4 thương hiệu", dòng "HCI Group" của 2 field mới này sẽ NULL ở hầu hết các
--- tháng từ T2/2026 — ĐÚNG Ý, không phải lỗi, phản ánh đúng tình trạng thiếu dữ liệu Hồng Hà.
+-- tong_so_tien/target ở trên (tính riêng độc lập với 2 field kia). Nguồn `report_rtds_khach_hang_
+-- den_cua_thanh_cong` giờ đã có ĐỦ 4 thương hiệu (Kangnam/Paris từ report_crm_lead_customer_out_
+-- sold + Hồng Hà/THV từ crm_lead/crm_line trực tiếp — xem int_rtds_khach_hang_den_cua_thanh_cong_
+-- hh_thv.sql) — KHÔNG còn tình trạng Hồng Hà thiếu dữ liệu như phát hiện ban đầu (hoá ra chỉ do
+-- report_crm_lead_customer_out_sold cố ý loại brand_etl=4, không phải Hồng Hà thật sự thiếu data).
 
 {{ config(materialized='table') }}
 
