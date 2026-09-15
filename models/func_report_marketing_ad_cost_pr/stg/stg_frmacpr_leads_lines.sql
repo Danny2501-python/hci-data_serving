@@ -32,7 +32,8 @@ WITH paris_leads AS (
         cl.create_by,
         cl.create_by_department,
         cl.brand_etl,
-        cl.state_id
+        cl.state_id,
+        cl.country_id
     FROM {{ source('paris', 'crm_lead') }} cl
     WHERE cl.brand_etl = 3
       AND cl.create_by_department IS NOT NULL
@@ -68,6 +69,8 @@ SELECT
     l.new_source_id,
     l.company_id,
     l.brand_etl,
+    l.state_id,
+    l.country_id,
     ln.product_id,
     ln.total_received,
     ln.stage                    AS line_stage

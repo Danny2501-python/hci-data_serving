@@ -17,6 +17,8 @@ WITH fb_new AS (
         f.region                                                     AS vung,
         f.ad_account_id,
         f.ad_id                                                      AS fb_ad_ad_id,
+        f.ad_campaign_name,
+        f.facebook_page_id,
         -- Identification of product vs brand accounts
         CASE 
             WHEN f.ad_account_id = 'act_1741025749489548' THEN 'Cost_fb_th' 
@@ -86,5 +88,29 @@ SELECT
     type_data_check                                                 AS type_data,
     ad_account_id,
     fb_ad_ad_id,
-    vung
+    vung,
+    -- campaign/actor: thêm 2026-09-10, propagate ra mart_report_marketing_ad_cost_pr
+    -- để phục vụ trang camp_actor. Cùng cơ chế actor (token vị trí 8, guard
+    -- whitelist all_brand_mkt_camp) đã dùng ở func_report_marketing_ad_cost_kn
+    -- (README.md mục 7).
+    COALESCE(ad_campaign_name, 'KXĐ')::text                         AS campaign,
+    CASE
+        WHEN SPLIT_PART(ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+            THEN SPLIT_PART(ad_campaign_name, '_', 8)
+    END::text                                                       AS actor_code,
+    -- nhom_dv_muc_tieu_code: thêm 2026-09-11, cùng cơ chế nhom_dv_muc_tieu đã
+    -- dùng ở func_report_marketing_ad_cost_kn (README.md mục 10) — token vị
+    -- trí 5, cùng guard whitelist với actor_code. Tra ra tên chuẩn qua
+    -- campaign_name_split ở mart, KHÔNG đụng nhom_dv_p2/p3 hiện có (vốn có
+    -- fallback vị trí 2/3 khi guard fail, còn cột này NULL khi guard fail).
+    CASE
+        WHEN SPLIT_PART(ad_campaign_name, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+            THEN SPLIT_PART(ad_campaign_name, '_', 5)
+    END::text                                                       AS nhom_dv_muc_tieu_code,
+    -- page_id_raw/account_id_raw: thêm 2026-09-11, phục vụ cột page/account_fb
+    -- ở mart. page_id_raw tra tên qua dim_page (master_data, build từ
+    -- cs_facebook_insight.facebook_page_id, KHÔNG lọc brand — dùng chung KN).
+    -- account_id_raw tra tên qua dim_account cùng cơ chế.
+    facebook_page_id::text                                          AS page_id_raw,
+    ad_account_id::text                                             AS account_id_raw
 FROM fb_new
