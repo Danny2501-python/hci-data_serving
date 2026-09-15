@@ -274,7 +274,23 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
-    
+    report_thv_revenue:
+      +tags: ["report_thv_revenue"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
+    report_hh_revenue:
+      +tags: ["report_hh_revenue"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
+
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
@@ -294,3 +310,23 @@ seeds:
         table_name: varchar(63)
         column_name: varchar(63)
         description: text
+    rtr_target:
+      # Target/chi tieu doanh thu THV theo thang - doi ke hoach tu sua file
+      # seeds/rtr_target.csv (Excel/CSV) roi chay `dbt seed --select rtr_target`,
+      # khong can sua SQL nua (thay cho VALUES hard-code cu trong
+      # models/report_thv_revenue/int/rtr_target.sql, da xoa).
+      # Doi target: THEM DONG MOI (active=true), dong thoi sua dong active=true
+      # cu (cung ngay_dau_thang+chi_tieu) thanh active=false - KHONG xoa dong
+      # cu, de giu lich su. rtr_target_latest (int) chi lay cac dong
+      # active=true cho bao cao dung. ngay_cap_nhat chi de tham khao/audit khi
+      # xem lai lich su, khong dung de suy ra ban hien hanh nua.
+      # (Luu y: comment trong dbt_project.yml khong duoc go dau tieng Viet -
+      # dbt doc file nay bang encoding he thong (cp1252 tren Windows) o 1 buoc
+      # noi bo, ky tu co dau se gay UnicodeDecodeError. Cac file .sql khac
+      # khong bi anh huong, van go dau binh thuong duoc.)
+      +column_types:
+        ngay_dau_thang: date
+        chi_tieu: varchar(32)
+        target: bigint
+        ngay_cap_nhat: date
+        active: boolean

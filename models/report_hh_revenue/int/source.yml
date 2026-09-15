@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: rhh_base
+    schema: public
+    tables:
+      - name: cs_ticket_api
+      - name: crm_lead
+      - name: dim_page_ad
+      - name: cs_agents_api
+      - name: cs_contact_api
+      - name: view_stag_employees_user
+      - name: stag_crm_booking_arrival_company
+      - name: view_stag_products
+      - name: crm_line
+      - name: crm_line_product
+      - name: stag_payment_transfer
+      - name: utm_source
+      - name: table_team_sale_trans_field
+      - name: m_res_company
+      - name: stag_sources
+      - name: crm_category_source
+      - name: cs_chat_api
+      - name: dim_page
+      - name: crm_stage
+      - name: res_country_state
+      - name: ehc_tb_invoice
+      - name: ehc_tb_invoicerequest
+      - name: ehc_tb_patientrecord
+      - name: ehc_tb_nguoigioithieu
+      - name: ehc_tb_invoicemedicine
+      - name: ehc_tb_medicinebill
+      - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu
+      - name: product_product
+      - name: product_template
+      - name: hr_employee
+      - name: product_category
+      - name: cs_deal_detail_api_v2
+      - name: cs_custom_fields

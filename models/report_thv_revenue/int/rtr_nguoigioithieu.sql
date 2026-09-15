@@ -1,0 +1,91 @@
+-- Master data người giới thiệu (THV): gắn nhóm nguồn báo cáo / nhóm MD-ML cho từng
+-- người giới thiệu thật trong ehc_tb_nguoigioithieu_thv, dựa trên bảng mapping tay
+-- (dm_nguoigioithieu_nhombaocao, 70 dòng). Left join xuất phát từ bảng master nên
+-- giữ đủ toàn bộ người giới thiệu — ai chưa có trong mapping thì 3 cột nhóm ra NULL.
+
+with dm_nguoigioithieu_nhombaocao (
+    nguoigioithieuname, nguon_ehc, nhom_nguon_baocao, nhom_md_ml_baocao
+) as (
+    values
+    ('BS Bùi Việt Lâm-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS Thanh Ung Bướu-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS. Đinh Thị Quỳnh Hương-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS. Hà Thị Lan Hương-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS.Đỗ Xuân Hưng', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('BS.Vũ Thị Huyền Trang(Ung bướu)-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV - Phòng khám Phương Mai', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - Trần Minh Châu', 'CTV - Nội bộ thương hiệu', 'ĐTKD - MGM', 'ML'),
+    ('CTV - TS.BS Trần Việt Hùng-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV- Lê Bá Hưởng-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('DD Vinh NKBM -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Dược sĩ Hà Trang-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Kangnam(SCI)', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Khách hàng cũ quay lại (loyalty)', 'Khách hàng cũ quay lại (loyalty)', 'Loyalty', 'ML'),
+    ('Khách hàng giới thiệu khách hàng', 'Khách hàng giới thiệu khách hàng', 'ĐTKD - MGM', 'ML'),
+    ('MD - Facebook', 'MD - Facebook', 'MD', 'MD'),
+    ('MD - Hotline', 'MD - Hotline', 'MD', 'MD'),
+    ('MD - Phát triển cộng đồng', 'MD - Phát triển cộng đồng', 'MD_Seeding', 'MD'),
+    ('MD - Search', 'MD - Search', 'MD', 'MD'),
+    ('MD - Tiktok', 'MD - Tiktok', 'MD', 'MD'),
+    ('N - Người nhà CBNV', 'N - Người nhà CBNV', 'CBNV', 'CBNV'),
+    ('N - Vãng lai', 'N - Vãng lai', 'VL', 'MD'),
+    ('Phòng khám ABClinic-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Phòng khám An Bình', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Phòng khám An Khánh - 38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Phòng khám Đông Đô -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Ths Nguyễn Ngọc Mai -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('TS.BS Đỗ Anh Giang', 'N - Dr.Giang', 'ĐTKD - MGM', 'ML'),
+    ('Ts.BS.Nguyễn Mạnh Trường', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Phòng khám Đông Đô', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Trần Hùng Viễn A9 BM -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV- Lê Bá Hưởng', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('N - CBNV', 'N - CBNV', 'CBNV', 'CBNV'),
+    ('CTV-NGUYỄN VĂN SƠN', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('BS.Hoàng Thu Thủy-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('Phòng khám ABClinic', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Phòng khám đa khoa trung đức', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Bs Lâm Thần kinh BM -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV - Trang MC', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV- Lê Bá Hưởng 38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS.Ngọc Sanh', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('BS Nguyễn Thị Thảo', 'CTV - Nội bộ thương hiệu', 'ĐTKD - MGM', 'ML'),
+    ('BS Lương Ngọc Duy-38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS.Hoàng Thu Thủy', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Quyên pk Vip12 -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV - BS Xa Thị Vân Anh', 'CTV - Nội bộ thương hiệu', 'ĐTKD - MGM', 'ML'),
+    ('BS.Nguyễn Hoàng Giang', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - Nguyễn Văn Thìn', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('ML-Display/Tiktok/Facebook...', 'ML - Display/Tiktok/Facebook...', 'MD', 'MD'),
+    ('MD - Zalo/Viber', 'MD - Zalo/Viber', 'MD', 'MD'),
+    ('ML- Campaign Loyalty', 'ML- Campaign Loyalty', 'Loyalty', 'ML'),
+    ('BS Đào Thị Bích Lân', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - Lê Thế Năng', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Nguyễn Mạnh Hùng', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - Nguyễn Quốc Khánh', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV-Nguyễn Đình Thuận', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV-Lê Khánh Linh', 'CTV - Nội bộ thương hiệu', 'ĐTKD - MGM', 'ML'),
+    ('DD Diễm A9 BM -38', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('CTV - Hàn Viết Trung(Hàn Viết Hưng)', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV-MD. Vũ Văn Đô', 'CTV - Hợp tác', 'MD', 'MD'),
+    ('CTV - Vũ Ngọc Uẩn', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - CTV Giới thiệu', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('BS.Nguyễn Thị Hoa', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV - Trần Thị Thúy', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Đoàn Phương Thảo', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Lưu Ngọc Linh', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('CTV-Nguyễn Thị Loan(Nguyễn Trọng Khoa)', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('Trần Hùng Viễn A9 BM -38(Nguyễn Thị Trâm Anh)', 'CTV - Hợp tác', 'PK38', 'ML'),
+    ('BS.Nguyễn Thị Lan VIP 12', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML'),
+    ('BS.Hoàng Quốc Việt', 'CTV - Hợp tác', 'ĐTKD - MGM', 'ML')
+)
+
+select
+    ng.nguoigioithieuid,
+    ng.nguoigioithieucode,
+    ng.nguoigioithieuname,
+    m.nguon_ehc,
+    m.nhom_nguon_baocao,
+    m.nhom_md_ml_baocao
+from {{ source('rtr_base', 'ehc_tb_nguoigioithieu_thv') }} ng
+left join dm_nguoigioithieu_nhombaocao m
+       on m.nguoigioithieuname = ng.nguoigioithieuname
