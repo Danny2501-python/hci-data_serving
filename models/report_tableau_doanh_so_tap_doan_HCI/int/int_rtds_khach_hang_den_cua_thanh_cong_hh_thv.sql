@@ -25,6 +25,25 @@
 --     Hóa Việt' ở brand_etl=8) — PHẢI join kèm brand_etl, không chỉ company_id.
 -- Data check trước khi chốt (2026-09-15): customer_come='yes' Hồng Hà 13.488 dòng/THV 15.745 dòng,
 -- amount_paid>0 trong số đó Hồng Hà ~78,6%/THV ~69,4% — hợp lý.
+--
+-- ⚠⚠⚠ LỌC RÁC CLONE (phát hiện + user xác nhận 2026-09-15, sau khi build thử số liệu 2025 cho
+-- dashboard mới thấy Hồng Hà/THV trùng số y hệt nhau ở 2024/2025) — hệ thống `brand_etl=8` (THV)
+-- được **CLONE TỪ `brand_etl=4` (Hồng Hà)**, nên mang theo toàn bộ dữ liệu cũ của BV Hồng Hà, gây
+-- đếm trùng (4.968 crm_id xuất hiện ở cả 2 brand; "khách đến cửa" 2024=7/7, 2025=3.780/3.780 trùng
+-- khít giữa 2 brand). Bằng chứng xác định ngày clone = **2026-01-13**:
+--   - company_id=24 (BV HỒNG HÀ) trong brand_etl=8: 6.794 dòng, arrival_date 2023-02-18 → 2026-01-08
+--     (dừng NGAY TRƯỚC ngày clone) → rác clone.
+--   - company_id NULL trong brand_etl=8: 3.044 dòng, arrival_date TOÀN BỘ = 2026-01-13 (đúng 1 ngày,
+--     chính là ngày clone), 3.036/3.044 có bản sao ở brand_etl=4 → rác clone.
+--   - company_id=32 (BV HỒNG HÀ HCM): 83 dòng, → 2025-07-12 → rác clone.
+--   - company_id=57 (PHÒNG KHÁM TIÊU HÓA VIỆT): 5.824 dòng, arrival_date 2026-01-15 → hiện tại (bắt
+--     đầu NGAY SAU ngày clone) → DỮ LIỆU THV THẬT, giữ lại.
+-- ⇒ Quy tắc: `brand_etl=4` lấy TOÀN BỘ (Hồng Hà); `brand_etl=8` CHỈ lấy `company_id = 57`. Cố ý
+-- hard-code 57 (không đưa thành var) — đây là master-data ổn định định nghĩa "THV là gì", để ngay
+-- cạnh phần giải thích cho dễ đọc/audit. Lưu ý 57 ở brand_etl=4 là 'TRUNG TÂM NỘI SOI DR GIANG'
+-- (thuộc Hồng Hà) — KHÔNG ảnh hưởng vì nhánh brand_etl=4 lấy hết, không lọc theo company_id.
+-- Hệ quả: giải thích luôn bất thường "THV T1/2026 tỷ lệ thành công chỉ ~10,5%" ghi nhận trước đó —
+-- do lẫn 3.044 dòng rác clone (amount_paid=0) vào T1/2026; lọc xong tự hết.
 
 {{ config(materialized='table') }}
 
@@ -42,6 +61,7 @@ with base as (
     where cl.brand_etl in (4, 8)
       and cl.type = 'opportunity'
       and cl.active
+      and (cl.brand_etl = 4 or cl.company_id = 57)
 ),
 
 products as (
