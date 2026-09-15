@@ -2,8 +2,8 @@
 -- Kangnam/Paris/Hồng Hà/Tiêu Hóa Việt — xem int_rtds_khach_hang_den_cua_thanh_cong.sql) — dùng làm
 -- mẫu số cho 2 chỉ số "Doanh số KPI / Khách
 -- hàng đến cửa" và "Doanh số KPI / Khách hàng thành công" trên Tableau. Join sang
--- mart_rtds_doanh_so_thang qua brand + chi_nhanh + nam + thang (cùng cách join bảng target hiện tại —
--- xem comment trong mart_rtds_doanh_so_thang.sql).
+-- report_rtds_doanh_so_thang qua brand + chi_nhanh + nam + thang (cùng cách join bảng target hiện tại —
+-- xem comment trong report_rtds_doanh_so_thang.sql).
 -- Grain nguồn (int_rtds_khach_hang_den_cua_thanh_cong) đã lọc sẵn = "đã đến cửa" (theo định nghĩa
 -- user chốt 2026-09-15), nên count(*) ở đây chính là so_khach_den_cua, không cần filter lại.
 

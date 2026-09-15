@@ -1,6 +1,6 @@
 -- Bảng tổng hợp THEO THÁNG cho tab "Doanh số" — dùng làm nguồn kéo lên Tableau cho nhẹ (group by
--- trước, không phải transaction-level như mart_rtds_doanh_so — 374K dòng). Cần xem chi tiết từng
--- giao dịch/khách hàng thì quay lại mart_rtds_doanh_so.
+-- trước, không phải transaction-level như report_rtds_doanh_so — 374K dòng). Cần xem chi tiết từng
+-- giao dịch/khách hàng thì quay lại report_rtds_doanh_so.
 --
 -- Grain: 1 dòng = 1 brand + năm + tháng + nguồn hệ thống (CRM/EHC) + chi nhánh + nhóm dịch vụ +
 -- nguồn + nhóm nguồn khách. Vẫn khớp brand+nam+thang để join bảng kế hoạch (target) ở Tableau
@@ -25,5 +25,5 @@ select
     count(*) as so_giao_dich,
     count(distinct ma_khach_hang) as so_khach_hang,
     count(distinct ma_booking) as so_booking
-from {{ ref('mart_rtds_doanh_so') }}
+from {{ ref('report_rtds_doanh_so') }}
 group by 1, 2, 3, 4, 5, 6, 7, 8

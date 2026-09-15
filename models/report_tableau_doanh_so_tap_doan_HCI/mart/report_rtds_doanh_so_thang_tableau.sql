@@ -1,6 +1,6 @@
 -- Bảng doanh số theo tháng "cho Tableau" — bản đã xử lý lỗ hổng dữ liệu 2025 (quyết định của
 -- người dùng, 2026-08-31, xem data_demo/history.md mục 0ggg và trao đổi cùng ngày):
---   - Năm >= 2026: lấy THẲNG từ mart_rtds_doanh_so_thang (nguồn CRM/EHC qua dbt, cập nhật liên
+--   - Năm >= 2026: lấy THẲNG từ report_rtds_doanh_so_thang (nguồn CRM/EHC qua dbt, cập nhật liên
 --     tục — đã kiểm tra 2026 đủ dữ liệu T1-T8 cho cả 4 thương hiệu, không có lỗ hổng).
 --   - Năm = 2025: lấy từ seed_doanh_so_2025_mockup (số đã xác nhận thủ công, đang dùng trong
 --     data_demo/dashboard.html) — VÌ nguồn CRM/EHC cho 2025 còn thiếu mạnh (kiểm tra 2026-08-31:
@@ -30,7 +30,7 @@ select
     so_khach_hang,
     so_booking,
     'DB_LIVE' as nguon_du_lieu
-from {{ ref('mart_rtds_doanh_so_thang') }}
+from {{ ref('report_rtds_doanh_so_thang') }}
 where nam >= 2026
 
 union all
