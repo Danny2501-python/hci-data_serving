@@ -325,8 +325,22 @@ seeds:
       # noi bo, ky tu co dau se gay UnicodeDecodeError. Cac file .sql khac
       # khong bi anh huong, van go dau binh thuong duoc.)
       +column_types:
+<<<<<<< Updated upstream
         ngay_dau_thang: date
         chi_tieu: varchar(32)
         target: bigint
         ngay_cap_nhat: date
         active: boolean
+=======
+        tong_so_tien: bigint
+    seed_target_thv_2026_mockup:
+      +column_types:
+        target: bigint
+    # 2026-09-16: seed "số chốt" thủ công cho Hồng Hà/Tiêu Hóa Việt — ghi đè tạm số doanh số ra báo
+    # cáo cho CÁC THÁNG ĐÃ QUA (không áp dụng tháng hiện tại), trong khi luồng dbt tự động
+    # (int_rtds_hongha.sql/int_rtds_thv.sql) vẫn chạy song song để tiện điều chỉnh/đối soát sau —
+    # xem report_rtds_doanh_so_thang_tableau.sql.
+    seed_doanh_so_chot_hongha_thv:
+      +column_types:
+        tong_so_tien: bigint
+>>>>>>> Stashed changes

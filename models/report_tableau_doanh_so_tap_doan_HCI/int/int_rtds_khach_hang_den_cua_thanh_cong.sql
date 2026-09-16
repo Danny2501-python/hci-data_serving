@@ -3,31 +3,37 @@
 -- deposit — KHÁC với ô "(MD)" hiển thị trên dashboard, 2 khái niệm khác nhau, user đã xác nhận so
 -- sánh đúng là với cặp không-MD) — xem LOGIC.md mục 4f, lịch sử trao đổi 2026-09-15.
 -- Nguồn report_crm_lead_customer_out_sold — bảng ngoài dbt, job Python/Airflow tạo (xem
--- quentk_3_report_crm_lead_customer_out_sold_New_sys.py). ⚠ CHỈ ÁP DỤNG CHO KANGNAM/PARIS (brand_etl
--- 1/3). Hồng Hà/Tiêu Hóa Việt DÙNG LOGIC KHÁC (chưa xây, xem cảnh báo dữ liệu bên dưới) — KHÔNG dùng
--- bảng này cho 2 brand đó.
+-- quentk_3_report_crm_lead_customer_out_sold_New_sys.py). ⚠ CHỈ ÁP DỤNG CHO KANGNAM/PARIS (brand
+-- 1/3). Hồng Hà/Tiêu Hóa Việt dùng bảng gốc khác — xem int_rtds_khach_hang_den_cua_thanh_cong_hh_
+-- thv.sql (Custom SQL gốc của workbook Kangnam vốn chỉ dựng cho Kangnam/Paris nên chỉ giữ 2 brand
+-- này ở đây; nếu sau này cần Hồng Hà từ chính bảng này, sẽ làm thêm giống mẫu bên dưới).
 --
--- (2026-09-15) brand_etl của bảng gốc đã được backfill/đồng bộ lại ĐÚNG cho Kangnam/Paris — đã đối
--- chiếu new_product khớp 100% với sandbox (cùng tổng dòng, cùng phân bố brand_etl, cùng số liệu theo
--- tháng). Dùng THẲNG brand_etl, KHÔNG cần suy ra từ report_brand (text) như bản đầu tiên nữa.
---
--- ⚠⚠⚠ (2026-09-15) LÝ DO KHÔNG DÙNG BẢNG NÀY CHO HỒNG HÀ/THV — đã thử mở rộng sang brand_etl=8
--- nhưng phát hiện brand_etl của bảng NÀY đã bị lỗi ETL/backfill làm mất giá trị `4` gốc (đúng ra
--- Hồng Hà = 4 theo `crm_lead.brand_etl`/hệ EHC, xem int_rtds_hongha.sql) — mọi dòng Hồng Hà trong
--- bảng report này đều bị gán nhầm thành `brand_etl=8` (trùng mã với THV) hoặc `0`. Kiểm tra
--- report_date theo brand_etl cho thấy: brand_etl=0 chiếm đa số 2021-2024, brand_etl=8 (sai) chỉ bắt
--- đầu xuất hiện nhiều từ 2025 — đúng thời điểm job backfill/sync chạy → xác nhận lỗi nằm ở chính lần
--- backfill đó, KHÔNG PHẢI bản chất dữ liệu. Ngay cả `brand_id`/`report_brand_id` (cột khác) cũng
--- KHÔNG tách được Hồng Hà/THV (cả 2 đều = 4, coi Hồng Hà+THV là 1 "brand group"). User đã quyết định
--- (2026-09-15): CHỈ dùng bảng này cho Kangnam/Paris; Hồng Hà/THV xây theo logic/nguồn khác (đang chờ
--- xác định — có thể cần bảng khác thuộc hệ EHC, KHÔNG PHẢI report_crm_lead_customer_out_sold).
+-- ⚠⚠ (2026-09-15) PHÁT HIỆN — bảng này CŨNG có lỗ hổng dữ liệu giống crm_lead: brand_etl chỉ đáng
+-- tin cho dữ liệu TỪ ~T8/2025 trở đi (đã backfill/đồng bộ đúng, khớp 100% với sandbox). Dữ liệu
+-- TRƯỚC đó vẫn nằm ở `brand_etl=0` (2.692.618 dòng, `report_date` giảm mạnh đúng từ T8/2025 —
+-- KHÔNG PHẢI lỗi backfill, mà do chính hệ thống nguồn chưa gắn brand cho giai đoạn đó). Bảng này có
+-- sẵn cột `brand_id` (KHÁC `brand_etl`) đối chiếu khớp gần tuyệt đối với `brand_etl` đã đúng
+-- (brand_etl=1↔brand_id=1: 249.813/249.816; brand_etl=3↔brand_id=3: khớp 100%) — dùng `brand_id` để
+-- nhận diện đúng brand cho phần dữ liệu cũ (`brand_etl=0`) này. User chốt quy tắc (2026-09-15):
+-- **TRƯỚC ~T8/2025 dùng `brand_id`, TỪ ~T8/2025 dùng `brand_etl`** — thực hiện bằng điều kiện
+-- `(brand_etl = 0 AND brand_id IN (1,3)) OR brand_etl IN (1,3)` (tự nhiên bám theo trạng thái gắn
+-- brand thật của dữ liệu, không hard-code 1 mốc ngày cụ thể — nếu có vài dòng lẻ tẻ SAU T8/2025 vẫn
+-- chưa kịp gắn brand_etl thì vẫn được `brand_id` "vớt" đúng, không bỏ sót).
+-- ⚠ DEDUPE: đổi từ `DISTINCT ON (crm_id, brand_etl)` sang `DISTINCT ON (crm_id, brand_etl, brand_id)`
+-- — BẮT BUỘC, vì mọi dòng "cũ" (brand_etl=0) của CẢ Kangnam LẪN Paris đều dùng chung giá trị
+-- `brand_etl=0`, nếu chỉ dedupe theo `(crm_id, brand_etl)` sẽ TRỘN LẪN 2 booking khác brand nhưng
+-- trùng số `crm_id` (do id có thể trùng chéo giữa các brand, đã xác minh nhiều lần trong dự án này)
+-- thành 1 dòng — mất dữ liệu/sai brand. Thêm `brand_id` vào khoá dedupe tách đúng 2 nhánh
+-- (crm_id,0,1)=Kangnam cũ, (crm_id,0,3)=Paris cũ, (crm_id,1,1)=Kangnam mới, (crm_id,3,3)=Paris mới.
+-- `brand` output lấy từ `brand_id` (đáng tin ở CẢ 2 giai đoạn), không dùng `brand_etl` nữa (=0 ở giai
+-- đoạn cũ, không map được sang tên brand).
+-- Thử tính lại Kangnam T1-T7/2025 bằng brand_id: 2.221/2.904/3.113/3.021/3.040/3.646/4.197 khách đến
+-- cửa/tháng — cao hơn hẳn và hợp lý hơn nhiều so với số cũ (143-1.003) — xem lịch sử trao đổi
+-- 2026-09-15.
 --
 -- Định nghĩa (đúng theo Custom SQL + calculated field gốc trong workbook Kangnam — đã bỏ hoàn toàn
 -- logic CBNV/Đối ngoại/TPM/bảo hành/no_kpi/amount_paid tự đặt ra ban đầu, xem lịch sử trao đổi
 -- 2026-09-15):
---   Dedupe: 1 dòng/(crm_id, brand_etl), lấy dòng có total_received cao nhất (hoà thì lấy clineid lớn
---     nhất) — giống hệt `DISTINCT ON (crm_id, brand_etl) ORDER BY ... COALESCE(total_received,0) DESC,
---     clineid` trong Custom SQL gốc của workbook.
 --   "Đến cửa" = customer_come = 'yes' OR (customer_come IS NULL AND arrival_date IS NOT NULL).
 --   "Thành công" = "Đến cửa" + type_customer_arrived IN ('deposit','outsold_return','success',
 --     'success_return') — ĐÚNG tập "Set_success" của workbook (CÓ tính cả 'deposit').
@@ -39,9 +45,10 @@
 {{ config(materialized='table') }}
 
 with dedup as (
-    select distinct on (crm_id, brand_etl)
+    select distinct on (crm_id, brand_etl, brand_id)
         crm_id,
         brand_etl,
+        brand_id,
         report_company as chi_nhanh,
         report_date,
         arrival_date,
@@ -50,12 +57,13 @@ with dedup as (
         total_received,
         clineid
     from {{ ref('stg_rtds_report_crm_lead_customer_out_sold') }}
-    where brand_etl in (1, 3)
-    order by crm_id, brand_etl, coalesce(total_received, 0) desc, clineid
+    where (brand_etl = 0 and brand_id in (1, 3))
+       or brand_etl in (1, 3)
+    order by crm_id, brand_etl, brand_id, coalesce(total_received, 0) desc, clineid
 )
 select
     crm_id,
-    case brand_etl when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
+    case brand_id when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
     chi_nhanh,
     extract(year from report_date)::int as nam,
     extract(month from report_date)::int as thang,

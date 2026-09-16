@@ -44,6 +44,25 @@
 -- (thuộc Hồng Hà) — KHÔNG ảnh hưởng vì nhánh brand_etl=4 lấy hết, không lọc theo company_id.
 -- Hệ quả: giải thích luôn bất thường "THV T1/2026 tỷ lệ thành công chỉ ~10,5%" ghi nhận trước đó —
 -- do lẫn 3.044 dòng rác clone (amount_paid=0) vào T1/2026; lọc xong tự hết.
+-- ⚠ (2026-09-15) User có đề cập rút gọn quy tắc THV thành "brand_etl=8, bỏ company_id=24" — GIỮ
+-- NGUYÊN bộ lọc đầy đủ hơn (company_id=57, loại luôn cả NULL/32) vì đã có bằng chứng cụ thể xác nhận
+-- NULL/32 cũng là rác clone (không chỉ 24) — nếu muốn nới lỏng lại, cần xác nhận thêm.
+--
+-- ⚠⚠⚠ BACKFILL DỮ LIỆU CŨ CHO HỒNG HÀ (2026-09-15, sau khi đồng bộ crm_lead_etl0 sang new_product)
+-- — cùng lỗ hổng "chưa gắn brand trước ~T8/2025" phát hiện ở `report_crm_lead_customer_out_sold`
+-- (xem int_rtds_khach_hang_den_cua_thanh_cong.sql) CŨNG áp dụng cho `crm_lead` — Hồng Hà (brand_etl=4)
+-- gần như không có dữ liệu trước T8/2025 (chỉ 2-5 dòng/tháng T3-T7/2025). Dữ liệu thật của giai đoạn
+-- này nằm trong `crm_lead_etl0` (100% brand_etl=0, arrival_date đến đúng 2025-07-31), dùng cột
+-- `brand_id=4` để nhận diện Hồng Hà (đã đối chiếu khớp TUYỆT ĐỐI brand_etl=4↔brand_id=4 ở crm_lead
+-- hiện có: 28.459/28.459). Giai đoạn 2019-2025-07 không có "clone THV" nên brand_id=4 ở
+-- `crm_lead_etl0` CHỈ là Hồng Hà thật, không cần lọc company_id như nhánh brand_etl=8 ở trên.
+-- ⚠ KHÔNG có bảng `crm_line_etl0` tương ứng — KHÔNG kiểm tra được điều kiện is_no_kpi cho phần dữ
+-- liệu cũ này (mặc định KHÔNG loại trừ — an toàn hơn loại nhầm khách thật do thiếu dữ liệu).
+-- ⚠ Loại trừ trùng lặp: 1 số ít dòng brand_etl=4 hiện có (T3-T7/2025, ~10 dòng) rất có thể là bản đã
+-- được gắn brand SỚM của chính những `id` cũng có trong `crm_lead_etl0` — dùng `NOT EXISTS` để loại
+-- khỏi nhánh cũ bất kỳ `id` nào đã có mặt trong `crm_lead.brand_etl=4`, tránh đếm 2 lần.
+-- Thử tính lại Hồng Hà T1-T7/2025 bằng brand_id=4: 507/880/1.281/1.690/1.178/279/361 khách đến cửa/
+-- tháng — cao hơn hẳn, hợp lý hơn nhiều so với số cũ (gần như 0) — xem lịch sử trao đổi 2026-09-15.
 
 {{ config(materialized='table') }}
 
@@ -93,22 +112,78 @@ source_flag as (
         ) as nguon_bi_loai
     from base b
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
+),
+
+current_hh_thv as (
+    select
+        b.crm_id,
+        case b.brand_etl when 4 then 'Hồng Hà' when 8 then 'Tiêu Hóa Việt' end as brand,
+        mrc.name as chi_nhanh,
+        extract(year from b.arrival_date)::int as nam,
+        extract(month from b.arrival_date)::int as thang,
+        (b.amount_paid > 0) as da_thanh_cong
+    from base b
+    left join {{ ref('stg_rtds_m_res_company') }} mrc
+        on mrc.id = b.company_id and mrc.brand_etl = b.brand_etl
+    left join no_kpi_agg nk on nk.crm_id = b.crm_id and nk.brand_etl = b.brand_etl
+    left join source_flag sf on sf.crm_id = b.crm_id and sf.brand_etl = b.brand_etl
+    where b.customer_come = 'yes'
+      and b.arrival_date is not null
+      and b.type_crm_id <> 3
+      and not coalesce(sf.nguon_bi_loai, false)
+      and not coalesce(nk.toan_bo_no_kpi, false)
+),
+
+old_hongha_base as (
+    select
+        cle.id as crm_id,
+        cle.company_id,
+        cle.customer_come,
+        cle.arrival_date,
+        cle.type_crm_id,
+        cle.amount_paid,
+        cle.source_id
+    from {{ ref('stg_rtds_crm_lead_etl0') }} cle
+    where cle.brand_id = 4
+      and cle.type = 'opportunity'
+      and cle.active
+      and not exists (
+          select 1 from {{ ref('stg_rtds_crm_lead') }} cl2
+          where cl2.id = cle.id and cl2.brand_etl = 4
+      )
+),
+
+old_hongha_source_flag as (
+    select
+        b.crm_id,
+        (
+            coalesce(ss.source ilike '%cbnv%', false)
+            or coalesce(ss.source ilike '%đối ngoại%', false)
+            or coalesce(ss.source ilike '%thuê phòng mổ%', false)
+            or coalesce(ss.source ilike '%tpm%', false)
+        ) as nguon_bi_loai
+    from old_hongha_base b
+    left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
+),
+
+old_hongha as (
+    select
+        b.crm_id,
+        'Hồng Hà' as brand,
+        mrc.name as chi_nhanh,
+        extract(year from b.arrival_date)::int as nam,
+        extract(month from b.arrival_date)::int as thang,
+        (b.amount_paid > 0) as da_thanh_cong
+    from old_hongha_base b
+    left join {{ ref('stg_rtds_m_res_company') }} mrc
+        on mrc.id = b.company_id and mrc.brand_etl = 4
+    left join old_hongha_source_flag sf on sf.crm_id = b.crm_id
+    where b.customer_come = 'yes'
+      and b.arrival_date is not null
+      and b.type_crm_id <> 3
+      and not coalesce(sf.nguon_bi_loai, false)
 )
 
-select
-    b.crm_id,
-    case b.brand_etl when 4 then 'Hồng Hà' when 8 then 'Tiêu Hóa Việt' end as brand,
-    mrc.name as chi_nhanh,
-    extract(year from b.arrival_date)::int as nam,
-    extract(month from b.arrival_date)::int as thang,
-    (b.amount_paid > 0) as da_thanh_cong
-from base b
-left join {{ ref('stg_rtds_m_res_company') }} mrc
-    on mrc.id = b.company_id and mrc.brand_etl = b.brand_etl
-left join no_kpi_agg nk on nk.crm_id = b.crm_id and nk.brand_etl = b.brand_etl
-left join source_flag sf on sf.crm_id = b.crm_id and sf.brand_etl = b.brand_etl
-where b.customer_come = 'yes'
-  and b.arrival_date is not null
-  and b.type_crm_id <> 3
-  and not coalesce(sf.nguon_bi_loai, false)
-  and not coalesce(nk.toan_bo_no_kpi, false)
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong from current_hh_thv
+union all
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong from old_hongha

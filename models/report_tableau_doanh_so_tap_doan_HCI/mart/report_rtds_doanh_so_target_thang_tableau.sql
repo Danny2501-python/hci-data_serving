@@ -13,12 +13,19 @@
 --
 -- (2026-09-15) Thêm so_khach_den_cua/so_khach_thanh_cong (nguồn report_rtds_khach_hang_den_cua_
 -- thanh_cong, xem file đó + LOGIC.md mục 4f) để lên 2 chỉ số "Doanh số KPI / Khách hàng đến cửa" và
--- "Doanh số KPI / Khách hàng thành công" — cùng cách gộp brand+nam+thang + rule "HCI Group" như
--- tong_so_tien/target ở trên (tính riêng độc lập với 2 field kia). Nguồn `report_rtds_khach_hang_
--- den_cua_thanh_cong` giờ đã có ĐỦ 4 thương hiệu (Kangnam/Paris từ report_crm_lead_customer_out_
--- sold + Hồng Hà/THV từ crm_lead/crm_line trực tiếp — xem int_rtds_khach_hang_den_cua_thanh_cong_
--- hh_thv.sql) — KHÔNG còn tình trạng Hồng Hà thiếu dữ liệu như phát hiện ban đầu (hoá ra chỉ do
--- report_crm_lead_customer_out_sold cố ý loại brand_etl=4, không phải Hồng Hà thật sự thiếu data).
+-- "Doanh số KPI / Khách hàng thành công". Nguồn `report_rtds_khach_hang_den_cua_thanh_cong` giờ đã có
+-- ĐỦ 4 thương hiệu (Kangnam/Paris từ report_crm_lead_customer_out_sold + Hồng Hà/THV từ crm_lead/
+-- crm_line trực tiếp — xem int_rtds_khach_hang_den_cua_thanh_cong_hh_thv.sql) — KHÔNG còn tình trạng
+-- Hồng Hà thiếu dữ liệu như phát hiện ban đầu (hoá ra chỉ do report_crm_lead_customer_out_sold cố ý
+-- loại brand_etl=4, không phải Hồng Hà thật sự thiếu data).
+--
+-- ⚠ (2026-09-15) Rule "HCI Group" cho 2 field khách hàng KHÁC với tong_so_tien/target — user chốt:
+-- Tiêu Hóa Việt mới hoạt động từ 2026-01-15 (không có dữ liệu 2024/2025), nếu áp cùng rule "đủ cả 4
+-- thương hiệu" như tong_so_tien/target thì dòng "HCI Group" của 2 field khách hàng sẽ NULL toàn bộ
+-- các năm cũ, không so sánh YoY cấp tập đoàn được. User quyết định: "HCI Group" của
+-- so_khach_den_cua/so_khach_thanh_cong CHỈ tính tổng Kangnam+Paris+Hồng Hà (đủ CẢ 3 thương hiệu này,
+-- KHÔNG cần/KHÔNG cộng Tiêu Hóa Việt) — xem CTE `hci_group_customer` bên dưới, tách riêng khỏi
+-- `hci_group_revenue` (vẫn giữ nguyên rule cũ, đủ cả 4, cho tong_so_tien/target).
 
 {{ config(materialized='table') }}
 
@@ -62,16 +69,37 @@ combined as (
         on c.brand = coalesce(r.brand, t.brand) and c.nam = coalesce(r.nam, t.nam) and c.thang = coalesce(r.thang, t.thang)
 ),
 
-hci_group as (
+hci_group_revenue as (
     select
         nam,
         thang,
         case when count(tong_so_tien) = 4 then sum(tong_so_tien) end as tong_so_tien,
-        case when count(target) = 4 then sum(target) end as target,
-        case when count(so_khach_den_cua) = 4 then sum(so_khach_den_cua) end as so_khach_den_cua,
-        case when count(so_khach_thanh_cong) = 4 then sum(so_khach_thanh_cong) end as so_khach_thanh_cong
+        case when count(target) = 4 then sum(target) end as target
     from combined
     group by nam, thang
+),
+
+hci_group_customer as (
+    select
+        nam,
+        thang,
+        case when count(so_khach_den_cua) = 3 then sum(so_khach_den_cua) end as so_khach_den_cua,
+        case when count(so_khach_thanh_cong) = 3 then sum(so_khach_thanh_cong) end as so_khach_thanh_cong
+    from combined
+    where brand in ('Kangnam', 'Paris', 'Hồng Hà')
+    group by nam, thang
+),
+
+hci_group as (
+    select
+        coalesce(r.nam, c.nam) as nam,
+        coalesce(r.thang, c.thang) as thang,
+        r.tong_so_tien,
+        r.target,
+        c.so_khach_den_cua,
+        c.so_khach_thanh_cong
+    from hci_group_revenue r
+    full outer join hci_group_customer c on r.nam = c.nam and r.thang = c.thang
 )
 
 select brand, nam, thang, tong_so_tien, target, so_khach_den_cua, so_khach_thanh_cong from combined
