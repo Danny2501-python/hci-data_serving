@@ -53,7 +53,7 @@ mrc3 AS (
     SELECT * FROM {{ source('crm_base', 'm_res_company') }} WHERE brand_etl = 3
 ),
 se AS (
-    SELECT * FROM {{ source('crm_base', 'view_stag_employees_user') }} WHERE brand_etl = 3
+    SELECT * FROM {{ ref('view_stag_employees_user') }} WHERE brand_etl = 3
 ),
 ecs AS (
     SELECT * FROM {{ source('crm_base', 'crm_stage') }} WHERE brand_etl = 3
@@ -67,7 +67,7 @@ ss AS (
 spt AS (
     -- 1 clineid có thể có nhiều dòng payment; view gốc join thẳng không dedupe
     -- (giữ nguyên hành vi gốc — không GROUP BY ở đây để khớp 100% view).
-    SELECT * FROM {{ source('crm_base', 'stag_payment_transfer') }}
+    SELECT * FROM {{ ref('stag_payment_transfer') }}
     WHERE brand_id = 3 AND payment_date >= '2025-08-01'
 ),
 cline AS (
@@ -155,7 +155,7 @@ a AS (
     FROM ecl
     LEFT JOIN mrc3 ON mrc3.id = ecl.company_id
     LEFT JOIN cline ecl2 ON ecl2.crm_id = ecl.id
-    LEFT JOIN {{ source('crm_base', 'view_stag_products') }} sp
+    LEFT JOIN {{ ref('view_stag_products') }} sp
         ON sp.product_id = ecl2.product_id AND ecl2.brand_etl = sp.brand_etl
     LEFT JOIN spt ON spt.clineid = ecl2.id AND spt.crm_id = ecl.id AND spt.product_id = sp.product_id
     LEFT JOIN mrc3 mrc_spt ON mrc_spt.id = spt.company_id
@@ -240,7 +240,7 @@ b AS (
     FROM ecl
     LEFT JOIN mrc3 ON mrc3.id = ecl.company_id
     LEFT JOIN cline_product ecl2 ON ecl2.booking_id = ecl.id
-    LEFT JOIN {{ source('crm_base', 'view_stag_products') }} sp
+    LEFT JOIN {{ ref('view_stag_products') }} sp
         ON sp.product_id = ecl2.product_id AND ecl2.brand_etl = sp.brand_etl
     LEFT JOIN spt ON spt.clineid = ecl2.id AND spt.crm_id = ecl.id AND spt.product_id = sp.product_id
     LEFT JOIN mrc3 mrc_spt ON mrc_spt.id = spt.company_id
