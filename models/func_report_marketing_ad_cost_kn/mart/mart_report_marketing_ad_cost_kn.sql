@@ -45,6 +45,7 @@ SELECT
     COALESCE(f.actor_code,'KXĐ')::text                       AS actor,
     cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
     null::text                                                AS nhom_dv_KH_quan_tam,
+    null::text                                                AS nhom_dv_KH_quan_tam_goc,
     null::text                                                AS nhom_dv_chinh_booking,
     -- Không có liên kết CRM, nhưng Stream 1 chỉ là chi phí quảng cáo Facebook
     -- (int_frmack_fb_cost) -> mặc định cứng theo catalog utm_source thật của
@@ -102,6 +103,7 @@ SELECT
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
     cns_mt.nhom_dv                                           AS nhom_dv_muc_tieu,
     COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam,
+    COALESCE(m.nhom_dv_KH_quan_tam_goc,'KXĐ')::text            AS nhom_dv_KH_quan_tam_goc,
     m.nhom_dv_chinh_booking                                  AS nhom_dv_chinh_booking,
     m.nguon_moi_v2                                           AS nguon_moi_v2,
     m.nhom_nguon_moi_v2                                      AS nhom_nguon_moi_v2
@@ -140,6 +142,7 @@ SELECT
     COALESCE(m.actor_code,'KXĐ')::text                       AS actor,
     COALESCE(cns_mt.nhom_dv,'KXĐ')::text                      AS nhom_dv_muc_tieu,
     COALESCE(m.nhom_dv_KH_quan_tam,'KXĐ')::text                AS nhom_dv_KH_quan_tam,
+    COALESCE(m.nhom_dv_KH_quan_tam_goc,'KXĐ')::text            AS nhom_dv_KH_quan_tam_goc,
     COALESCE(m.nhom_dv_chinh_booking,'KXĐ')::text             AS nhom_dv_chinh_booking,
     COALESCE(m.nguon_moi_v2,'KXĐ')::text                      AS nguon_moi_v2,
     COALESCE(m.nhom_nguon_moi_v2,'KXĐ')::text                 AS nhom_nguon_moi_v2

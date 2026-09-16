@@ -44,6 +44,7 @@ WITH a AS (
         rc.name                                        AS quoc_gia,
         cl3.ticket_id,
         dkq.first_product_group                        AS nhom_dv_KH_quan_tam,
+        dkq.first_product_category                     AS nhom_dv_KH_quan_tam_goc,
         CASE
             WHEN sbn.nhom_dich_vu_chinh IS NULL THEN NULL
             WHEN sbn.nhom_dich_vu_chinh = 'BEAUTY & SPA' THEN '8.BEAUTY & SPA'
@@ -125,6 +126,7 @@ SELECT
     'DS'::text                AS type_data,
     a.ticket_id,SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id,
     a.nhom_dv_KH_quan_tam,
+    a.nhom_dv_KH_quan_tam_goc,
     a.nhom_dv_chinh_booking,
     a.nguon_moi_v2,
     a.nhom_nguon_moi_v2
