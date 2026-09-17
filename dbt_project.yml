@@ -33,6 +33,13 @@ models:
   data_serving:
     common:
       +materialized: ephemeral
+      # stg_common_tongquan_khachhang_sm_pr override materialized='view' trong
+      # file .sql (khong phai ephemeral nhu default cua common) nen can tag
+      # rieng de DAG 'tag:report_pr_daily_chinhanh' build no truoc khi
+      # report_pr_daily_chinhanh chay - truoc day khong co tag nen khong DAG
+      # nao tung build ra view nay, gay loi "relation does not exist".
+      stg_common_tongquan_khachhang_sm_pr:
+        +tags: ["report_pr_daily_chinhanh"]
     func_report_marketing_ad_cost_kn:
       +tags: ["report_kn"]
       stg:
