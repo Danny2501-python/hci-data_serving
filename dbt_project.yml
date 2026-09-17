@@ -33,6 +33,13 @@ models:
   data_serving:
     common:
       +materialized: ephemeral
+      # stg_common_tongquan_khachhang_sm_pr override materialized='view' trong
+      # file .sql (khong phai ephemeral nhu default cua common) nen can tag
+      # rieng de DAG 'tag:report_pr_daily_chinhanh' build no truoc khi
+      # report_pr_daily_chinhanh chay - truoc day khong co tag nen khong DAG
+      # nao tung build ra view nay, gay loi "relation does not exist".
+      stg_common_tongquan_khachhang_sm_pr:
+        +tags: ["report_pr_daily_chinhanh"]
     func_report_marketing_ad_cost_kn:
       +tags: ["report_kn"]
       stg:
@@ -284,30 +291,24 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
-    
-    import_banggia_sci:
-      +tags: ["import_banggia_sci"]
-      stg:
-        +materialized: ephemeral
-      # int is table here for the same reason as import_dichvu_sci: 'a', 'g' and
-      # 'ir_model_data_data' are each ref'd from multiple downstream steps (see LOGIC.md
-      # mapping table) - ephemeral would recompute the parent CTE on every ref.
+    report_thv_revenue:
+      +tags: ["report_thv_revenue"]
       int:
-        +materialized: table
+        +materialized: ephemeral
       mart:
         +materialized: table
+      stag:
+        +materialized: ephemeral
+    report_hh_revenue:
+      +tags: ["report_hh_revenue"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
 
-    import_nhomdichvu_sci:
-      +tags: ["import_nhomdichvu_sci"]
-      stg:
-        +materialized: ephemeral
-      # int is table here for the same reason as import_dichvu_sci/import_banggia_sci:
-      # 'output_data' được cả note_data và type_data_nhomdichvu (2 lần: trực tiếp 'nd'
-      # + subquery 'f') cùng ref - ephemeral sẽ tính lại toàn bộ CTE cha mỗi lần ref.
-      int:
-        +materialized: table
-      mart:
-        +materialized: table
+
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as
 # these seed CSVs instead of a separate admin UI. +column_types forces
@@ -326,3 +327,23 @@ seeds:
         table_name: varchar(63)
         column_name: varchar(63)
         description: text
+    rtr_target:
+      # Target/chi tieu doanh thu THV theo thang - doi ke hoach tu sua file
+      # seeds/rtr_target.csv (Excel/CSV) roi chay `dbt seed --select rtr_target`,
+      # khong can sua SQL nua (thay cho VALUES hard-code cu trong
+      # models/report_thv_revenue/int/rtr_target.sql, da xoa).
+      # Doi target: THEM DONG MOI (active=true), dong thoi sua dong active=true
+      # cu (cung ngay_dau_thang+chi_tieu) thanh active=false - KHONG xoa dong
+      # cu, de giu lich su. rtr_target_latest (int) chi lay cac dong
+      # active=true cho bao cao dung. ngay_cap_nhat chi de tham khao/audit khi
+      # xem lai lich su, khong dung de suy ra ban hien hanh nua.
+      # (Luu y: comment trong dbt_project.yml khong duoc go dau tieng Viet -
+      # dbt doc file nay bang encoding he thong (cp1252 tren Windows) o 1 buoc
+      # noi bo, ky tu co dau se gay UnicodeDecodeError. Cac file .sql khac
+      # khong bi anh huong, van go dau binh thuong duoc.)
+      +column_types:
+        ngay_dau_thang: date
+        chi_tieu: varchar(32)
+        target: bigint
+        ngay_cap_nhat: date
+        active: boolean

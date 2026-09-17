@@ -23,7 +23,10 @@ WITH cline as (
         -- đoạn CASE này) -- lấy trực tiếp từ đây đảm bảo khớp sandbox tuyệt đối, không cần tự
         -- duy trì bản sao CASE dễ trôi (drift) theo thời gian. Nhãn đổi từ "1.MẮT"/"8.BEAUTY & SPA"
         -- (tiền tố số cũ) sang đúng nhãn sp.product_group ("PTTM MẮT"/"BEAUTY & SPA"/"SẢN PHẨM"...).
-        sp.product_group
+        sp.product_group,
+        -- Danh mục gốc (CHƯA gom nhóm qua CASE WHEN) của sp.product_group — input thô của
+        -- view_stag_products, dùng cho cột "dịch vụ KH quan tâm ban đầu chưa gom nhóm".
+        sp.product_category
     FROM {{ source('crm_base', 'crm_line') }} cln
         left join {{ source('crm_base', 'crm_lead') }} cl on cl.id = cln.crm_id and cl.brand_etl = cln.brand_etl
         left join {{ source('crm_base', 'stag_sources')}} ss on ss.old_id = cl.source_id and ss.brand_id = cl.brand_etl
@@ -41,6 +44,7 @@ SELECT
     cr.source,cr.category_source_code,
     cr.brand_etl,
     cr.booking_report_date,
-    cr.product_group as first_product_group
+    cr.product_group as first_product_group,
+    cr.product_category as first_product_category
 from cline_rank cr
 where cr.cus_bk_line_order = 1

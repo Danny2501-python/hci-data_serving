@@ -8,6 +8,7 @@ WITH a AS (
     SELECT
         tra."date created"::date                                   AS ngay_chi_phi,
         tra."chi phí"::text                                        AS chi_phi,
+        tra."tên chiến dịch"                                        AS campaign_raw,
         -- campaign_name dạng: prd_prtk002_{}_{}_<nhom_dv>_ib_mofub_trangnn_<variant>_<datecode>
         SPLIT_PART(tra."tên chiến dịch", '_', 5)                    AS nhom_dv_raw
     FROM {{ source('paris', 'tiktok_raw_ad') }} tra
@@ -35,5 +36,30 @@ SELECT
     -- -> mặc định cứng theo catalog utm_source thật của Paris (id=733
     -- 'Tiktok', category 'Online').
     'Tiktok'::text                                                  AS nguon_moi_v2,
-    'Online'::text                                                  AS nhom_nguon_moi_v2
+    'Online'::text                                                  AS nhom_nguon_moi_v2,
+    -- campaign/actor: toàn bộ campaign_name hiện có (verify 2026-09-10) đều
+    -- token 1 = 'prd' -> nằm trong whitelist all_brand_mkt_camp, actor tách
+    -- được ở token vị trí 8 (giống pattern "trangnn" ghi trong LOGIC.md).
+    COALESCE(campaign_raw, 'KXĐ')::text                             AS campaign,
+    CASE
+        WHEN SPLIT_PART(campaign_raw, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+            THEN SPLIT_PART(campaign_raw, '_', 8)
+    END::text                                                       AS actor_code,
+    -- nhom_dv_muc_tieu_code: token vị trí 5, cùng guard với actor_code.
+    CASE
+        WHEN SPLIT_PART(campaign_raw, '_', 1) IN {{ var('all_brand_mkt_camp') }}
+            THEN SPLIT_PART(campaign_raw, '_', 5)
+    END::text                                                       AS nhom_dv_muc_tieu_code,
+    -- vk/ten_dv/local_k_raw/quoc_gia/page_id_raw/account_id_raw: thêm
+    -- 2026-09-11 — TikTok không có liên kết CRM lẫn khái niệm FB
+    -- Page/Account -> luôn NULL.
+    NULL::text                                                      AS vk,
+    NULL::text                                                      AS ten_dv,
+    NULL::text                                                      AS local_k_raw,
+    NULL::text                                                      AS quoc_gia,
+    NULL::text                                                      AS page_id_raw,
+    NULL::text                                                      AS account_id_raw,
+    NULL::text                                                      AS page_code_raw,
+    NULL::text                                                      AS nhom_dv_kh_quan_tam,
+    NULL::text                                                      AS nhom_dv_chinh_booking
 FROM a

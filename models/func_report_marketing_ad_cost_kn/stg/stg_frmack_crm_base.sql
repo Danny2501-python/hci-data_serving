@@ -57,6 +57,8 @@ WITH x AS (
         CASE WHEN stks.nguon_moi IN ('MD - Tiktok','MD - Zalo','MKT_Zalo','MD - Youtube',
                                       'MD - Phát triển cộng đồng (Seeding)','MD - Phát triển cộng đồng')
                   THEN 'Khác'
+                  WHEN ctsd.utm_source ILIKE '%chat%gpt%'
+                        THEN 'AI'
              WHEN ctsd.channel ILIKE 'web'
                   AND (ctsd.utm_source ILIKE '%google%search%' OR ctsd.utm_source ILIKE '%google%display%')
                   THEN 'Web'
@@ -76,6 +78,7 @@ WITH x AS (
         rc.name                                              AS quoc_gia,
         cl.ticket_id, SUBSTRING(cta.ad_id_value FROM '\d+') AS ad_id,
         dkq.first_product_group AS nhom_dv_KH_quan_tam,
+        dkq.first_product_category AS nhom_dv_KH_quan_tam_goc,
         CASE
             WHEN sbn.nhom_dich_vu_chinh IS NULL THEN NULL
             WHEN sbn.nhom_dich_vu_chinh = 'BEAUTY & SPA' THEN '8.BEAUTY & SPA'

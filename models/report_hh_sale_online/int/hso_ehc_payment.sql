@@ -30,7 +30,7 @@ left join {{source('hh','ehc_tb_nguoigioithieu')}} etn
  on etp.nguoigioithieuid =etn.nguoigioithieuid
 where
   huyphieu_status = 0
-  and  invoiceid not in (select invoiceid from ehc_tb_invoicerequest) 
+  and  invoiceid not in (select invoiceid from {{source('hh','ehc_tb_invoicerequest')}}) 
 --and  etp.id_booking ='BOOK-260717-00038'
 --and date(iv.invoicedate) between '20260601' and '20260630'
 ),

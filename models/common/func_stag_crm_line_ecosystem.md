@@ -4,13 +4,12 @@
 > (schema `public`, không nêu host/port ở đây — xem `connection/` nội bộ nếu cần connect),
 > **không nằm trong dbt project** `data_serving`, không có file `.sql` tương ứng trong repo.
 > File này ghi lại logic để tiện đối chiếu với model dbt `stg_crm_line_ecosystem.sql` (xem
-> `LOGIC.md` mục 3, đổi tên 2026-08-22 từ `stg_booking_xet_ban_cheo.sql`). **[2026-08-22]** model
-> dbt đó đã được đồng bộ theo đúng logic mô tả trong file này (không còn là 2 pipeline tách biệt
-> như trước) — 2 file vẫn không `ref()`/không share code với nhau (procedure sống ở DB, model
-> sống trong dbt project), chỉ là logic nghiệp vụ được giữ khớp nhau chủ động. Đọc procedure bằng
-> `pg_get_functiondef` ngày 2026-08-18, phiên bản procedure tại thời điểm đó — nếu procedure đổi
-> tiếp sau ngày này, file này và `stg_crm_line_ecosystem.sql` có thể lệch lại, cần đọc lại
-> procedure để đối chiếu.
+> `LOGIC.md` mục 3, đổi tên 2026-08-22 từ `stg_booking_xet_ban_cheo.sql`). Đọc procedure bằng
+> `pg_get_functiondef`: lần đầu 2026-08-18, cập nhật 2026-08-26/2026-08-27, và **đọc lại lần nữa
+> ngày 2026-09-16** — lần đọc gần nhất phát hiện procedure đã đổi **nhiều hơn** những gì tài liệu
+> này từng ghi (xem mục 7). **Nếu procedure đổi tiếp sau 2026-09-16, file này có thể lệch lại —
+> luôn đọc lại bằng `pg_get_functiondef` trước khi tin tưởng tuyệt đối vào nội dung dưới đây,
+> đừng suy đoán qua mô tả lời.**
 
 ## 1. Cơ chế chạy
 
@@ -26,39 +25,66 @@
 
 ## 2. Phạm vi
 
-Toàn bộ procedure chỉ tính **`brand_etl = 1`** (Kangnam) — hardcode ở nhiều bước riêng lẻ
-(bước 3, 3.5, 3.6...), không phải 1 filter chung ở đầu. Chỉ tính booking `type = 'opportunity'`
-và thuộc tập "đã có tiền thành công" (tương đương `stg_booking_id_co_tien_tc` bên dbt).
+**[Cập nhật 2026-09-16 — xem mục 7.1]** Trước đây mục này ghi "chỉ tính booking thuộc tập 'đã có
+tiền thành công'" — không còn đúng. Bảng tạm vẫn tên `tmp_booking_id_co_tien_tc` nhưng điều kiện
+bên trong đã đổi hẳn ý nghĩa, không còn lọc theo `stage_id`/tổng payment nữa (xem mục 7.1 để biết
+điều kiện thật hiện tại). Điều duy nhất còn đúng như cũ:
+
+- `cl.type = 'opportunity'` (lọc ở bước 2, `tmp_cline`).
+- Tính riêng theo `brand_etl` — hardcode `brand_etl = 1` (Kangnam) ở nhiều bước riêng lẻ (bước 3,
+  3.5, 3.6...), không phải 1 filter chung ở đầu.
 
 ## 3. Các bước
 
 ### Bước 1 — `tmp_booking_id_co_tien_tc`
 
-Booking (`crm_id`) đã có tiền thành công: `crm_lead.stage_id = 4` và tổng
-`stag_payment_transfer.payment` (group theo `crm_id, brand_etl`) > 0. Giống hệt logic
-`stg_booking_id_co_tien_tc.sql` bên dbt.
+**[Đổi ý nghĩa 2026-09-16 — xem mục 7.1]** Tên bảng tạm gợi ý "booking đã có tiền thành công"
+nhưng điều kiện thật hiện tại **không còn kiểm tra điều đó** — xem mục 7.1 cho định nghĩa đầy đủ
+đang chạy thật.
+
+### Bước 1.4 — `tmp_wsr_last_snapshot` `[MỚI 2026-08-28, ghi nhận 2026-09-16]`
+
+Xem mục 7.2.
 
 ### Bước 2 — `tmp_cline` (grain: 1 dòng dịch vụ)
 
 Join `crm_line` + `crm_lead` + `stag_payment_transfer` (agg theo `clineid, brand_etl`) +
 `view_stag_products` + `res_partner`. Cột `business_line` map từ `his_service_type` (CASE
 `Surgery→PTTM`, `Spa/Laser/Card→Beauty & Spa`, `Odontology→Nha khoa`, `wellness→Wellness`,
-`weight_loss→Weight Loss`, còn lại → `Khác`) — giống hệt CTE `cline` bên dbt.
+`weight_loss→Weight Loss`, còn lại → `Khác`) — giống hệt CTE `cline` bên dbt. Cột lấy trực tiếp từ
+`view_stag_products` (KHÔNG đổi, đã xác nhận lại 2026-09-16, xem mục 7.5):
 
-> ⚠️ **Nghi vấn (chưa verify bằng data):** filter `WHERE cl.id IN (SELECT crm_id FROM
-> tmp_booking_id_co_tien_tc)` chỉ so theo `cl.id`, không kèm `cl.brand_etl` — trong khi JOIN
-> ngay phía trên match cả `cl.id = spt.crm_id AND cl.brand_etl = spt.brand_etl`. Nếu `crm_id`
-> trùng số giữa các brand, 1 `crm_id` chỉ thật sự "có tiền thành công" ở brand khác có thể lọt
-> qua filter này cho brand 1. Downstream có filter `brand_etl = 1` ở bước 3 nên rủi ro thực tế
+- `sp.product AS cline_service_name` — tên dịch vụ cụ thể.
+- `sp.product_category AS cline_product_category` — **danh mục gốc, CHƯA gom nhóm** (input của
+  CASE WHEN tạo ra `view_stag_products.product_group`).
+- `sp.product_ctg_id AS cline_product_category_id`.
+
+Join key không đổi: `sp.product_id = cln.product_id AND sp.brand_etl = cln.brand_etl`.
+
+`WHERE cl.id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc) AND cl.type = 'opportunity'` —
+cấu trúc filter giữ nguyên, nhưng nội dung `tmp_booking_id_co_tien_tc` đã đổi (mục 7.1) nên **phạm
+vi cline thực tế lọt qua bước này rộng hơn nhiều** so với tài liệu cũ.
+
+> ⚠️ **Nghi vấn (chưa verify bằng data, vẫn còn nguyên ở bản 2026-09-16):** filter
+> `WHERE cl.id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc)` chỉ so theo `cl.id`, không kèm
+> `cl.brand_etl` — trong khi JOIN ngay phía trên (ở bản cũ) match cả `cl.id = spt.crm_id AND
+> cl.brand_etl = spt.brand_etl`. Downstream có filter `brand_etl = 1` ở bước 3 nên rủi ro thực tế
 > tuỳ vào việc `crm_id` có phải sequence global hay không.
 
 ### Bước 3 — `tmp_rnk_bl_cline`
 
 Đánh số thứ tự cline: `cus_bl_cline_order` (theo `business_line, code_customer`),
-`crm_cline_order` (theo `crm_id`), `cus_cline_order` (theo `code_customer`) — `ORDER BY
-cline_created_date, cline_id` (kèm `cline_id` tie-break). Lọc `brand_etl = 1` ở bước này.
+`crm_cline_order` (theo `crm_id`, tức **trong cùng 1 booking**), `cus_cline_order` (theo
+`code_customer`) — cả 3 đều `ORDER BY cline_created_date, cline_id` (kèm `cline_id` tie-break).
+Lọc `brand_etl = 1` ở bước này. **Không đổi so với các bản trước, đã xác nhận lại 2026-09-16.**
 
-### Bước 3.5 — Nhóm dịch vụ chính (`tmp_nhom_dich_vu_chinh`) `[MỚI 2026-08-05]`
+`crm_cline_order = 1` (≡ `is_main_service_bk`) = "cline đầu tiên trong cùng booking" — đây là cột
+tương đương đúng nghĩa với `stg_dv_khach_hang_quan_tam.cus_bk_line_order = 1` (dbt, xem
+`README.md` func_report_marketing_ad_cost_kn mục 11) và cột mới `nhom_dv_KH_quan_tam_goc` —
+**cùng partition (`crm_id`), cùng `ORDER BY`, cùng nguồn field `view_stag_products.product_category`
+qua cùng join key** → logic khớp nhau ở phần này.
+
+### Bước 3.5 — Nhóm dịch vụ chính (`tmp_nhom_dich_vu_chinh`)
 
 **Khác với dbt hiện tại** — dbt model `stg_booking_nhom_dich_vu_chinh.sql` đã đơn giản hóa
 (2026-08-05) về **1 nguồn duy nhất** (`view_stag_products.product_group` của cline có `cln.id`
@@ -71,217 +97,314 @@ nguyên bản 3 tầng ưu tiên cũ** (không được đồng bộ theo lần 
    `cs_deal_detail_api_v2` → `value_lable`, bóc mã trong ngoặc vuông (`"[KNP00001] PTTM MẮT"` →
    `"PTTM MẮT"`), mã khớp thẳng `product_category.code` (kèm `brand_etl`) để resolve
    `product_category_id`.
-   > ⚠️ **Nghi vấn:** không có `ROW_NUMBER()`/`WHERE rn = 1` để dedup như tầng 1 và tầng 3 —
-   > nếu `cs_custom_fields` có nhiều dòng khớp `value_id + custom_field_id = 9794`, 1 `crm_id`
-   > có thể ra nhiều dòng cùng tầng 2, và bước gộp bên dưới (`ROW_NUMBER() ... ORDER BY
-   > do_uu_tien`) sẽ chọn ngẫu nhiên giữa các dòng trùng đó → kết quả có thể không ổn định giữa
-   > các lần chạy.
-3. **Tầng 3** (fallback, `tmp_uu_tien_3`): `product_category` (từ `view_stag_products`) của
-   cline sớm nhất (`cln.create_date` nhỏ nhất) trong booking.
+   > ⚠️ **Nghi vấn (vẫn còn nguyên 2026-09-16):** không có `ROW_NUMBER()`/`WHERE rn = 1` để dedup
+   > như tầng 1 và tầng 3 — nếu `cs_custom_fields` có nhiều dòng khớp `value_id + custom_field_id
+   > = 9794`, 1 `crm_id` có thể ra nhiều dòng cùng tầng 2, kết quả có thể không ổn định giữa các
+   > lần chạy.
+3. **Tầng 3** (fallback, `tmp_uu_tien_3`): `product_category` (từ `view_stag_products`) của cline
+   trong booking. **[Đổi 2026-09-16]** Tiêu chí chọn cline đổi từ `ORDER BY cln.create_date`
+   (nhỏ nhất) sang **`ORDER BY cln.id`** (nhỏ nhất) — không còn dùng ngày tạo để chọn cline sớm
+   nhất, mà dùng ID nhỏ nhất trực tiếp. Hai tiêu chí thường cho cùng kết quả (ID và ngày tạo
+   thường đơn điệu cùng chiều) nhưng **không đảm bảo tuyệt đối giống nhau** — chưa verify bằng
+   data sau khi đổi.
 
 `tmp_nhom_dich_vu_chinh` gộp 3 tầng (`UNION ALL`), `ROW_NUMBER() OVER (PARTITION BY crm_id,
 brand_etl ORDER BY do_uu_tien)`, lấy `rn = 1` (tầng số nhỏ hơn thắng). `his_service_type`/
 `business_line` resolve qua `tmp_ctg_service_type_map` (mode `his_service_type` theo
 `product_ctg_id`) nếu không map được trực tiếp thì fallback regex trên text
 `nhom_dich_vu_chinh` (`TẠO HÌNH|PHẪU THU|CHUYỂN GIỚI → PTTM`, `... DA|CHÀM|NÁM...→ Beauty & Spa`,
-`NHA KHOA → Nha khoa`, còn lại → `Khác`).
+`NHA KHOA → Nha khoa`, còn lại → `Khác`). **Không đổi so với bản trước.**
 
-> ⚠️ **Nghi vấn cao:** `tmp_ctg_service_type_map` được `GROUP BY product_ctg_id, his_service_type`
-> **không kèm `brand_etl`**, và join lại (`csm.product_ctg_id = r.product_category_id`) cũng
-> **không kèm `brand_etl`** — trong khi toàn bộ phần còn lại của procedure đều join
-> `product_category`/`products` kèm `AND brand_etl = ...` như quy ước bắt buộc. Nếu
-> `product_ctg_id` không phải sequence global duy nhất, mode `his_service_type` tính ra có thể
-> bị lẫn dữ liệu category trùng ID từ brand khác.
+> ⚠️ **Nghi vấn cao (vẫn còn nguyên 2026-09-16):** `tmp_ctg_service_type_map` được `GROUP BY
+> product_ctg_id, his_service_type` **không kèm `brand_etl`**, và join lại (`csm.product_ctg_id =
+> r.product_category_id`) cũng **không kèm `brand_etl`**.
 
-### Bước 3.6 — `tmp_customer_main_bl` (`main_bl_customer`) `[ĐỔI 2026-08-05]`
+### Bước 3.6 — `tmp_customer_main_bl` (`main_bl_customer`)
 
-`business_line` **ĐÃ RESOLVE qua 3 tầng ưu tiên ở bước 3.5** của **booking đầu tiên của KH**
-(`crm_id` có `booking_report_date` sớm nhất, tie-break `cline_created_date`, `cline_id` của cline
-sớm nhất trong booking đó) — **có thể `NULL`** nếu booking đầu tiên không resolve được nhóm dịch
-vụ chính ở cả 3 tầng (khác hành vi cũ: theo `first_value` cline đầu tiên toàn lịch sử KH, luôn có
-giá trị tối thiểu `'Khác'`).
-
-Khi `main_bl_customer` là `NULL`, so sánh `business_line = main_bl_customer` ở CASE cuối luôn ra
-`NULL` (không `TRUE`) → các dòng của KH đó luôn phải đi qua nhánh `bool_or()` để xác định
-`is_cross_sale`, không còn được loại trừ sớm qua nhánh "thuộc main BL" nữa.
-
-> 📌 **[Đã xử lý 2026-08-22]** trước đây file này ghi phần trên là "khác với dbt" (dbt còn dùng
-> `first_value` cline đầu tiên) — ghi chú ngày 2026-08-05 trong `LOGIC.md` mục 3 nói procedure
-> "vẫn dùng đúng logic đó" cũng đã lỗi thời so với bản source đọc ngày 2026-08-18. Đã sửa lại
-> `LOGIC.md`, đồng thời **đồng bộ hẳn** `main_bl_customer`/`is_cross_sale` của model dbt
-> `stg_crm_line_ecosystem.sql` (đổi tên từ `stg_booking_xet_ban_cheo.sql`) theo đúng logic 3 tầng
-> mô tả ở trên — 2 bên **không còn khác nhau** ở điểm này nữa.
+Không đổi so với bản trước. `business_line` đã resolve qua 3 tầng ở bước 3.5 của **booking đầu
+tiên của KH** (`crm_id` có `booking_report_date` sớm nhất, tie-break `cline_created_date`,
+`cline_id`) — có thể `NULL` nếu booking đầu tiên không resolve được ở cả 3 tầng.
 
 ### Bước 4 — `tmp_paid_bl_cline`
 
 Chỉ dòng có `cline_total_payment > 0`, đánh số `cus_bl_paid_order` theo `(business_line,
 code_customer)`, `ORDER BY cline_payment_date, cline_id` — giống hệt CTE `paid_bl_cline` bên
-dbt.
+dbt. **Không đổi.**
 
 ### Bước 5 — `tmp_labeling_1`
 
-- `is_main_service` = `cus_cline_order = 1`; `is_main_service_bk` = `crm_cline_order = 1`
-  (giữ để tương thích ngược).
+- `is_main_service` = `cus_cline_order = 1`; `is_main_service_bk` = `crm_cline_order = 1`.
 - `is_line_over_6_months_in_bl`: so `cline_payment_date` hiện tại với dòng liền trước cùng BL
-  đã có payment (`prev_pbc`, theo `cus_bl_paid_order - 1`) — không có dòng trước → `false`;
-  cách nhau > 6 tháng → `true`. Giống hệt dbt.
-- `main_bl_customer` / `source_main_bl`: lấy từ `tmp_customer_main_bl` (bước 3.6) — khác dbt
-  như bảng so sánh ở trên.
-- `main_bl_bk`: `first_value(business_line)` theo **từng booking** (`crm_id`) riêng — giữ lại
-  để tham khảo, không dùng trong `is_cross_sale`. Tương đương `main_bl_bk` bên dbt.
-- `main_product_category(_id)`: `first_value` theo **`code_customer`** (toàn lịch sử KH, mọi
-  booking) — giống hệt dbt.
+  đã có payment — cách nhau > 6 tháng → `true`.
+- `main_bl_customer` / `source_main_bl`: từ `tmp_customer_main_bl` (bước 3.6).
+- `main_bl_bk`: `first_value(business_line)` theo từng booking (`crm_id`) — chỉ tham khảo.
+- `main_product_category(_id)`: `first_value` theo **`code_customer`** (toàn lịch sử KH).
+
+**Không đổi so với bản trước.**
 
 ### Bước 7 — `tmp_main_bl_walkin`
 
-Phiếu khám (`sh_medical_appointment_register_walkin`, `state = 'Completed'`) **đầu tiên** (theo
-`service_date_start`, tie-break `w.id`) thuộc dịch vụ có `business_line = main_bl_customer` của
-khách hàng: `main_bl_completed_date`, `main_bl_order_id` (`sale_order_id`), `main_bl_walkin_done`
-(mã phiếu khám), `main_bl_booking_org` (mã booking gốc). Liên hệ: `walkin.booking_id =
-crm_lead.id` → `sh_walkin_service_rel.walkin_id` → `service_id` → `view_stag_products.service_id`
-(không phải `product_id`). Giống hệt CTE `main_bl_walkin` bên dbt — **chỉ tính cho main BL của
-KH**, không phải cho từng dòng dịch vụ riêng lẻ.
+**[Đổi 2026-09-16 — xem mục 7.2]** Vẫn lấy phiếu khám đầu tiên (theo `service_date_start`,
+tie-break `w.id`) thuộc `business_line = main_bl_customer` của khách hàng, nhưng nay join thêm
+`tmp_wsr_last_snapshot` để giới hạn theo snapshot ETL gần nhất (thay cho điều kiện cũ
+`wsr.snapshot_date IS NOT NULL`) — xem mục 7.2.
 
 ### Bước 8 — `TRUNCATE` + `INSERT` (final), `is_cross_sale`
 
-```
-1. business_line = main_bl_customer
-   OR main_bl_customer = 'Khác' OR business_line = 'Khác'          → false
-2. source_main_bl = 'crm_lead_history' AND partner_create_date
-   < '2025-08-01'                                                  → false
-3. bool_or(
-       coalesce(cline_total_payment, 0) > 0
-       AND (cus_bl_paid_order = 1 OR is_line_over_6_months_in_bl)
-   ) OVER (PARTITION BY crm_id, business_line)                     → true
-4. else                                                             → false
-```
+**[Đổi lớn 2026-09-16 — xem mục 7.4]** 2 nhánh của CASE `is_cross_sale` đã bị **comment out**
+(vô hiệu hóa) trên bản sống — khác hẳn thiết kế mô tả trước đây ở mục 4. Xem mục 7.4 cho CASE đầy
+đủ đang chạy thật.
 
-Nhánh 3 giống hệt công thức bên dbt (`LOGIC.md` mục 3): chỉ cần **tồn tại** 1 dòng "kích hoạt"
-(có payment thật, và là lần mua đầu tiên có payment của BL đó hoặc cách lần mua liền trước > 6
-tháng) thì **mọi** dòng có payment > 0 của cùng BL trong cùng booking đều `is_cross_sale = true`.
+## 4. `has_completed_walkin` — [ĐÃ VÔ HIỆU HÓA trên sandbox, xem mục 7.4]
 
-**Nhánh 2** loại trừ hẳn các dòng của khách mà `main_bl_customer` resolve qua tầng 3 (fallback, độ
-tin cậy thấp nhất) VÀ khách đó tạo tài khoản trước 2025-08-01 — tránh false positive cho nhóm
-khách cũ mà dữ liệu 3-tầng-ưu-tiên không đủ tin cậy. **[2026-08-22]** model dbt
-`stg_crm_line_ecosystem.sql` cũng đã có nhánh này (đồng bộ theo procedure).
+**[Lịch sử]** Mục này từng ghi "đã deploy" (2026-08-26): gate `WHEN NOT has_completed_walkin THEN
+false` được chèn vào `is_cross_sale`, dựa trên CTE `tmp_service_walkin_completed` (tập
+`(crm_id, service_id, brand_etl)` có phiếu khám hợp lệ trong cùng booking).
 
-`mbw.main_bl_completed_date`/`main_bl_order_id`/`main_bl_walkin_done`/`main_bl_booking_org`
-được SELECT ra bảng đích nhưng **không dùng để chặn `is_cross_sale`** — giống cách dbt đang làm
-(ghi chú "bỏ theo yêu cầu 2026-08-03" trong `LOGIC.md` mục 3).
+**[Cập nhật 2026-09-16]** Đọc lại `pg_get_functiondef` cho thấy dòng gate này trong CASE cuối
+(bước 8) đã bị **comment out** (`--WHEN NOT lb.has_completed_walkin THEN false`) — **không còn
+hoạt động trên bản sống**, dù CTE `tmp_service_walkin_completed`/cột `has_completed_walkin` vẫn
+được tính ra (chỉ là không dùng để chặn `is_cross_sale` nữa). Xem mục 7.4 để biết CASE đầy đủ hiện
+tại và mục 7.2 cho các thay đổi khác trong chính CTE này (snapshot logic, đổi tên cột, thêm điều
+kiện `state <> 'Cancelled'`).
 
-## 4. `has_completed_walkin` — điều kiện tiên quyết theo từng dòng dịch vụ `[ĐÃ DEPLOY]`
+> ⚠️ Model dbt `stg_crm_line_ecosystem.sql` **hiện vẫn giữ gate này active** (`when not
+> lb.has_completed_walkin then false`) — dbt và sandbox **đang lệch nhau** ở điểm này kể từ khi
+> nào không rõ (chỉ biết chắc là lệch tại thời điểm đọc 2026-09-16). Xem mục 7.6.
 
-**[Cập nhật 2026-08-26]** Mục này trước đây ghi "đề xuất đang thảo luận — CHƯA DEPLOY" (cập nhật
-2026-08-22) — đã **kiểm tra lại definition thật trên sandbox** (`pg_get_functiondef`, 2026-08-26)
-và xác nhận đề xuất **đã được deploy**, đúng như thiết kế mô tả trước đó:
+## 5. Cột ngày hoàn thành đầu tiên theo từng dòng dịch vụ — đổi tên 2 lần
 
-- **Bước 1.5 (mới, chèn trước bước 2)** — `tmp_service_walkin_completed`: tập
-  `(crm_id, service_id, brand_etl)` — `booking_id` của phiếu khám
-  (`sh_medical_appointment_register_walkin`, `state = 'Completed'`) join `sh_walkin_service_rel`
-  lấy `service_id`, giới hạn trong các `crm_id` đã "có tiền thành công"
-  (`tmp_booking_id_co_tien_tc`).
-- **`tmp_cline`**: join thêm `tmp_service_walkin_completed` (theo `crm_id = booking_id`,
-  `service_id` khớp `view_stag_products.service_id` của product trên dòng đó, kèm `brand_etl`) →
-  cột `has_completed_walkin` (**boolean**) = dòng dịch vụ này, **trong cùng booking**, đã có ít
-  nhất 1 phiếu khám Completed khớp đúng `service_id` hay chưa.
-- **CASE `is_cross_sale` (bước 8)**: thêm nhánh `WHEN NOT has_completed_walkin THEN false` —
-  chèn **trước** nhánh `bool_or(...)`, sau 2 nhánh cũ (`business_line = main_bl_customer`/`Khác` và
-  `source_main_bl = 'crm_lead_history' AND partner_create_date < 2025-08-01`) — áp ở mức từng dòng
-  output, không đổi điều kiện "kích hoạt" của cả nhóm (bool_or vẫn tính như cũ).
+Lịch sử tên cột: `line_walkin_finish_date` (thiết kế ban đầu, 2026-08-26) → `cline_walkin_finish_date`
+(đổi 2026-08-27, "rõ nghĩa theo từng cline hơn") → **`cline_first_services_date`** (đổi lần nữa,
+ghi nhận khi đọc lại 2026-09-16 — không rõ đổi chính xác ngày nào giữa 2026-08-27 và 2026-09-16).
 
-> ⚠️ **Khác với những gì bảng output thể hiện ra ngoài:** `has_completed_walkin` chỉ là **cờ
-> boolean tồn tại** (có/không), **không giữ lại ngày hoàn thành** (`service_date_start`) của phiếu
-> khám đó, và **không được SELECT ra bảng vật lý** `public.stag_crm_line_ecosystem` (đã kiểm tra
-> đủ 36 cột thật của bảng — không có cột này) — chỉ dùng nội bộ trong procedure để tính
-> `is_cross_sale`. Khác với `main_bl_completed_date` (bước 7, cột có thật trong bảng output) vốn là
-> 1 **ngày** nhưng chỉ tính cho **main BL của cả khách hàng**, không phải cho từng dòng/từng
-> `business_line` riêng lẻ. Xem mục 5 — đang bổ sung cột ngày hoàn thành đầu tiên theo từng dòng
-> dịch vụ (`line_completed_date`), sẽ tái dùng `tmp_service_walkin_completed` ở đây.
+- **Phạm vi tính**: trong cùng booking (`crm_id`) — không gộp theo toàn lịch sử khách hàng.
+- Logic tính (`MIN(service_date_start + 7h)`) và join key không đổi, nhưng điều kiện lọc nguồn đã
+  đổi thêm ở 2026-08-28 — xem mục 7.2.
+- `has_completed_walkin` tương đương `cline_first_services_date IS NOT NULL` (vẫn tính cả 2 cột,
+  không dùng để chặn `is_cross_sale` nữa — mục 4).
 
-## 5. Cột `cline_walkin_finish_date` (trước đây `line_walkin_finish_date`) — ngày hoàn thành đầu tiên theo từng dòng dịch vụ
+> ⚠️ Model dbt vẫn dùng tên cột cũ `cline_walkin_finish_date` — cột vật lý trên sandbox tên
+> `cline_first_services_date`. Đây là lệch **tên cột**, ngoài lệch **logic** đã nêu ở mục 4/7.
 
-*(chốt thiết kế 2026-08-26, theo yêu cầu)* Bổ sung 1 cột **ngày** (khác `has_completed_walkin` ở
-mục 4 vốn chỉ là cờ boolean) ghi nhận **ngày sớm nhất của phiếu khám khớp đúng dòng dịch vụ đó**,
-tái dùng `tmp_service_walkin_completed` (mục 4), mở rộng thêm `MIN(service_date_start)`.
+## 6. Lịch sử đổi tên + sửa timezone/điều kiện `state` (2026-08-27) — ĐÃ xác nhận thực thi
 
-- **Tên cột**: `cline_walkin_finish_date` (đổi tên 2026-08-27, trước đó là `line_walkin_finish_date`
-  — xem mục 6).
-- **Phạm vi tính**: trong cùng booking (`crm_id`) — giống hệt phạm vi của `has_completed_walkin`,
-  KHÔNG gộp theo toàn lịch sử khách hàng (khác cách `main_bl_completed_date` ở mục "Bước 7" đang
-  tính cho main BL).
-- **`has_completed_walkin`** giờ tương đương `cline_walkin_finish_date IS NOT NULL` — vẫn giữ tính
-  cả 2 để rõ ý ở nơi dùng (procedure) / không bắt buộc bên dbt (dbt tính trực tiếp
-  `cline_walkin_finish_date IS NOT NULL` làm `has_completed_walkin`, xem `LOGIC.md`).
+Trước đây mục này ghi "Sandbox: CHƯA thực thi" cho 3 thay đổi (đổi tên cột, +7h cho
+`service_date_start`, bỏ điều kiện `state = 'Completed'`). **[Xác nhận 2026-09-16]** Đọc lại
+`pg_get_functiondef` cho thấy cả 3 thay đổi này **đã được áp dụng** trên bản sống (nằm trong các
+thay đổi lớn hơn mô tả ở mục 7) — không cần chạy tay script cũ nữa, bản sống hiện tại **đã vượt
+xa** 3 thay đổi đó (thêm snapshot logic, đổi thêm tên cột, sửa `is_cross_sale`...). Script cũ ở
+mục này đã lỗi thời, xem script đầy đủ **hiện tại** ở mục 7.7.
 
-### Trạng thái thực thi (2026-08-26, cột `line_walkin_finish_date` gốc)
+## 7. Đọc lại `pg_get_functiondef` ngày 2026-09-16 — phát hiện nhiều thay đổi chưa ghi nhận
 
-- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong — thêm CTE `service_walkin_completed`,
-  cột `line_walkin_finish_date`/`has_completed_walkin` trong `cline`, và gate
-  `WHEN NOT has_completed_walkin THEN false` trong `is_cross_sale` (đồng bộ luôn gate ở mục 4 mà
-  trước đó dbt còn thiếu). Xem `LOGIC.md` mục 3.
-- ✅ **Sandbox** (`func_stag_crm_line_ecosystem()` + bảng vật lý `stag_crm_line_ecosystem`): **đã
-  thực thi** (`ALTER TABLE ADD COLUMN line_walkin_finish_date timestamp without time zone` +
-  `CREATE OR REPLACE PROCEDURE`). Đã kiểm tra lại bằng `pg_get_functiondef` + liệt kê cột thật của
-  bảng (2026-08-26): cột `line_walkin_finish_date` có mặt, đúng vị trí cuối bảng (cột 37/37), khớp
-  100% thiết kế — `tmp_service_walkin_completed` đã đổi `DISTINCT` → `GROUP BY` +
-  `MIN(service_date_start)`, `tmp_cline` join lấy thêm cột này, `INSERT` cuối đã thêm
-  `lb.line_walkin_finish_date`. **dbt và sandbox hiện đã khớp nhau hoàn toàn** ở cột này.
+Bối cảnh: đối chiếu logic cột dbt mới `nhom_dv_KH_quan_tam_goc`
+(`func_report_marketing_ad_cost_kn`, xem README.md mục 11 dự án đó) với procedure này. Phần liên
+quan trực tiếp (bước 2/3 — nguồn `view_stag_products.product_category`, join key, tie-break "cline
+đầu tiên trong booking") **khớp, không đổi**. Nhưng khi đọc toàn bộ định nghĩa để đối chiếu, phát
+hiện procedure đã đổi **nhiều điểm khác** so với những gì mục 1–6 (bản trước) mô tả — comment
+trong code (bước 1) còn ghi thẳng: *"GIỮ NGUYÊN bản sống hiện tại — xem cảnh báo lệch tài liệu ở
+func_stag_crm_line_ecosystem.md mục 6, không sửa ở đây"* — tức là có người đã biết việc lệch tài
+liệu trước đó nhưng chưa cập nhật lại file này. Toàn bộ mục 7 dưới đây ghi lại các đổi đó.
 
-## 6. Đổi tên + sửa timezone/điều kiện `state` `[2026-08-27]`
-
-Sau khi verify data thật (mục 5), phát hiện 2 vấn đề + 1 yêu cầu đổi tên:
-
-1. **Đổi tên cột**: `line_walkin_finish_date` → `cline_walkin_finish_date` (rõ nghĩa "theo từng
-   cline/dòng dịch vụ", tránh nhầm với các cột "line" khác đang mang nghĩa business_line).
-2. **+7h cho `service_date_start`**: bảng `sh_medical_appointment_register_walkin` lưu UTC — cột
-   này trước đó bị sót (khác `booking_report_date`/`cline_created_date`/`partner_create_date` đã
-   +7h từ trước). Áp dụng ở **cả 2 chỗ** dùng `service_date_start`: `tmp_service_walkin_completed`
-   (→ `cline_walkin_finish_date`) VÀ `tmp_main_bl_walkin_ranked` bước 7 (→ `main_bl_completed_date`).
-3. **Bỏ điều kiện `w.state = 'Completed'`**, chỉ giữ `w.service_date_start IS NOT NULL` — cover
-   nhiều trường hợp hợp lệ hơn, không giới hạn đúng state `'Completed'`. Áp dụng ở **cả 2 chỗ**
-   trên. Tên `has_completed_walkin`/`tmp_service_walkin_completed`/`main_bl_completed_date` **giữ
-   nguyên** dù không còn lọc theo state Completed nữa (cân nhắc đổi tên ở đợt sau nếu gây hiểu nhầm).
-
-### Trạng thái thực thi (2026-08-27)
-
-- ✅ **dbt** (`stg_crm_line_ecosystem.sql`): đã sửa xong cả 3 điểm trên.
-- ⏳ **Sandbox**: **CHƯA thực thi** — script đầy đủ bên dưới, anh chạy tay.
-
-### Script cho sandbox (chạy tay, theo thứ tự)
+### 7.1. Bước 1 — điều kiện "có tiền thành công" đã đổi hẳn ý nghĩa
 
 ```sql
--- 1) Đổi tên cột vật lý (INSERT cuối procedure dùng positional match, không cần đổi thứ tự)
-ALTER TABLE public.stag_crm_line_ecosystem
-    RENAME COLUMN line_walkin_finish_date TO cline_walkin_finish_date;
+-- CŨ (tài liệu trước 2026-09-16, và vẫn là logic model dbt stg_booking_id_co_tien_tc.sql):
+SELECT spt.crm_id, spt.brand_etl, SUM(spt.payment) AS total_payment
+FROM stag_payment_transfer spt
+    LEFT JOIN crm_lead cl ON cl.id = spt.crm_id AND cl.brand_etl = spt.brand_etl
+WHERE cl.stage_id = 4
+GROUP BY spt.crm_id, spt.brand_etl
+HAVING SUM(spt.payment) > 0;
 
--- 2) Thay procedure — 4 chỗ đổi so với bản đang chạy: bước 1.5 (bỏ state='Completed', +7h, đổi
--- tên alias), tmp_cline (đổi tên cột tham chiếu), bước 7/tmp_main_bl_walkin_ranked (bỏ
--- state='Completed', +7h), và INSERT cuối (đổi tên cột tham chiếu).
+-- MỚI (bản sống đọc 2026-09-16):
+SELECT cl.id AS crm_id, cl.brand_etl, SUM(spt.payment) AS total_payment
+FROM crm_lead cl
+    LEFT JOIN stag_payment_transfer spt ON spt.crm_id = cl.id AND spt.brand_etl = cl.brand_etl
+WHERE cl.brand_etl > 0 AND cl.type_crm_id <> 1
+GROUP BY cl.id, cl.brand_etl;
+```
+
+Khác biệt cốt lõi: **không còn** `WHERE cl.stage_id = 4` (đã có tiền thành công theo stage), và
+**không còn** `HAVING SUM(payment) > 0` (aggregate vẫn tính `total_payment` nhưng không dùng nó để
+lọc nữa — cột này giờ chỉ để tham khảo, không có tác dụng filter). Điều kiện lọc thật bây giờ là
+`cl.brand_etl > 0 AND cl.type_crm_id <> 1` — hoàn toàn không liên quan đến payment. Đồng thời đổi
+từ bảng gốc `stag_payment_transfer LEFT JOIN crm_lead` sang `crm_lead LEFT JOIN
+stag_payment_transfer` (driving table đổi từ payment sang lead) — với điều kiện mới không lọc theo
+payment, tập `crm_id` kết quả **gần như là "mọi booking có `type_crm_id <> 1`, mọi brand"**, rộng
+hơn nhiều so với tập "đã có tiền thành công" trước đây. Tên bảng tạm (`tmp_booking_id_co_tien_tc`)
+và tên các bước dùng lại nó (booking "có tiền thành công") **không còn phản ánh đúng nội dung**.
+
+**Chưa rõ `type_crm_id` là gì** (không có trong tài liệu trước đây) — cần tra thêm nếu cần hiểu rõ
+ý nghĩa nghiệp vụ của điều kiện `<> 1`.
+
+### 7.2. Bước 1.4 (mới) + 1.5 (đổi) — lọc theo snapshot ETL gần nhất, thêm điều kiện `state`
+
+**Bước 1.4 (`tmp_wsr_last_snapshot`, mới):**
+
+```sql
+SELECT brand_etl, MAX(date(snapshot_date)) AS last_snapshot_date
+FROM sh_walkin_service_rel
+WHERE snapshot_date IS NOT NULL
+GROUP BY brand_etl;
+```
+
+Ngày batch ETL gần nhất đã "touch" `sh_walkin_service_rel`, theo từng `brand_etl` — mốc để nhận
+diện dòng orphan (dữ liệu cũ chưa được batch mới nhất cập nhật/xoá), thay cho điều kiện cũ
+`wsr.snapshot_date IS NOT NULL` (không đủ để loại orphan, theo comment trong code).
+
+**Bước 1.5 (`tmp_service_walkin_completed`, đổi):**
+
+```sql
+SELECT w.booking_id AS crm_id, wsr.service_id, w.brand_etl,
+    MIN(w.service_date_start + interval '7 hours') AS cline_first_services_date   -- đổi tên cột
+FROM sh_medical_appointment_register_walkin w
+    INNER JOIN sh_walkin_service_rel wsr ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+    INNER JOIN tmp_wsr_last_snapshot ls                                            -- MỚI
+        ON ls.brand_etl = wsr.brand_etl AND date(wsr.snapshot_date) = ls.last_snapshot_date
+WHERE w.service_date_start IS NOT NULL
+    AND w.state <> 'Cancelled'                                                     -- MỚI
+    AND w.booking_id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc)
+GROUP BY w.booking_id, wsr.service_id, w.brand_etl;
+```
+
+3 thay đổi so với bản 2026-08-27: (1) thêm `INNER JOIN tmp_wsr_last_snapshot` — chỉ giữ dòng
+walkin có `snapshot_date` đúng bằng ngày batch gần nhất của đúng `brand_etl` đó (loại dòng orphan
+từ các batch cũ); (2) thêm `w.state <> 'Cancelled'` — trước đó (2026-08-27) đã bỏ hẳn điều kiện
+`state`, giờ thêm lại nhưng chỉ loại `'Cancelled'` (khác hẳn yêu cầu `state = 'Completed'` ban
+đầu); (3) đổi tên cột `cline_walkin_finish_date` → `cline_first_services_date`.
+
+`tmp_cline` (bước 2) đổi tên cột tham chiếu theo (`swc.cline_first_services_date`); comment mới
+trong code ghi: *"chỉ giữ ngày hoàn thành nếu CHÍNH dòng cline này đã dùng (number_used > 0 hoặc
+stage = 'done') — tránh mượn nhầm ngày walkin của 1 dòng KHÁC cùng service_id trong cùng booking.
+KHÔNG đổi has_completed_walkin ở trên"* — comment này mô tả 1 ý định/TODO, nhưng **code thực tế
+chưa thấy áp dụng điều kiện `number_used`/`stage = 'done'` nào** ở bước join `swc` — có thể là ý
+định cho lần sửa tiếp theo, chưa triển khai; **cần đọc lại procedure nếu cần xác nhận** thay vì
+tin theo comment.
+
+**Bước 7 (`tmp_main_bl_walkin_ranked`)** cũng đổi tương tự: thêm `INNER JOIN
+tmp_wsr_last_snapshot` (thay `wsr.snapshot_date IS NOT NULL`), giữ nguyên phần còn lại (+7h,
+không lọc `state`).
+
+### 7.3. Bước 3.5, tầng 3 (`tmp_uu_tien_3`) — đổi tiêu chí chọn cline
+
+```sql
+-- CŨ: ROW_NUMBER() OVER (PARTITION BY cln.crm_id, cln.brand_etl ORDER BY cln.create_date)
+-- MỚI: ROW_NUMBER() OVER (PARTITION BY cln.crm_id, cln.brand_etl ORDER BY cln.id)
+```
+
+Đổi từ "cline có ngày tạo sớm nhất" sang "cline có `id` nhỏ nhất". Chưa verify bằng data xem 2
+tiêu chí có luôn cho cùng kết quả hay không.
+
+### 7.4. Bước 8 — `is_cross_sale`: 2 điều kiện bị comment out
+
+```sql
+CASE
+    WHEN lb.business_line = lb.main_bl_customer OR lb.main_bl_customer = 'Khác'
+      OR lb.business_line = 'Khác' THEN false
+    WHEN lb.source_main_bl = 'crm_lead_history' AND lb.partner_create_date < '2025-08-01' THEN FALSE
+    --WHEN NOT lb.has_completed_walkin THEN false                                   -- ĐÃ TẮT
+    WHEN bool_or(
+            --coalesce(lb.cline_total_payment, 0) > 0 AND                          -- ĐÃ TẮT (phần này)
+            (lb.cus_bl_paid_order = 1 OR lb.is_line_over_6_months_in_bl = true)
+         ) OVER (PARTITION BY lb.crm_id, lb.business_line)
+        THEN true
+    ELSE false
+END AS is_cross_sale
+```
+
+2 nhánh trước đây từng ghi là "đã deploy" (mục 4) nay đã bị **comment out** trên bản sống:
+
+1. Gate `WHEN NOT has_completed_walkin THEN false` — không còn chặn `is_cross_sale` theo việc có
+   phiếu khám hợp lệ hay không.
+2. Điều kiện `coalesce(cline_total_payment, 0) > 0` bên trong `bool_or(...)` — điều kiện "kích
+   hoạt" cross-sale giờ **không còn yêu cầu có payment thật**, chỉ cần `cus_bl_paid_order = 1 OR
+   is_line_over_6_months_in_bl = true` (2 cột này bản thân đã được tính dựa trên tập
+   `tmp_paid_bl_cline`, vốn **vẫn lọc `cline_total_payment > 0` ở bước 4** — nên điều kiện payment
+   không biến mất hoàn toàn, chỉ là không kiểm tra lại lần 2 ở bước 8).
+
+Chưa rõ đây là thay đổi tạm thời (debug/rollback dở dang) hay chủ đích lâu dài — comment `--` đơn
+thuần là vô hiệu hóa, không có ghi chú ngày/lý do đi kèm như các thay đổi khác trong procedure.
+
+### 7.5. Phần KHÔNG đổi (đã xác nhận lại 2026-09-16)
+
+- Bước 2 (`tmp_cline`): nguồn `view_stag_products.product`/`product_category`/`product_ctg_id`,
+  join key `product_id + brand_etl`, CASE `business_line` từ `his_service_type` — **giống hệt**
+  bản trước. Đây là phần liên quan trực tiếp đến cột `nhom_dv_KH_quan_tam_goc` mới thêm bên
+  `func_report_marketing_ad_cost_kn` — **logic khớp nhau**.
+- Bước 3 (`tmp_rnk_bl_cline`): 3 `ROW_NUMBER()` (`cus_bl_cline_order`/`crm_cline_order`/
+  `cus_cline_order`), đều `ORDER BY cline_created_date, cline_id` — **không đổi**.
+  `crm_cline_order = 1` vẫn là "cline đầu tiên trong cùng booking", cùng partition/tie-break với
+  `stg_dv_khach_hang_quan_tam.cus_bk_line_order = 1` bên dbt.
+- Bước 3.5 tầng 1/tầng 2, `tmp_ctg_service_type_map`, bước 3.6, bước 4, bước 5 (trừ chỗ đã nêu ở
+  trên) — **không đổi**, kể cả 2 nghi vấn logic cũ (thiếu dedup tầng 2, thiếu `brand_etl` ở
+  `ctg_service_type_map`) vẫn còn nguyên.
+
+### 7.6. Ảnh hưởng tới model dbt `stg_crm_line_ecosystem.sql`
+
+Model dbt (`models/common/stg_crm_line_ecosystem.sql`) **hiện lệch với bản sống ở các điểm sau**
+(dbt vẫn giữ logic cũ, procedure đã đổi):
+
+1. Nguồn `tmp_booking_id_co_tien_tc`/`stg_booking_id_co_tien_tc.sql`: dbt vẫn `stage_id = 4 AND
+   SUM(payment) > 0`; procedure đã đổi thành `brand_etl > 0 AND type_crm_id <> 1` (mục 7.1).
+2. `is_cross_sale`: dbt vẫn có gate `when not has_completed_walkin then false` VÀ điều kiện
+   `coalesce(cline_total_payment, 0) > 0` trong `bool_or(...)` — cả 2 đã bị tắt trên procedure
+   (mục 7.4).
+3. CTE `service_walkin_completed`: dbt chưa có snapshot-date filtering (`tmp_wsr_last_snapshot`,
+   mục 7.2) và chưa có điều kiện `w.state <> 'Cancelled'`.
+4. Tên cột: dbt dùng `cline_walkin_finish_date`; procedure đã đổi thành `cline_first_services_date`.
+5. `tmp_uu_tien_3`/tầng 3: dbt vẫn `ORDER BY cln.create_date`; procedure đổi sang `ORDER BY cln.id`
+   (mục 7.3).
+
+**Đây là 5 điểm lệch hành vi số liệu thật (không chỉ đặt tên), chưa được đồng bộ.** Việc có nên
+sửa dbt theo bản sống này hay không cần quyết định riêng (mục 7.1 đặc biệt đáng cân nhắc kỹ — thay
+đổi phạm vi từ "chỉ booking có tiền thành công" sang gần như "mọi booking" là thay đổi lớn, có thể
+ảnh hưởng nhiều xuống các báo cáo dùng `stg_crm_line_ecosystem`/`stag_crm_line_ecosystem`).
+
+### 7.7. Script đầy đủ đang chạy thật trên sandbox (đọc `pg_get_functiondef`, 2026-09-16)
+
+```sql
 CREATE OR REPLACE PROCEDURE public.func_stag_crm_line_ecosystem()
  LANGUAGE plpgsql
 AS $procedure$
 BEGIN
     <<main_block>>
     BEGIN
-    -- Bước 1: booking đã có tiền thành công
+    -- Bước 1: booking đã có tiền thành công (GIỮ NGUYÊN bản sống hiện tại — xem cảnh báo lệch tài
+    -- liệu ở func_stag_crm_line_ecosystem.md mục 6, không sửa ở đây)
     DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
     CREATE TEMP TABLE tmp_booking_id_co_tien_tc AS
-        SELECT spt.crm_id, spt.brand_etl, SUM(spt.payment) AS total_payment
-        FROM "staging_sci"."public"."stag_payment_transfer" spt
-            LEFT JOIN "staging_sci"."public"."crm_lead" cl ON cl.id = spt.crm_id AND cl.brand_etl = spt.brand_etl
-        WHERE cl.stage_id = 4
-        GROUP BY spt.crm_id, spt.brand_etl
-        HAVING SUM(spt.payment) > 0;
+        SELECT cl.id AS crm_id, cl.brand_etl, SUM(spt.payment) AS total_payment
+        FROM "staging_sci"."public"."crm_lead" cl
+            LEFT JOIN "staging_sci"."public"."stag_payment_transfer" spt
+                ON spt.crm_id = cl.id AND spt.brand_etl = cl.brand_etl
+        WHERE cl.brand_etl > 0 AND cl.type_crm_id <> 1
+        GROUP BY cl.id, cl.brand_etl;
+    -- Bước 1.4 [MỚI 2026-08-28]: ngày batch ETL gần nhất đã touch sh_walkin_service_rel, theo từng
+    -- brand_etl -- mốc để nhận diện orphan thay cho "snapshot_date IS NOT NULL" (không đủ, xem
+    -- func_stag_crm_line_ecosystem.md mục 8 / knowledge.md mục 9).
+    DROP TABLE IF EXISTS tmp_wsr_last_snapshot;
+    CREATE TEMP TABLE tmp_wsr_last_snapshot AS
+        SELECT brand_etl, MAX(date(snapshot_date)) AS last_snapshot_date
+        FROM "staging_sci"."public"."sh_walkin_service_rel"
+        WHERE snapshot_date IS NOT NULL
+        GROUP BY brand_etl;
     -- Bước 1.5 [ĐỔI 2026-08-27]: bỏ state='Completed' (chỉ giữ service_date_start IS NOT NULL),
-    -- +7h cho service_date_start (bảng gốc lưu UTC), đổi tên cột -> cline_walkin_finish_date.
+    -- +7h cho service_date_start (bảng gốc lưu UTC), đổi tên cột -> cline_first_services_date.
+    -- [SỬA 2026-08-28]: đổi "wsr.snapshot_date IS NOT NULL" -> join tmp_wsr_last_snapshot, chỉ giữ
+    -- dòng có snapshot_date = ngày batch gần nhất của đúng brand_etl (loại đủ dòng orphan).
     DROP TABLE IF EXISTS tmp_service_walkin_completed;
     CREATE TEMP TABLE tmp_service_walkin_completed AS
     SELECT w.booking_id AS crm_id, wsr.service_id, w.brand_etl,
-        MIN(w.service_date_start + interval '7 hours') AS cline_walkin_finish_date
+        MIN(w.service_date_start + interval '7 hours') AS cline_first_services_date
     FROM "staging_sci"."public"."sh_medical_appointment_register_walkin" w
         INNER JOIN "staging_sci"."public"."sh_walkin_service_rel" wsr
             ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+        INNER JOIN tmp_wsr_last_snapshot ls
+            ON ls.brand_etl = wsr.brand_etl AND date(wsr.snapshot_date) = ls.last_snapshot_date
     WHERE w.service_date_start IS NOT NULL
+		AND w.state <> 'Cancelled'
         AND w.booking_id IN (SELECT crm_id FROM tmp_booking_id_co_tien_tc)
     GROUP BY w.booking_id, wsr.service_id, w.brand_etl;
     -- Bước 2: cline (grain: 1 dòng dịch vụ)
@@ -315,7 +438,10 @@ BEGIN
             END AS business_line,
             rp.create_date + interval '7 hours' AS partner_create_date,
             (swc.crm_id IS NOT NULL) AS has_completed_walkin,
-            swc.cline_walkin_finish_date                            -- [ĐỔI 2026-08-27] đổi tên
+            -- FIX 2: chi giu ngay hoan thanh neu CHINH dong cline nay da dung (number_used > 0
+            -- hoac stage = 'done') -- tranh muon nham ngay walkin cua 1 dong KHAC cung service_id
+            -- trong cung booking. KHONG doi has_completed_walkin o tren.
+            swc.cline_first_services_date
         FROM "staging_sci"."public"."crm_line" cln
             LEFT JOIN "staging_sci"."public"."crm_lead" cl ON cl.id = cln.crm_id AND cl.brand_etl = cln.brand_etl
             LEFT JOIN (
@@ -406,7 +532,7 @@ BEGIN
                 cln.brand_etl,
                 sp.product_category AS nhom_dich_vu_chinh,
                 sp.product_ctg_id AS product_category_id,
-                ROW_NUMBER() OVER (PARTITION BY cln.crm_id, cln.brand_etl ORDER BY cln.create_date) AS rn
+                ROW_NUMBER() OVER (PARTITION BY cln.crm_id, cln.brand_etl ORDER BY cln.id) AS rn
             FROM "staging_sci"."public"."crm_line" cln
                 LEFT JOIN "staging_sci"."public"."view_stag_products" sp
                     ON sp.product_id = cln.product_id AND sp.brand_etl = cln.brand_etl
@@ -514,7 +640,8 @@ BEGIN
             LEFT JOIN tmp_customer_main_bl cmb ON cmb.code_customer = rbc.code_customer;
 
     -- Bước 7 [ĐỔI 2026-08-27]: bỏ state='Completed' (chỉ giữ service_date_start IS NOT NULL), +7h
-    -- cho service_date_start.
+    -- cho service_date_start. [SỬA 2026-08-28]: đổi "wsr.snapshot_date IS NOT NULL" -> join
+    -- tmp_wsr_last_snapshot (xem bước 1.4).
     DROP TABLE IF EXISTS tmp_main_bl_walkin_ranked;
     CREATE TEMP TABLE tmp_main_bl_walkin_ranked AS
         SELECT
@@ -534,6 +661,8 @@ BEGIN
                 ON w.booking_id = cl.id AND w.brand_etl = cl.brand_etl
             INNER JOIN "staging_sci"."public"."sh_walkin_service_rel" wsr
                 ON wsr.walkin_id = w.id AND wsr.brand_etl = w.brand_etl
+            INNER JOIN tmp_wsr_last_snapshot ls
+                ON ls.brand_etl = wsr.brand_etl AND date(wsr.snapshot_date) = ls.last_snapshot_date
             INNER JOIN "staging_sci"."public"."view_stag_products" sp
                 ON sp.service_id = wsr.service_id AND sp.brand_etl = w.brand_etl
         WHERE w.service_date_start IS NOT NULL
@@ -599,21 +728,22 @@ BEGIN
         CASE
             WHEN lb.business_line = lb.main_bl_customer OR lb.main_bl_customer = 'Khác' OR lb.business_line = 'Khác' THEN false
             WHEN lb.source_main_bl = 'crm_lead_history' AND lb.partner_create_date < '2025-08-01' THEN FALSE
-            WHEN NOT lb.has_completed_walkin THEN false
+            --WHEN NOT lb.has_completed_walkin THEN false
             WHEN bool_or(
-                    coalesce(lb.cline_total_payment, 0) > 0
-                    AND (lb.cus_bl_paid_order = 1 OR lb.is_line_over_6_months_in_bl = true)
+                    --coalesce(lb.cline_total_payment, 0) > 0 AND 
+                    (lb.cus_bl_paid_order = 1 OR lb.is_line_over_6_months_in_bl = true)
                  ) OVER (PARTITION BY lb.crm_id, lb.business_line)
                 THEN true
             ELSE false
         END AS is_cross_sale,
         lb.source_main_bl,
-        lb.cline_walkin_finish_date                                 -- [ĐỔI 2026-08-27] đổi tên
+        lb.cline_first_services_date
     FROM tmp_labeling_1 lb
         LEFT JOIN tmp_main_bl_walkin mbw ON mbw.code_customer = lb.code_customer;
 
     -- Dọn bảng tạm khi chạy thành công
     DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
+    DROP TABLE IF EXISTS tmp_wsr_last_snapshot;
     DROP TABLE IF EXISTS tmp_service_walkin_completed;
     DROP TABLE IF EXISTS tmp_cline;
     DROP TABLE IF EXISTS tmp_rnk_bl_cline;
@@ -630,6 +760,7 @@ BEGIN
 
     EXCEPTION WHEN OTHERS THEN
         DROP TABLE IF EXISTS tmp_booking_id_co_tien_tc;
+        DROP TABLE IF EXISTS tmp_wsr_last_snapshot;
         DROP TABLE IF EXISTS tmp_service_walkin_completed;
         DROP TABLE IF EXISTS tmp_cline;
         DROP TABLE IF EXISTS tmp_rnk_bl_cline;
@@ -649,4 +780,6 @@ END;
 $procedure$;
 ```
 
-Sau khi chạy `CREATE OR REPLACE PROCEDURE`, cần `CALL public.func_stag_crm_line_ecosystem();` để bảng vật lý được tính lại với logic mới (TRUNCATE + INSERT nằm trong procedure, không tự chạy khi chỉ `CREATE OR REPLACE`).
+Đây là bản đọc trực tiếp bằng `pg_get_functiondef('public.func_stag_crm_line_ecosystem'::regproc)`
+ngày 2026-09-16 (chỉ SELECT, không CALL/không sửa gì trên sandbox) — nguồn xác thực duy nhất, thay
+thế hoàn toàn script "chưa thực thi" từng ghi ở mục 6 (bản đó đã lỗi thời).

@@ -11,6 +11,7 @@ SELECT
     COALESCE(SPLIT_PART(ggcal.campaign_name, '_', 2),ctsda.utm_campaign)        AS nhom_dv,
     COALESCE(SPLIT_PART(ggcal.campaign_name, '_', 1),ctsda.utm_content)         AS chi_nhanh,
     COALESCE(SPLIT_PART(ggcal.campaign_name, '_', 3),ctsda.utm_content)         AS extra_info,
+    COALESCE(ggcal.campaign_name, ctsda.utm_campaign)                           AS campaign_raw,
     substring(cta.requester FROM '"phone_no":\s*"(\d+)"')                       AS metric,
     'Deal_cs'                                                                   AS type_data
 FROM {{ source('paris', 'cs_ticket_api')}}                          cta
@@ -57,6 +58,26 @@ SELECT tcg.nguon, tcg.nhom_nguon,tcg.kenh,tcg.ngay,
         ELSE chi_nhanh
     END                                                             AS chi_nhanh,
     tcg.metric,
-    tcg.type_data
+    tcg.type_data,
+    COALESCE(tcg.campaign_raw, 'KXĐ')::text                             AS campaign,
+    -- actor: nhánh Deal_cs Paris lấy theo tiêu chí Google Search
+    -- (ctsda.utm_source ilike '%Google_Search%'), không phải campaign FB
+    -- theo convention 9-token -> luôn NULL, giống nhánh GG (Google) của model
+    -- này và cách func_report_marketing_ad_cost_kn xử lý Google.
+    NULL::text                                                          AS actor_code,
+    -- nhom_dv_muc_tieu_code: cùng lý do actor_code, luôn NULL.
+    NULL::text                                                          AS nhom_dv_muc_tieu_code,
+    -- vk/ten_dv/local_k_raw/quoc_gia/page_id_raw/account_id_raw: thêm
+    -- 2026-09-11 — nhánh Deal_cs không có liên kết CRM lẫn khái niệm FB
+    -- Page/Account -> luôn NULL.
+    NULL::text                                                          AS vk,
+    NULL::text                                                          AS ten_dv,
+    NULL::text                                                          AS local_k_raw,
+    NULL::text                                                          AS quoc_gia,
+    NULL::text                                                          AS page_id_raw,
+    NULL::text                                                          AS account_id_raw,
+    NULL::text                                                          AS page_code_raw,
+    NULL::text                                                          AS nhom_dv_kh_quan_tam,
+    NULL::text                                                          AS nhom_dv_chinh_booking
 FROM ticket_cs_gg tcg
 WHERE tcg.metric IS NOT NULL

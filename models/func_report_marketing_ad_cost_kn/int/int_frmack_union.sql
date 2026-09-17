@@ -77,6 +77,7 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -99,6 +100,7 @@ SELECT
     pwp.account_fb::text as account_fb,
     pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     pwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    pwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     pwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     pwp.nguon_moi_v2::text as nguon_moi_v2,
     pwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -119,6 +121,7 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -140,6 +143,7 @@ SELECT
     account_fb::text as account_fb,
     nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Facebook'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2
@@ -159,6 +163,7 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -181,6 +186,7 @@ SELECT
     null as account_fb,
     null as nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Google_Ads'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2
@@ -200,6 +206,7 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -223,6 +230,7 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
@@ -245,6 +253,7 @@ SELECT
     type_data, ticket_id, campaign, page_name, page_id_from_camp,
     actor_code, account_fb, nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Facebook'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2

@@ -9,8 +9,8 @@
 -- =============================================================================
 SELECT
     'ds' type_report ,
-    company_id,
-    company,
+    chinhanhphanquyen,
+    chinhanh,
     note,
      ngay_tt,
      ten_khach,

@@ -1,0 +1,155 @@
+version: 2
+
+models:
+  - name: mart_report_bc_chi_phi_vtth
+    description: >
+      Báo cáo vật tư tiêu hao (phiếu phẫu thuật, data_union='surgery') phân bổ
+      theo bác sĩ mổ chính và dịch vụ tương ứng. Nếu 1 vật tư gắn nhiều dịch
+      vụ thì phân bổ theo tỷ lệ doanh thu dịch vụ; nếu 1 dịch vụ có nhiều bác
+      sĩ mổ chính thì chia đều cho các bác sĩ của chính dịch vụ đó. Chi tiết
+      logic và các lưu ý dữ liệu xem `LOGIC.md` cùng thư mục.
+    columns:
+      - name: form_id
+        description: >
+          Id phiếu phẫu thuật/thủ thuật (sh_medical_surgery.id). 1 phiếu có
+          thể chứa nhiều dịch vụ và nhiều bác sĩ mổ chính khác nhau.
+      - name: brand_etl
+        description: >
+          Mã hệ thống dữ liệu của thương hiệu được tích hợp về DWH
+          (1: kangnam, 3: paris, ...).
+      - name: form_supply_id
+        description: >
+          Id dòng vật tư tiêu hao gốc trong stag_his_form_supply_2 (1 vật tư
+          có thể lặp lại nhiều dòng output nếu gắn nhiều dịch vụ x nhiều bác
+          sĩ — form_supply_id giữ nguyên, chỉ service_product_id/employee_id
+          thay đổi giữa các dòng).
+      - name: walkinid
+        description: Id phiếu khám tương ứng với phiếu phẫu thuật này.
+      - name: crm_id
+        description: Id booking trong CRM (crm_lead.id) của khách hàng.
+      - name: booking
+        description: Mã booking (crm_lead.name).
+      - name: code_customer
+        description: Mã khách hàng.
+      - name: contact_name
+        description: Tên khách hàng.
+      - name: company
+        description: Tên công ty/chi nhánh nơi thực hiện phẫu thuật.
+      - name: company_id
+        description: Id công ty/chi nhánh (sh_medical_health_center.his_company).
+      - name: services_date
+        description: Ngày giờ sử dụng vật tư (ngày thực hiện phẫu thuật).
+      - name: supply_category
+        description: Loại vật tư — 'THUỐC' (medicament_type='Medicine') hoặc 'VẬT TƯ'.
+      - name: supply
+        description: Tên vật tư/thuốc sử dụng (sh_medical_medicines.name_use).
+      - name: supply_id
+        description: >
+          Id vật tư theo bảng chi tiết nghiệp vụ gốc
+          (sh_medical_surgery_supply), không phải id sản phẩm kho.
+      - name: supply_product_id
+        description: >
+          Id sản phẩm của vật tư trong kho (product_id phía vật tư, khác
+          service_product_id là product_id phía dịch vụ) — dùng để nối với
+          stock_move/stock_valuation_layer tra giá trị xuất kho.
+      - name: uom
+        description: Đơn vị tính của vật tư (uom_uom.name).
+      - name: qty_used
+        description: >
+          Số lượng vật tư đã sử dụng GỐC (chưa phân bổ) của form_supply_id —
+          giá trị này lặp lại giống nhau ở mọi dòng fan-out theo dịch vụ của
+          cùng 1 form_supply_id; số lượng ĐÃ phân bổ nằm ở cột allocated_qty.
+      - name: supply_cost_value
+        description: >
+          Giá trị tiền xuất kho GỐC (chưa phân bổ) của vật tư, lấy từ
+          SUM(stock_valuation_layer.value) theo (picking_id, supply_product_id,
+          brand_etl) nối qua stock_move — bằng 0 nếu không tra được giá trị
+          xuất kho tương ứng (picking_id NULL hoặc không khớp stock_move).
+      - name: service_product_id
+        description: >
+          Id dịch vụ (product_id phía dịch vụ) mà dòng vật tư này được gắn
+          tới, qua bảng quan hệ nhiều-nhiều sh_surgery_supply_service_rel (đã
+          xử lý sẵn ở stag_his_form_supply_2). 1 form_supply_id có thể ra
+          nhiều dòng với service_product_id khác nhau nếu vật tư gắn nhiều
+          dịch vụ.
+      - name: service_name
+        description: >
+          Tên dịch vụ (report_kpi_team_service.product) ứng với
+          service_product_id. NULL nếu không tra được (id dịch vụ trên vật
+          tư không khớp product_id nào trong report_kpi_team_service).
+      - name: service_revenue
+        description: >
+          Doanh thu (report_kpi_team_service.revenue) của dịch vụ
+          service_product_id trên phiếu form_id, dùng làm trọng số tính
+          service_rate. NULL nếu không tra được doanh thu (khi đó coi như 0
+          trong công thức chia tỷ lệ).
+      - name: service_rate
+        description: >
+          Tỷ lệ phân bổ vật tư cho dịch vụ này trong nhóm fan-out (nhóm =
+          cùng form_supply_id). Bằng 1 nếu vật tư chỉ gắn 1 dịch vụ; bằng
+          service_revenue / tổng doanh thu nhóm nếu gắn nhiều dịch vụ và tổng
+          doanh thu nhóm > 0; bằng 1/(số dịch vụ trong nhóm) nếu tổng doanh
+          thu nhóm = 0. Tổng service_rate của TẤT CẢ dịch vụ trong nhóm
+          fan-out (kể cả dịch vụ không có bác sĩ, không xuất hiện trong output
+          này) luôn bằng 1 — nếu 1 dịch vụ trong nhóm không có bác sĩ mổ
+          chính/phụ nên bị loại (xem employee_id), phần service_rate của dịch
+          vụ đó KHÔNG xuất hiện ở output, khiến tổng service_rate của các dòng
+          CÒN LẠI cùng form_supply_id trong bảng này có thể < 1.
+      - name: employee_id
+        description: >
+          Id bác sĩ được gán cho dòng phân bổ này — ưu tiên bác sĩ mổ chính
+          (roleid=1) CỦA CHÍNH dịch vụ service_product_id; nếu dịch vụ đó
+          không có bác sĩ mổ chính nào thì fallback sang bác sĩ mổ phụ
+          (roleid=2) của cùng dịch vụ. Nếu dịch vụ không có cả 2 vai trò, sẽ
+          không có dòng output nào cho (form_supply_id, service_product_id) đó.
+      - name: doctor_name
+        description: Tên bác sĩ tương ứng employee_id.
+      - name: doctor_rate
+        description: >
+          Tỷ lệ phân bổ theo bác sĩ = 1 / (số bác sĩ mổ chính, hoặc số bác sĩ
+          mổ phụ nếu fallback, của CHÍNH dịch vụ service_product_id trên
+          phiếu này — không phải tính trên toàn phiếu). Tổng doctor_rate của
+          các bác sĩ cùng 1 (form_id, service_product_id) luôn bằng 1.
+      - name: allocated_qty
+        description: >
+          Số lượng vật tư đã phân bổ cho đúng 1 dịch vụ x 1 bác sĩ này =
+          qty_used * service_rate * doctor_rate.
+      - name: allocated_cost_value
+        description: >
+          Giá trị tiền vật tư đã phân bổ cho đúng 1 dịch vụ x 1 bác sĩ này =
+          supply_cost_value * service_rate * doctor_rate. Tổng
+          allocated_cost_value của các dòng cùng form_supply_id bằng đúng
+          supply_cost_value gốc CHỈ KHI mọi dịch vụ trong nhóm fan-out của nó
+          đều có bác sĩ (xem employee_id/service_rate) — nếu có dịch vụ bị
+          loại vì không xác định được bác sĩ, tổng sẽ nhỏ hơn supply_cost_value
+          gốc đúng bằng phần của (các) dịch vụ bị loại đó (đã verify: ảnh
+          hưởng ~0.05% số phiếu, 8/17,239 phiếu surgery).
+      - name: bom_qty
+        description: >
+          Định mức số lượng vật tư này theo BOM (sh_medical_products_line)
+          cho ĐÚNG dịch vụ service_product_id trên phiếu form_id — không nhân
+          service_rate vì mỗi BOM đã gắn cố định 1 dịch vụ (không mơ hồ như
+          thực tế). NULL nếu (form_id, service_product_id, supply_id) không
+          có trong BOM nào (vật tư dùng thực tế nhưng không nằm trong định
+          mức chuẩn của dịch vụ đó, hoặc dịch vụ/phiếu chưa có BOM khai báo).
+          Lưu ý: nếu 1 (form_id, service_product_id, supply_id) có nhiều dòng
+          thực tế (vd. cùng vật tư xuất 2 lần cho cùng dịch vụ), bom_qty LẶP
+          LẠI giống nhau trên từng dòng — không được SUM trực tiếp khi so
+          sánh tổng định mức vs tổng thực tế, phải lấy 1 lần theo nhóm
+          (form_id, service_product_id, supply_id).
+      - name: bom_allocated_qty
+        description: >
+          bom_qty đã phân bổ theo bác sĩ = bom_qty * doctor_rate (dùng lại
+          doctor_rate của thực tế, cùng logic chia đều cho các bác sĩ mổ
+          chính/phụ của dịch vụ đó). NULL nếu bom_qty NULL.
+      - name: bom_cost_value
+        description: >
+          Giá trị tiền của bom_qty, quy đổi bằng ĐƠN GIÁ THỰC TẾ của chính
+          dòng này (supply_cost_value / qty_used) để nhất quán với
+          allocated_cost_value — KHÔNG phải giá vốn trung bình/độc lập. NULL
+          nếu bom_qty NULL hoặc qty_used = 0 (chưa có dữ liệu xuất kho thực tế
+          để suy ra đơn giá).
+      - name: bom_allocated_cost_value
+        description: >
+          bom_cost_value đã phân bổ theo bác sĩ = bom_cost_value * doctor_rate.
+          NULL nếu bom_cost_value NULL.

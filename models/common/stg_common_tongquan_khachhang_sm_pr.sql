@@ -53,7 +53,7 @@ mrc3 AS (
     SELECT * FROM {{ source('crm_base', 'm_res_company') }} WHERE brand_etl = 3
 ),
 se AS (
-    SELECT * FROM {{ source('crm_base', 'view_stag_employees_user') }} WHERE brand_etl = 3
+    SELECT * FROM {{ ref('view_stag_employees_user') }} WHERE brand_etl = 3
 ),
 ecs AS (
     SELECT * FROM {{ source('crm_base', 'crm_stage') }} WHERE brand_etl = 3
@@ -67,7 +67,7 @@ ss AS (
 spt AS (
     -- 1 clineid có thể có nhiều dòng payment; view gốc join thẳng không dedupe
     -- (giữ nguyên hành vi gốc — không GROUP BY ở đây để khớp 100% view).
-    SELECT * FROM {{ source('crm_base', 'stag_payment_transfer') }}
+    SELECT * FROM {{ ref('stag_payment_transfer') }}
     WHERE brand_id = 3 AND payment_date >= '2025-08-01'
 ),
 cline AS (
@@ -75,6 +75,12 @@ cline AS (
 ),
 cline_product AS (
     SELECT * FROM {{ source('crm_base', 'crm_line_product') }} WHERE brand_etl = 3
+),
+us AS (
+    SELECT * FROM {{ source('paris', 'utm_source') }} WHERE brand_id = 3
+),
+cat AS (
+    SELECT * FROM {{ source('paris', 'crm_category_source') }} WHERE brand_etl = 3
 ),
 a AS (
     SELECT
@@ -143,11 +149,13 @@ a AS (
         ecl.note,
         sp.his_service_type,
         sp.surgery_type,
-        ecl.active
+        ecl.active,
+        us.name AS source_new,
+        cat.name AS ctg_source_new
     FROM ecl
     LEFT JOIN mrc3 ON mrc3.id = ecl.company_id
     LEFT JOIN cline ecl2 ON ecl2.crm_id = ecl.id
-    LEFT JOIN {{ source('crm_base', 'view_stag_products') }} sp
+    LEFT JOIN {{ ref('view_stag_products') }} sp
         ON sp.product_id = ecl2.product_id AND ecl2.brand_etl = sp.brand_etl
     LEFT JOIN spt ON spt.clineid = ecl2.id AND spt.crm_id = ecl.id AND spt.product_id = sp.product_id
     LEFT JOIN mrc3 mrc_spt ON mrc_spt.id = spt.company_id
@@ -155,6 +163,8 @@ a AS (
     LEFT JOIN ecs ON ecs.id = ecl.stage_id
     LEFT JOIN ss ON ss.old_id = ecl.source_id::double precision
     LEFT JOIN rcs ON ecl.state_id = rcs.id
+    LEFT JOIN us ON us.id = ecl.new_source_id
+    LEFT JOIN cat ON cat.id = us.category_id
     WHERE sp.product_category <> 'SAN PHAM' AND sp.product_category IS NOT NULL
 ),
 b AS (
@@ -224,11 +234,13 @@ b AS (
         ecl.note,
         sp.his_service_type,
         sp.surgery_type,
-        ecl.active
+        ecl.active,
+        us.name AS source_new,
+        cat.name AS ctg_source_new
     FROM ecl
     LEFT JOIN mrc3 ON mrc3.id = ecl.company_id
     LEFT JOIN cline_product ecl2 ON ecl2.booking_id = ecl.id
-    LEFT JOIN {{ source('crm_base', 'view_stag_products') }} sp
+    LEFT JOIN {{ ref('view_stag_products') }} sp
         ON sp.product_id = ecl2.product_id AND ecl2.brand_etl = sp.brand_etl
     LEFT JOIN spt ON spt.clineid = ecl2.id AND spt.crm_id = ecl.id AND spt.product_id = sp.product_id
     LEFT JOIN mrc3 mrc_spt ON mrc_spt.id = spt.company_id
@@ -236,6 +248,8 @@ b AS (
     LEFT JOIN ecs ON ecs.id = ecl.stage_id
     LEFT JOIN ss ON ss.old_id = ecl.source_id::double precision
     LEFT JOIN rcs ON ecl.state_id = rcs.id
+    LEFT JOIN us ON us.id = ecl.new_source_id
+    LEFT JOIN cat ON cat.id = us.category_id
     WHERE sp.product_category = 'SAN PHAM' AND sp.product_category IS NOT NULL
 ),
 unioned AS (
@@ -245,7 +259,7 @@ unioned AS (
         nhan_vien, work_email, doanh_so, tong_tien, vao_so, trang_thai, nhom_dv,
         phan_loai_dv, ten_dv, phong_ban_nguoi_tao, phong_ban_nguoi_tao1, nguon_moi, nhom_nguon_moi,
         nguon_bk_id, id_dv, product_id, chinhanhphanquyen, chinhanh, company, tinh, ticket_id, note,
-        his_service_type, surgery_type, active
+        his_service_type, surgery_type, active, source_new, ctg_source_new
     FROM a
     UNION ALL
     SELECT
@@ -254,7 +268,7 @@ unioned AS (
         nhan_vien, work_email, doanh_so, tong_tien, vao_so, trang_thai, nhom_dv,
         phan_loai_dv, ten_dv, phong_ban_nguoi_tao, phong_ban_nguoi_tao1, nguon_moi, nhom_nguon_moi,
         nguon_bk_id, id_dv, product_id, chinhanhphanquyen, chinhanh, company, tinh, ticket_id, note,
-        his_service_type, surgery_type, active
+        his_service_type, surgery_type, active, source_new, ctg_source_new
     FROM b
 )
 -- dv_trong_tam: tính theo TOÀN BỘ booking (id) sau khi đã gộp cả 2 nhánh a/b (1 booking có
