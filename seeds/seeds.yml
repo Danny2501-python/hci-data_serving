@@ -57,6 +57,7 @@ seeds:
         thv_smhcsid: integer
   - name: import_bang_gia_chi_tiet_sci_seed
     config:
+      tags: ["import_banggia_sci"]
       column_types:
         stt: integer
         id: varchar
@@ -76,6 +77,7 @@ seeds:
         brand: integer
   - name: import_danhmuc_dichvu_sci_seed
     config:
+      tags: ["import_dichvu_sci"]
       column_types:
         STT: integer
         id: varchar

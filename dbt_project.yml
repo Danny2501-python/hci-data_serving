@@ -249,6 +249,12 @@ models:
       # parent CTE on every ref, duplicating the exact cost the original avoided with temp tables.
       int:
         +materialized: table
+    import_banggia_sci:
+      +tags: ["import_banggia_sci"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: table
     report_convert_kangnam:
       +tags: ["report_convert_kangnam"]
       int:
