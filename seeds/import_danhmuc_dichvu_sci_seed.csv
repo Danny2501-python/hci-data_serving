@@ -1,4 +1,4 @@
-﻿STT,id,default_code cũ,default_code mới,default_code,name,service_category/name,service_category/id,institution/id,service_department/id,service_room/id,exam_room/id,categ_id/id,type_product_crm,list_price,price_min,currency_id/id,is_surgeries,surgery_type,anesthetist_type,uom_id/id,uom_id/name,uom_so_id/id,uom_po_id/id,his_service_type,level_of_difficult,execution_time,recovery_time,warranty_period,uom_guarantee/name,note,kpi_point,kpi_point_num,is_no_specialty,is_no_phonecall,is_input_num,lab_type_ids/id,imaging_type_ids/id,ceiling_discount_ids/brand_id/id,ceiling_discount_ids/ceiling_discount,hướng dẫn sau dịch vụ,tính hoa hồng ctv,ghi_chu
+﻿STT,id,default_code cũ,default_code mới,default_code,name,service_category/name,service_category/id,institution/id,service_department/id,service_room/id,exam_room/id,categ_id/id,type_product_crm,list_price,price_min,currency_id/id,is_surgeries,surgery_type,anesthetist_type,uom_id/id,uom_id/name,uom_so_id/id,uom_po_id/id,his_service_type,level_of_difficult,execution_time,recovery_time,warranty_period,uom_guarantee/name,note,kpi_point,kpi_point_num,is_no_specialty,is_no_phonecall,is_input_num,lab_type_ids/id,imaging_type_ids/id,ceiling_discount_ids/brand_id/id,ceiling_discount_ids/ceiling_discount,hướng dẫn sau dịch vụ,tính hoa hồng ctv,ghi_chu,brand
 ,,KNPTCMM0011,,,Cấy mỡ/ Ghép mỡ mí trên,KNP00001,,,,,,,,15400000,12000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,14,6,Tháng,Bảo Hành 06 tháng,8,1,,,,,,sci_brand.res_brand_kn,0.22,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện)) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Khách hàng lưu ý: vệ sinh vết thương vùng lấy mỡ
@@ -13,7 +13,7 @@ LƯU Ý:
 • Khi rửa mặt khách hàng vuốt lên trên, không được vuốt xuống sẽ gây chảy sệ. Trong thời gian 1 tuần khách hàng mua thêm nước muối sinh lý rửa mặt để tránh đồ mỹ phẩm và sữa rửa mặt dính vào vùng vết thương
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTCMM0056,,,Cấy mỡ/ Ghép mỡ mí dưới,KNP00001,,,,,,,,15400000,12000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,14,6,Tháng,Bảo Hành 06 tháng,8,1,,,,,,sci_brand.res_brand_kn,0.22,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện)) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Khách hàng lưu ý: vệ sinh vết thương vùng lấy mỡ
@@ -28,7 +28,7 @@ LƯU Ý:
 • Khi rửa mặt khách hàng vuốt lên trên, không được vuốt xuống sẽ gây chảy sệ. Trong thời gian 1 tuần khách hàng mua thêm nước muối sinh lý rửa mặt để tránh đồ mỹ phẩm và sữa rửa mặt dính vào vùng vết thương
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTCMM0022,,,Combo Cắt mí dưới + ghép Megaderm,KNP00001,,,,,,,,38000000,34000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,60,14,2,Năm,Bảo Hành vật liệu độn 2 năm,17,1,,,,,,sci_brand.res_brand_kn,0.11,"- Dùng Tăm bông nhựa thấm Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh mắt 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn.
@@ -39,7 +39,7 @@ LƯU Ý:
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ..…………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTCMM0023,,,Combo Cắt mí dưới + Trẻ hóa vùng mắt Mid-Face,KNP00001,,,,,,,,38000000,34000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2.5,90,14,2,Năm,Bảo Hành vật liệu độn 2 năm,18,1,,,,,,sci_brand.res_brand_kn,0.11,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh mắt 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -51,7 +51,7 @@ LƯU Ý:
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu Kh có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVM0058,,,Nâng mũi không đau 6D - Surgiform,KNP00002,,,,,,,,71000000,56800000,base.VND,TRUE,Tiểu phẫu,Tiền Mê,,Lần,Lần,Lần,Surgery,2.5,150,14,999,Trọn đời,Bảo Hành Trọn Đời,31,1,,,,,,sci_brand.res_brand_kn,0.2,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Tetracyclin 1% vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật khách hàng sẽ phải đặt mét mũi từ 48 -72 giờ tùy theo từng tình trạng của mỗi khách hàng. Mục đích định hình cấu trúc đầu mũi, thấm hút dịch, cầm máu.
@@ -65,7 +65,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI vận hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTVM0059,,,Nâng mũi sụn sườn - Nanoform,KNP00002,,,,,,,,79000000,71000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3.5,180,14,999,Trọn đời,Bảo Hành Trọn Đời,35,1,,,,,,sci_brand.res_brand_kn,0.1,"- Dùng Tăm bông nhựa thấm Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml vệ sinh vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật khách hàng sẽ phải đặt merch mũi từ 48 -72 giờ tùy theo từng tình trạng của mỗi khách hàng. Mục đích định hình cấu trúc đầu mũi, thấm hút dịch, cầm máu.
@@ -81,7 +81,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KHcó việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVM0060,,,Nâng mũi sụn sườn - Surgiform,KNP00002,,,,,,,,93000000,83700000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3.5,180,14,999,Trọn đời,Bảo Hành Trọn Đời,40,1,,,,,,sci_brand.res_brand_kn,0.1,"- Dùng Tăm bông nhựa thấm Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml vệ sinh vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật khách hàng sẽ phải đặt merch mũi từ 48 -72 giờ tùy theo từng tình trạng của mỗi khách hàng. Mục đích định hình cấu trúc đầu mũi, thấm hút dịch, cầm máu.
@@ -97,7 +97,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVM0023,,,Nâng mũi sụn sườn 100%,KNP00002,,,,,,,,98000000,88200000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,4,180,14,999,Trọn đời,Bảo Hành Trọn Đời,42,1,,,,,,sci_brand.res_brand_kn,0.1,"- Dùng Tăm bông nhựa thấm Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml vệ sinh vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật khách hàng sẽ phải đặt merch mũi từ 48 -72 giờ tùy theo từng tình trạng của mỗi khách hàng. Mục đích định hình cấu trúc đầu mũi, thấm hút dịch, cầm máu.
@@ -113,7 +113,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVM0029,,,Thu nhỏ cánh mũi (Cuộn/cắt cánh mũi),KNP00002,,,,,,,,8000000,6500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,30,14,5,Năm,Bảo Hành 5 Năm,4,1,,,,,,sci_brand.res_brand_kn,0.19,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -125,7 +125,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVM0027,,,Tạo hình/thu nhỏ đầu mũi,KNP00002,,,,,,,,13000000,10500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,14,5,Năm,Bảo Hành 5 Năm,7,1,,,,,,sci_brand.res_brand_kn,0.19,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -136,9 +136,9 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
-,,KNPTTVM0052,,,Ghép trung bì mũi riêng lẻ,KNP00002,,,,,,,,28000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,60,14,0,,Không bảo hành,13,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,Sửa giá
-,,KNPTTVM0051,,,Ghép trung bì mũi kết hợp trong quá trình nâng mũi,KNP00002,,,,,,,,12000000,11000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,30,14,0,,Không bảo hành,6,1,,,,,,sci_brand.res_brand_kn,0.08,,Cho phép tính,Sửa giá
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
+,,KNPTTVM0052,,,Ghép trung bì mũi riêng lẻ,KNP00002,,,,,,,,28000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,60,14,0,,Không bảo hành,13,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,Sửa giá,1
+,,KNPTTVM0051,,,Ghép trung bì mũi kết hợp trong quá trình nâng mũi,KNP00002,,,,,,,,12000000,11000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,30,14,0,,Không bảo hành,6,1,,,,,,sci_brand.res_brand_kn,0.08,,Cho phép tính,Sửa giá,1
 ,,KNPTTHM0019,,,Thu gọn cằm Vline,KNP00003,,,,,,,,49000000,39000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,90,21,999,Trọn đời,Bảo Hành Trọn Đời,22,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -146,7 +146,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0017,,,Độn cằm tự thân 3D (Trượt cằm),KNP00003,,,,,,,,49000000,39000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,75,21,999,Trọn đời,Bảo Hành Trọn Đời,22,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -154,7 +154,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0033,,,Độn cằm Hàn Quốc (Chất liệu thông thường),KNP00003,,,,,,,,33000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,50,21,10,Năm,Bảo Hành 10 năm,14,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể sưng tím khu trú vùng phẫu thuật 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút).
 - Ăn kiêng đồ cay, nóng và kiêng đánh răng trong 2 ngày đầu, sau đó có thể sử dụng bàn chải mềm và chải răng một cách nhẹ nhàng. Súc miệng bằng Nước muối dùng ngoài pha loãng với Povidin 10% 20ml trước & sau mỗi bữa ăn để giữ cho vết thương luôn sạch và tránh nhiễm trùng. 
@@ -164,7 +164,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTHM0007,,,Chỉnh hình hàm hô 3D (1 hàm trên),KNP00003,,,,,,,,74000000,59000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,4,180,21,999,Trọn đời,Bảo Hành Trọn Đời,34,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -172,7 +172,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0072,,,Chỉnh hình hàm hô 3D (1 hàm dưới),KNP00003,,,,,,,,74000000,59000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,4,180,21,999,Trọn đời,Bảo Hành Trọn Đời,34,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -180,7 +180,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0001,,,Thu gọn góc hàm Vline 3D,KNP00003,,,,,,,,68000000,54500000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,5.5,210,21,999,Trọn đời,Bảo Hành Trọn Đời,34,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -188,7 +188,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0003,,,Hạ gò má 3D,KNP00003,,,,,,,,74000000,59000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,120,21,999,Trọn đời,Bảo Hành Trọn Đời,32,1,,,,,,sci_brand.res_brand_kn,0.2,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -196,7 +196,7 @@ LƯU Ý:
 - Sau phẫu thuật hàm mặt sự sưng nề và thâm tím tại vùng mặt nhiều
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ giảm sưng nề, thâm tím vùng mặt khách hàng bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng da vùng hàm mặt giúp sẽ giảm sưng nyề và thâm tím vùng mặt.
-- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,
+- Sau khi ra viện mua bàn chải lông mềm của trẻ em chải răng trong 2 tuần đầu hoàn toàn bằng nước muối sinh lý, sau 2 tuần chải lại bằng kem đánh răng bình thường.",Cho phép tính,,1
 ,,KNPTTHM0015,,,Phẫu thuật cười hở lợi,KNP00003,,,,,,,,13000000,10500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,3,130,14,3,Năm,Bảo Hành 3 Năm,10,1,,,,,,sci_brand.res_brand_kn,0.19,"- Sau phẫu thuật có thể sưng tím khu trú vùng quanh miệng 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút).
 - Ăn đồ mềm trong 1 tuần đầfu sau phẫu thuật. Kiêng đánh răng 3 ngày đầu. Mua thêm nước muối sinh lý Natri Clorid 0,9% dùng súc miệng vào buổi sáng – tối và sau khi ăn.
@@ -207,9 +207,9 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
-,,KNPTTHM0046,,,"Ghép xương hàm trên (Kết hợp phẫu thuật hàm, mũi sứt môi hở hàm ếch)",KNP00003,,,,,,,,28000000,26500000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,4,135,21,999,Trọn đời,Bảo Hành Trọn Đời,17,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,
-,,KNPTTHM0048,,,"Ghép xương hàm trên (Làm riêng lẻ, không kết hợp)",KNP00003,,,,,,,,43000000,41000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,1.5,90,21,999,Trọn đời,Bảo Hành Trọn Đời,19,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
+,,KNPTTHM0046,,,"Ghép xương hàm trên (Kết hợp phẫu thuật hàm, mũi sứt môi hở hàm ếch)",KNP00003,,,,,,,,28000000,26500000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,4,135,21,999,Trọn đời,Bảo Hành Trọn Đời,17,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,,1
+,,KNPTTHM0048,,,"Ghép xương hàm trên (Làm riêng lẻ, không kết hợp)",KNP00003,,,,,,,,43000000,41000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,1.5,90,21,999,Trọn đời,Bảo Hành Trọn Đời,19,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,,1
 ,,KNPTTHM0037,,,Độn thái dương,KNP00003,,,,,,,,33000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,90,21,999,Trọn đời,Bảo Hành Trọn Đời,15,1,,,,,,sci_brand.res_brand_kn,0.2,"- Dùng Tăm bông nhựa thấm Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml, rửa vết thương lấy hết chất cặn, dịch bám vào vết khâu, sau đó sát trùng lại vết thương bằng Povidin 10% 20ml tiếp theo bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Sau phẫu thuật có thể sưng tím khu trú vùng phẫu thuật 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút).
@@ -220,10 +220,10 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
-,,P00099,,,Tháo nẹp vít cằm,KNP00003,,,,,,,,17000000,16000000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,75,21,0,,0,9,1,,,,,,sci_brand.res_brand_kn,0.06,,Cho phép tính,
-,,KNPTTNV0001,,,Tháo nẹp vít 1 hàm,KNP00003,,,,,,,,22000000,20500000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,105,21,0,,0,12,1,,,,,,sci_brand.res_brand_kn,0.07,,Cho phép tính,
-,,KNPTTNV0003,,,Tháo nẹp vít 2 bên gò má,KNP00003,,,,,,,,22000000,21000000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,105,21,0,,0,12,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
+,,P00099,,,Tháo nẹp vít cằm,KNP00003,,,,,,,,17000000,16000000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,75,21,0,,0,9,1,,,,,,sci_brand.res_brand_kn,0.06,,Cho phép tính,,1
+,,KNPTTNV0001,,,Tháo nẹp vít 1 hàm,KNP00003,,,,,,,,22000000,20500000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,105,21,0,,0,12,1,,,,,,sci_brand.res_brand_kn,0.07,,Cho phép tính,,1
+,,KNPTTNV0003,,,Tháo nẹp vít 2 bên gò má,KNP00003,,,,,,,,22000000,21000000,base.VND,TRUE,Đại phẫu,Tiền mê,,Lần,Lần,Lần,Surgery,1.5,105,21,0,,0,12,1,,,,,,sci_brand.res_brand_kn,0.05,,Cho phép tính,,1
 ,,KNPTTHM0060,,,Chỉnh lồi cầu,KNP00003,,,,,,,,77000000,73000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,4.5,210,21,999,Trọn đời,Bảo Hành Trọn Đời,36,1,,,,,,sci_brand.res_brand_kn,0.05,"- Băng dính nâu định hình vùng hàm bóc sau 5 đến 7 ngày
 - Chườm mát vùng phẫu thuật trong vòng 2 ngày đầu.
 - Ăn mềm, lỏng, hạn chế nhai và tránh va chạm vào vùng mặt trong 1 tháng đầu sau phẫu thuật..
@@ -234,7 +234,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTHM0021,,,Gọt trán 3D,KNP00003,,,,,,,,77000000,73000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,5,210,21,999,Trọn đời,Bảo Hành Trọn Đời,37,1,,,,,,sci_brand.res_brand_kn,0.05,"- Sau phẫu thuật có thể sưng tím khu trú vùng mặt, vùng mũi, từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Thay băng vết thương hàng ngày. Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
@@ -249,7 +249,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTHM0074,,,Hạ (mài) xương gồ trán,KNP00003,,,,,,,,77000000,73000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,5,210,21,999,Trọn đời,Bảo Hành Trọn Đời,37,1,,,,,,sci_brand.res_brand_kn,0.05,"- Sau phẫu thuật có thể sưng tím khu trú vùng mặt, vùng mũi từ 5-7 ngày, lúc đầu xanh tím, sau chuyển sang vàng dần rối hết hẳn. 
 - Thay băng vết thương hàng ngày. Giữ vệ sinh tuyệt đối vết khâu.
 - Đễ hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
@@ -264,7 +264,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTMM0001,,,Tạo hình môi tim (môi trên),KNP00005,,,,,,,,13000000,10500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,40,14,10,Năm,Bảo hành trọn đời,6,1,,,,,,sci_brand.res_brand_kn,0.19,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu. Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -277,7 +277,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTMM0003,,,Tạo môi chẻ,KN00S051,,,,,,,,13000000,10500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,40,,,,,7,1,,,,,,sci_brand.res_brand_kn,0.19,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -290,7 +290,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: …………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: …………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00106,,,Thu mỏng môi (1 môi trên),KNP00005,,,,,,,,11000000,9500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,30,14,10,Năm,Bảo hành trọn đời,6,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -303,7 +303,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00107,,,Thu mỏng môi (1 môi dưới),KNP00005,,,,,,,,11000000,9500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,30,14,10,Năm,Bảo hành trọn đời,6,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -316,7 +316,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ………………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTMM0009,,,Tạo khóe môi cười,KNP00005,,,,,,,,16000000,13500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,50,14,10,Năm,Bảo hành trọn đời,9,1,,,,,,sci_brand.res_brand_kn,0.16,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -329,7 +329,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00114,,,Chỉnh hình viền môi,KNP00005,,,,,,,,22000000,18500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,75,14,0,,Không bảo hành,11,1,,,,,,sci_brand.res_brand_kn,0.16,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -342,7 +342,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466 để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTMM0010,,,Sửa sẹo môi mức 1,KNP00005,,,,,,,,11000000,9500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,30,14,0,,Không bảo hành,6,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -354,7 +354,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00116,,,Sửa sẹo môi mức 2,KNP00005,,,,,,,,17000000,14500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,55,14,0,,Không bảo hành,9,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -366,7 +366,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00118,,,Thu ngắn/tạo hình nhân trung,KNP00005,,,,,,,,22000000,18500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,60,14,0,,Không bảo hành,11,1,,,,,,sci_brand.res_brand_kn,0.16,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -379,7 +379,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466 để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTMM0024,,,Thu môi trề/môi vểnh,KNP00005,,,,,,,,17000000,14500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,40,14,0,,Không bảo hành,8,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.Vệ sinh xong không cần băng lại. Đeo khẩu trang khi đi ra ngoài.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh môi 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
@@ -392,7 +392,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466 để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,P00122,,,Combo Căng da mặt + Cổ,KNP00007,,,,,,,,97000000,77500000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,240,,5,Năm,Bảo Hành 5 năm,42,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể sưng tím khu trú vùng mặt, vùng mũi, từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Thay băng vết thương hàng ngày. Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
@@ -407,7 +407,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI vận hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTCD0009,,,Căng da vùng thái dương,KNP00007,,,,,,,,38000000,30500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2.5,90,21,5,Năm,Bảo Hành 5 năm,18,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể sưng tím khu trú vùng mặt, vùng mũi, từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Thay băng vết thương hàng ngày. Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
@@ -422,7 +422,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI vận hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTCD0015,,,Hạ đường chân tóc,KNP00007,,,,,,,,55000000,47000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,240,21,5,Năm,Bảo Hành 5 năm,28,1,,,,,,sci_brand.res_brand_kn,0.15," Sau phẫu thuật có thể sưng tím khu trú vùng mặt từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
  Thay băng vết thương hàng ngày. Giữ vệ sinh tuyệt đối vết khâu.
  Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
@@ -431,7 +431,7 @@ LƯU Ý:
  Bôi thuốc chống sẹo Xeragel (có thể mua tại bệnh viện) sau cắt chỉ 2 ngày. Bôi 2 lần/ngày (sáng, tối)
  Có gì bất thường đến ngay bệnh viện hoặc đến cơ sở y tế gần nhất.
  Khách hàng có thể gội đầu sau khi phẫu thuật 3 ngày. Sau khi gội đầu phải sấy khô tóc và sát trùng lại vết thương.
- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,
+ Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,,1
 ,,KNPTTCD0025,,,Căng da mặt bằng chỉ sinh học,KNP00007,,,,,,,,66000000,56000000,base.VND,TRUE,Tiểu phẫu,Gây tê,,Lần,Lần,Lần,Surgery,2,60,21,2,Năm,Bảo Hành 2 năm,26,1,,,,,,sci_brand.res_brand_kn,0.15,"- Hàng ngày dùng gạc thấm nước muối vệ sinh sạch vùng căng chỉ từ 2-3 lần/ngày. Ngày thứ 4 khách hàng có thể rửa mặt bằng sữa rửa mặt (thao tác nhẹ nhàng, không massage).
 - Không được gãi, va chạm hoặc đè vào khu vực mới căng chỉ vì có thể gây chảy máu, tụ máu.
 - Bạn cần tránh các tư thế gây áp lực lên vùng mặt như cúi đầu thấp, nằm dốc đầu và tránh kích thích gây nôn mửa, rặn.
@@ -448,7 +448,7 @@ LƯU Ý:
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ±10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,P00353,,,Lipo vùng đùi (M2),KNP00009,,,,,,,,75000000,56500000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3,240,,6,Tháng,"Bảo hành 6 tháng (vón cục, lồi lõm...)",35,1,,,,,,sci_brand.res_brand_kn,0.25,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -458,7 +458,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Đối tên từ "Giảm mỡ Lipo 360 vùng đùi (Mức 2) sang Lipo vùng đùi (M2)
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"Đối tên từ ""Giảm mỡ Lipo 360 vùng đùi (Mức 2) sang Lipo vùng đùi (M2)",1
 ,,P00138,,,Lipo Tiêu chuẩn/ Standard,KNP00009,,,,,,,,64000000,45000000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3,200,21,1,Năm,Bảo hành 1 năm,46,1,,,,,,sci_brand.res_brand_kn,0.3,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -468,7 +468,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Đổi tên từ "Giảm mỡ Lipo 360 toàn bụng 60-70kg (Bụng trên + dưới + eo)" sang "Lipo Tiêu chuẩn/ Standard "
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"Đổi tên từ ""Giảm mỡ Lipo 360 toàn bụng 60-70kg (Bụng trên + dưới + eo)"" sang ""Lipo Tiêu chuẩn/ Standard """,1
 ,,P00139,,,Giảm mỡ Lipo 360 toàn bụng 71-80kg (Bụng trên + dưới + eo),KNP00009,,,,,,,,74000000,52000000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3.5,220,21,1,Năm,Bảo hành 1 năm,58,1,,,,,,sci_brand.res_brand_kn,0.3,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -478,7 +478,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,P00140,,,Lipo Nâng cấp/ Advanced +,KNP00009,,,,,,,,94000000,66000000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3.5,240,21,1,Năm,Bảo hành 1 năm,61,1,,,,,,sci_brand.res_brand_kn,0.3,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -488,7 +488,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Đổi tên từ "Giảm mỡ Lipo 360 toàn bụng trên 80kg (Bụng trên + dưới + eo)" sang Lipo Nâng cấp/ Advanced +
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"Đổi tên từ ""Giảm mỡ Lipo 360 toàn bụng trên 80kg (Bụng trên + dưới + eo)"" sang Lipo Nâng cấp/ Advanced +",1
 ,,P00148,,,Lipo mini nọng cằm,KNP00009,,,,,,,,22000000,12000000,base.VND,TRUE,Đại phẫu,Tiền Mê,,Vùng,Vùng,Vùng,Surgery,3,60,21,1,Năm,Bảo hành 1 năm,12,1,,,,,,sci_brand.res_brand_kn,0.45,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -498,7 +498,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Đổi tên từ "Giảm mỡ Lipo 360 cằm (1 vùng riêng lẻ)" sang Lipo mini nọng cằm
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"Đổi tên từ ""Giảm mỡ Lipo 360 cằm (1 vùng riêng lẻ)"" sang Lipo mini nọng cằm",1
 ,,P00141,,,Lipo mini tay,KNP00009,,,,,,,,33000000,24000000,base.VND,TRUE,Đại phẫu,Tiền Mê,,Vùng,Vùng,Vùng,Surgery,3,60,21,1,Năm,Bảo hành 1 năm,16,1,,,,,,sci_brand.res_brand_kn,0.27,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -508,8 +508,8 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Đổi tên từ "Giảm mỡ Lipo 360 tay" sang Lipo mini nọng cằm
-,,P00344,,,Tạo hình siết cơ thành bụng,KNP00009,,,,,,,,12000000,10500000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,60,,,,,8,1,,,,,,sci_brand.res_brand_kn,0.13,,Cho phép tính,Đổi tên dịch vụ từ "Tạo hình 6 múi khi kết hợp giảm mỡ" sang Tạo hình siết cơ thành bụng
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"Đổi tên từ ""Giảm mỡ Lipo 360 tay"" sang Lipo mini nọng cằm",1
+,,P00344,,,Tạo hình siết cơ thành bụng,KNP00009,,,,,,,,12000000,10500000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,60,,,,,8,1,,,,,,sci_brand.res_brand_kn,0.13,,Cho phép tính,"Đổi tên dịch vụ từ ""Tạo hình 6 múi khi kết hợp giảm mỡ"" sang Tạo hình siết cơ thành bụng",1
 ,,P00173,,,Căng da bụng mini,KNP00009,,,,,,,,44000000,39500000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,3,150,21,6,Tháng,Bảo hành 6 tháng,22,1,,,,,,sci_brand.res_brand_kn,0.1,"- Thay băng vết thương hàng ngày trong 10-14 ngày đầu cho đến khi vết thương liền: dùng nước muối sinh lý rửa sạch vết thương, sát khuẩn lại bằng dung dịch Povidine 10% tiếp theo bôi 1 lớp mỏng Baume L.C.E (Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím) đặt gạc vô trùng kín vế thương băng sau đó tiến hành gen bụng.
 - Dùng gen định hình bụng ít nhất 1 tháng sau phẫu thuật.
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian dầu vết mổ sẽ nhăn đó là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6- 9 tháng.
@@ -520,9 +520,9 @@ LƯU Ý:
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa giá min
-,,P00347,,,Cấy mỡ body nhiều vùng làm kèm giảm mỡ,KNP00009,,,,,,,,49000000,42000000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,120,,,,,22,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,"Đổi tên ""Gói Sexy cấy mỡ nhiều vùng ngực, mông (kết hợp khi hút mỡ)"" thành Cấy mỡ body nhiều vùng làm kèm giảm mỡ"
-,,P00349,,,Gói Baby Kết hợp cấy mỡ mặt (Thái dương/ Má/ Rãnh mũi má/ môi trên + dưới/ Hóc mắt/ bắp chân/ đầu gối/ mu bàn tay/ mu bàn chân),KNP00009,,,,,,,,18000000,15500000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,60,,,,,10,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa giá min,1
+,,P00347,,,Cấy mỡ body nhiều vùng làm kèm giảm mỡ,KNP00009,,,,,,,,49000000,42000000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,120,,,,,22,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,"Đổi tên ""Gói Sexy cấy mỡ nhiều vùng ngực, mông (kết hợp khi hút mỡ)"" thành Cấy mỡ body nhiều vùng làm kèm giảm mỡ",1
+,,P00349,,,Gói Baby Kết hợp cấy mỡ mặt (Thái dương/ Má/ Rãnh mũi má/ môi trên + dưới/ Hóc mắt/ bắp chân/ đầu gối/ mu bàn tay/ mu bàn chân),KNP00009,,,,,,,,18000000,15500000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,2,60,,,,,10,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,,1
 ,,P00399,,,COMBO BODY RECOVERY 1,KNP00009,,,,,,,,106880000,82000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,5,360,,,,,50,1,,,,,,sci_brand.res_brand_kn,0.23,"- Thay băng vết thương hàng ngày trong 10-14 ngày đầu cho đến khi vết thương liền: dùng nước muối sinh lý rửa sạch vết thương, sát khuẩn lại bằng dung dịch Povidine 10% tiếp theo bôi 1 lớp mỏng Baume L.C.E (Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím) đặt gạc vô trùng kín vết thương băng sau đó tiến hành gen bụng.
 - Dùng gen định hình bụng ít nhất 1 tháng sau phẫu thuật. (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm). Tháng thứ 2 gen bụng ban ngày, ban đêm khi đi ngủ tháo ra
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn đó là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6-9 tháng
@@ -530,7 +530,7 @@ LƯU Ý:
 - Kiêng ăn đồ tanh, đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tháng. Sau đó có chế độ ăn kiêng hợp lý và tập thể dục thể thao thường xuyên để duy trì vóc dáng. 
 - Để hỗ trợ trong quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20-30ml/ lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để kết quả phục hồi nhanh hơn, khách hàng sử dụng thêm Healfast (có thể mua tại Bệnh viện) với liều sáng uống 5 viên, chiều 5 viên 1 liệu trình uống trong 10 ngày
-- Sau khi cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi (có thể mua tại Bệnh viện) vùng phẫu thuật thời gian từ 3 - 6 tháng để có kết quả thẩm mỹ hoàn hảo nhất. Nếu khách hàng sử dụng keo dán sinh học thì không cần thay băng theo liệu trình",Cho phép tính,Sửa giá min + Sửa HDCS
+- Sau khi cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi (có thể mua tại Bệnh viện) vùng phẫu thuật thời gian từ 3 - 6 tháng để có kết quả thẩm mỹ hoàn hảo nhất. Nếu khách hàng sử dụng keo dán sinh học thì không cần thay băng theo liệu trình",Cho phép tính,Sửa giá min + Sửa HDCS,1
 ,,P00400,,,COMBO BODY RECOVERY 2,KNP00009,,,,,,,,136880000,105000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,420,,,,,60,1,,,,,,sci_brand.res_brand_kn,0.23,"- Thay băng vết thương hàng ngày trong 10-14 ngày đầu cho đến khi vết thương liền: dùng nước muối sinh lý rửa sạch vết thương, sát khuẩn lại bằng dung dịch Povidine 10% tiếp theo bôi 1 lớp mỏng Baume L.C.E (Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím) đặt gạc vô trùng kín vết thương băng sau đó tiến hành gen bụng.
 - Dùng gen định hình bụng ít nhất 1 tháng sau phẫu thuật. (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm). Tháng thứ 2 gen bụng ban ngày, ban đêm khi đi ngủ tháo ra
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn đó là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6-9 tháng
@@ -538,7 +538,7 @@ LƯU Ý:
 - Kiêng ăn đồ tanh, đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tháng. Sau đó có chế độ ăn kiêng hợp lý và tập thể dục thể thao thường xuyên để duy trì vóc dáng. 
 - Để hỗ trợ trong quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20-30ml/ lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để kết quả phục hồi nhanh hơn, khách hàng sử dụng thêm Healfast (có thể mua tại Bệnh viện) với liều sáng uống 5 viên, chiều 5 viên 1 liệu trình uống trong 10 ngày
-- Sau khi cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi (có thể mua tại Bệnh viện) vùng phẫu thuật thời gian từ 3 - 6 tháng để có kết quả thẩm mỹ hoàn hảo nhất. Nếu khách hàng sử dụng keo dán sinh học thì không cần thay băng theo liệu trình",Cho phép tính,Sửa giá min + Sửa HDCS
+- Sau khi cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi (có thể mua tại Bệnh viện) vùng phẫu thuật thời gian từ 3 - 6 tháng để có kết quả thẩm mỹ hoàn hảo nhất. Nếu khách hàng sử dụng keo dán sinh học thì không cần thay băng theo liệu trình",Cho phép tính,Sửa giá min + Sửa HDCS,1
 ,,P00401,,,COMBO BODY PREMIUM,KNP00009,,,,,,,,153580000,115000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,285,,,,,63,1,,,,,,sci_brand.res_brand_kn,0.25,"- Sau phẫu thuật co thể sưng tím vùng mông, từ 5-7 ngày, lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Thay băng, rửa vết thương cách ngày 1 lần.
@@ -555,7 +555,7 @@ Băng ép vùng lấy mỡ bằng gen định hình bụng trong vòng 1 tháng.
 - Vận đông nhẹ nhàng, không mang vác đồ nặng, sau 1 tháng tập thể dục thể thao thường xuyên để duy trì vóc dáng
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20-30ml/ lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng pha loãng với nước lọc nếu thấy khó uống. 
 - Sau 1 tháng cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi Silicongel
-- Bôi kem sẹo Xeragel sau 2 ngày cắt chỉ..",Cho phép tính,Sửa giá min
+- Bôi kem sẹo Xeragel sau 2 ngày cắt chỉ..",Cho phép tính,Sửa giá min,1
 ,,P00402,,,COMBO BODY MEN,KNP00009,,,,,,,,109880000,80000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3.5,300,,,,,49,1,,,,,,sci_brand.res_brand_kn,0.27,"- Sau phẫu thuật co thể sưng tím vùng mông, từ 5-7 ngày, lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Thay băng, rửa vết thương cách ngày 1 lần.
@@ -572,11 +572,11 @@ Băng ép vùng lấy mỡ bằng gen định hình bụng trong vòng 1 tháng.
 - Vận đông nhẹ nhàng, không mang vác đồ nặng, sau 1 tháng tập thể dục thể thao thường xuyên để duy trì vóc dáng
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20-30ml/ lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng pha loãng với nước lọc nếu thấy khó uống. 
 - Sau 1 tháng cắt chỉ khách hàng sử dụng miếng dán chống sẹo lồi Silicongel
-- Bôi kem sẹo Xeragel sau 2 ngày cắt chỉ..",Cho phép tính,Sửa giá min
-,,P00408,,,Hút mỡ ZeroFat Basic,KNP00009,,,,,,,,54000000,42000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,2.5,180,,6,Tháng,6 tháng,40,1,,,,,,sci_brand.res_brand_kn,0.22,,Cho phép tính,Thêm mới DV
-,,P00409,,,Hút mỡ ZeroFat Standard,KNP00009,,,,,,,,64000000,45000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,200,,6,Tháng,6 tháng,46,1,,,,,,sci_brand.res_brand_kn,0.3,,Cho phép tính,Thêm mới DV
-,,P00410,,,Hút mỡ ZeroFat Standard Plus,KNP00009,,,,,,,,74000000,52000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,200,,6,Tháng,6 tháng,58,1,,,,,,sci_brand.res_brand_kn,0.3,,Cho phép tính,Thêm mới DV
-,,P00414,,,Gói tư vấn dinh dưỡng & vận động (kết hợp đơn vị ngoài),KNP00058,,,,,,,,24500000,19000000,base.VND,TRUE,,,,Gói,Gói,Gói,Weightloss,,,,6,Tháng,6 tháng,8,1,,,,,,sci_brand.res_brand_kn,0.22,,Cho phép tính,Thêm mới DV
+- Bôi kem sẹo Xeragel sau 2 ngày cắt chỉ..",Cho phép tính,Sửa giá min,1
+,,P00408,,,Hút mỡ ZeroFat Basic,KNP00009,,,,,,,,54000000,42000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,2.5,180,,6,Tháng,6 tháng,40,1,,,,,,sci_brand.res_brand_kn,0.22,,Cho phép tính,Thêm mới DV,1
+,,P00409,,,Hút mỡ ZeroFat Standard,KNP00009,,,,,,,,64000000,45000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,200,,6,Tháng,6 tháng,46,1,,,,,,sci_brand.res_brand_kn,0.3,,Cho phép tính,Thêm mới DV,1
+,,P00410,,,Hút mỡ ZeroFat Standard Plus,KNP00009,,,,,,,,74000000,52000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Gói,Gói,Gói,Surgery,3,200,,6,Tháng,6 tháng,58,1,,,,,,sci_brand.res_brand_kn,0.3,,Cho phép tính,Thêm mới DV,1
+,,P00414,,,Gói tư vấn dinh dưỡng & vận động (kết hợp đơn vị ngoài),KNP00058,,,,,,,,24500000,19000000,base.VND,TRUE,,,,Gói,Gói,Gói,Weightloss,,,,6,Tháng,6 tháng,8,1,,,,,,sci_brand.res_brand_kn,0.22,,Cho phép tính,Thêm mới DV,1
 ,,P00224,,,Cấy mỡ mặt 1 vùng BIOFAT (trán/thái dương/rãnh mũi má/hốc mắt...),KNP00006,,,,,,,,22000000,17500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,2,60,21,6,Tháng,Bảo Hành 06 tháng,11,1,,,,,,sci_brand.res_brand_kn,0.2,"- Khách hàng rửa mặt nhẹ nhàng bằng nước muối sinh lý thấm vào bông tẩy trang 2-3 ngày đầu sau phẫu thuật.
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi, rửa mặt nước ấm.
 - Kiêng ăn đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tuần.
@@ -596,7 +596,7 @@ Băng ép vùng lấy mỡ bằng gen định hình bụng trong vòng 1 tháng.
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ±10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa tên dịch vụ
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa tên dịch vụ,1
 ,,P00364,,,Cấy mỡ mặt 1 vùng BIOFAT tăng sinh trẻ hóa (trán/thái dương/rãnh mũi má/hốc mắt...),KNP00006,,,,,,,,35000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,2,120,21,6,Tháng,Bảo hành 6 tháng,17,1,,,,,,sci_brand.res_brand_kn,0.24,"- Khách hàng rửa mặt nhẹ nhàng bằng nước muối sinh lý thấm vào bông tẩy trang 2-3 ngày đầu sau phẫu thuật.
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi, rửa mặt nước ấm.
 - Kiêng ăn đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tuần.
@@ -612,7 +612,7 @@ LƯU Ý:
 - KH tiêm Profhilo sau 2-4 tuần cấy mỡ.
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Trong thời gian chưa cắt chỉ vết thương chưa ổn định, khách hàng không rửa mặt bằng sữa rửa mặt hay hóa mỹ phẩm bôi trực tiếp lên vết thương. Để làm sạch nên sử dụng dung dịch làm sạch sau phẫu thuật (Micellar Cleansing Water).
-- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,
+- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,,1
 ,,P00363,,,Gói bảo dưỡng 3 năm (Áp dụng cho cấy mỡ mặt toàn diện),KNP00006,,,,,,,,38000000,36000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,2,120,21,3,Năm,"Bảo hành 3 năm
 (2 lần)",18,2,,,,,,sci_brand.res_brand_kn,0.05,"- Khách hàng rửa mặt nhẹ nhàng bằng nước muối sinh lý thấm vào bông tẩy trang 2-3 ngày đầu sau phẫu thuật.
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi, rửa mặt nước ấm.
@@ -629,7 +629,7 @@ LƯU Ý:
 - KH tiêm Profhilo sau 2-4 tuần cấy mỡ.
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Trong thời gian chưa cắt chỉ vết thương chưa ổn định, khách hàng không rửa mặt bằng sữa rửa mặt hay hóa mỹ phẩm bôi trực tiếp lên vết thương. Để làm sạch nên sử dụng dung dịch làm sạch sau phẫu thuật (Micellar Cleansing Water).
-- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,
+- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,,1
 ,,P00225,,,Cấy mỡ toàn mặt BIOFAT (trên 3 vùng),KNP00006,,,,,,,,38000000,30500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,2,120,21,6,Tháng,Bảo Hành 06 tháng,18,1,,,,,,sci_brand.res_brand_kn,0.2,"- Khách hàng rửa mặt nhẹ nhàng bằng nước muối sinh lý thấm vào bông tẩy trang 2-3 ngày đầu sau phẫu thuật.
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi, rửa mặt nước ấm.
 - Kiêng ăn đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tuần.
@@ -650,7 +650,7 @@ LƯU Ý:
 LƯU Ý:
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ±10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa tên dịch vụ + Sửa giá max + gia 1min + Sửa điểm
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,Sửa tên dịch vụ + Sửa giá max + gia 1min + Sửa điểm,1
 ,,P00366,,,Cấy mỡ mặt toàn diện BIOFAT tăng sinh trẻ hóa (Bảo hành 3 năm),KNP00006,,,,,,,,85000000,64000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,2,120,21,3,Năm,"Bảo hành 3 năm
 (2 lần)",34,3,,,,,,sci_brand.res_brand_kn,0.25,"- Khách hàng rửa mặt nhẹ nhàng bằng nước muối sinh lý thấm vào bông tẩy trang 2-3 ngày đầu sau phẫu thuật.
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi, rửa mặt nước ấm.
@@ -668,7 +668,7 @@ LƯU Ý:
 - KH tiêm Profhilo sau 2-4 tuần cấy mỡ.
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Trong thời gian chưa cắt chỉ vết thương chưa ổn định, khách hàng không rửa mặt bằng sữa rửa mặt hay hóa mỹ phẩm bôi trực tiếp lên vết thương. Để làm sạch nên sử dụng dung dịch làm sạch sau phẫu thuật (Micellar Cleansing Water).
-- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,
+- Mua tại bệnh viện, không cần sử dụng lại với nước), Khi dùng thì tránh không bôi lên vết thương, để quá trình lành thương nhanh hơn. Không nên sử dụng nước muối kéo dài rất dễ gây khô ráp, sạm da và có thể nổi mụn.",Cho phép tính,,1
 ,,P00373,,,"Cấy mỡ 1 vùng BIOFAT tăng sinh trẻ hóa (+PRP) (bàn tay, bàn chân, bắp chân, đầu gối...) (Bảo hành 3 năm)",KNP00006,,,,,,,,75000000,56500000,base.VND,TRUE,Đại phẫu,Tiền mê,,Vùng,Vùng,Vùng,Surgery,3,80,21,3,Năm,"Bảo hành 3 năm
 (2 lần)",31,3,,,,,,sci_brand.res_brand_kn,0.25,"- Vệ sinh sạch sẽ vùng cấy mỡ, lau nhẹ nhàng bằng gạc ẩm thấm Nước muối dùng ngoài 
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng cấy mỡ sẽ giúp nhanh liền vết thương, giảm sưng tím.
@@ -678,7 +678,7 @@ LƯU Ý:
 - Sau phẫu thuật có thể sưng tím khu trú vùng phẫu thuật 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
 - Chườm mát tích cực trong 2 ngày đầu sau phẫu thuật (chườm 5-7 lần/ngày, mỗi lần 15-20 phút). Không được chườm ấm, xông hơi.
 - Kiêng ăn đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 10 ngày.
-- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,
+- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,,1
 ,,P00375,,,Cấy mỡ 1 vùng đùi BIOFAT tăng sinh trẻ hóa (+PRP),KNP00006,,,,,,,,85000000,64000000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3,180,21,,,,37,1,,,,,,sci_brand.res_brand_kn,0.25,"- Sau phẫu thuật có thể sưng tím khu trú vùng mông, từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Thay băng, rửa vết thương cách ngày 1 lần.
@@ -691,7 +691,7 @@ LƯU Ý:
 - Lấy mỡ vùng đùi:
 - Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy: dùng Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml rửa sạch vết thương, sát khuẩn lại bằng dung dịch Povidin 10% 20ml.
 - Băng ép vùng lấy mỡ 2-3 ngày đầu sau đó mặc quần gen định hình hoặc quần bó khít vùng đùi từ 7-10 ngày.
-- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,
+- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,,1
 ,,P00380,,,Cấy mỡ mông BIOFAT tăng sinh trẻ hóa (+PRP),KNP00006,,,,,,,,93500000,70000000,base.VND,TRUE,Đại phẫu,Gây mê,,Vùng,Vùng,Vùng,Surgery,3,195,21,,,,40,1,,,,,,sci_brand.res_brand_kn,0.25,"- Sau phẫu thuật có thể sưng tím khu trú vùng mông, từ 5 - 7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Thay băng, rửa vết thương cách ngày 1 lần.
@@ -705,7 +705,7 @@ LƯU Ý:
 - Lấy mỡ vùng đùi:
 - Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy: dùng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa sạch vết thương, sát khuẩn lại bằng dung dịch Povidin 10% 20ml).
 - Băng ép vùng lấy mỡ 2-3 ngày đầu sau đó mặc quần gen định hình hoặc quần bó khít vùng đùi từ 7-10 ngày.
-- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,
+- Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.",Cho phép tính,,1
 ,,KNPTTCM0009,,,Cấy mỡ Bio Fat mũi sau phẫu thuật mũi,KNP00006,,,,,,,,12000000,10500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Vùng,Vùng,Vùng,Surgery,1,45,21,6,Tháng,Bảo Hành 06 tháng,6,1,,,,,,sci_brand.res_brand_kn,0.13,"- Rửa vết thương bằng Natri clorid 0.9% (dd nhỏ mũi mắt) 10ml lấy hết chất cặn, dịch bám vết thương sau. Giữ vệ sinh tuyệt đối vết thương.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Khách hàng lưu ý: vệ sinh vết thương vùng lấy mỡ
@@ -718,7 +718,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………………. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVN0055,,,Nâng ngực 6D VIP (Nano chip linh hoạt),KNP00008,,,,,,,,105000000,90000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,120,21,999,Trọn đời,Bảo Hành Trọn Đời,42,1,,,,,,sci_brand.res_brand_kn,0.14,"- Thay băng, rửa vết thương cách ngày 1 lần.
 - Mặc áo định hình ngực trong vòng 1 tháng đầu sau phẫu thuật
 - Vận động nhẹ nhàng, tập giơ tay qua đầu sau 10 ngày.
@@ -731,7 +731,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá,1
 ,,P00356,,,Nâng ngực 6D VIP (Mentor extra),KNP00008,,,,,,,,105000000,90000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,3,120,21,999,Trọn đời,Bảo Hành Trọn Đời,42,1,,,,,,sci_brand.res_brand_kn,0.14,"- Thay băng, rửa vết thương cách ngày 1 lần.
 - Mặc áo định hình ngực trong vòng 1 tháng đầu sau phẫu thuật
 - Vận động nhẹ nhàng, tập giơ tay qua đầu sau 10 ngày.
@@ -744,8 +744,8 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá
-,,KNPTTVN0019,,,Tạo Hình Vú (Combo Thu gọn vú + Treo ngực sa trễ + Thu quầng),KNP00008,,,,,,,,95000000,81000000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,,,,,,,33,,,,,,,sci_brand.res_brand_kn,0.15,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá,1
+,,KNPTTVN0019,,,Tạo Hình Vú (Combo Thu gọn vú + Treo ngực sa trễ + Thu quầng),KNP00008,,,,,,,,95000000,81000000,base.VND,,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,,,,,,,33,,,,,,,sci_brand.res_brand_kn,0.15,,Cho phép tính,,1
 ,,KNPTTVN0034,,,Combo Treo ngực sa trễ + Thu quầng + Nâng ngực 4D,KNP00008,,,,,,,,98000000,84000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,4,210,21,999,Trọn đời,Bảo Hành Trọn Đời,43,1,,,,,,sci_brand.res_brand_kn,0.14,"- Rửa vết thương, giữ vệ sinh tuyệt đối vết khâu.
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6- 9 tháng.
 - Tuân thủ mặc áo định hình ngực và đai trắng trên + dưới bầu ngực 24/24h trong vòng 6 tháng sau phẫu thuật (khách hàng lưu ý mặc cả khi đi ngủ) để giảm nguy cơ sẹo giãn và tạo form ngực chuẩn giảm tình trạng sa trễ. 
@@ -758,8 +758,8 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá
-,,KNPTTVN0030,,,Hút mỡ nách (khi kết hợp với dịch vụ nâng ngực),KNP00008,,,,,,,,13000000,11000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,2.5,30,14,1,Năm,Bảo Hành 1 năm,8,1,,,,,,sci_brand.res_brand_kn,0.15,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Sửa giá,1
+,,KNPTTVN0030,,,Hút mỡ nách (khi kết hợp với dịch vụ nâng ngực),KNP00008,,,,,,,,13000000,11000000,base.VND,TRUE,Đại phẫu,Gây mê,,Lần,Lần,Lần,Surgery,2.5,30,14,1,Năm,Bảo Hành 1 năm,8,1,,,,,,sci_brand.res_brand_kn,0.15,,Cho phép tính,,1
 ,,KNPTTVN0028,,,Tạo hình thu nhỏ đầu vú (núm vú),KNP00008,,,,,,,,14000000,12500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,14,5,Năm,Bảo Hành 5 năm,7,1,,,,,,sci_brand.res_brand_kn,0.11,"- Lấy Tăm bông nhựa thấm ướt bằng Nước muối dùng ngoài rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại Bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng nề bầm tím, tái tạo liền vết thương nhanh hơn.
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6- 9 tháng.
@@ -770,14 +770,14 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau",Cho phép tính,,1
 ,,KNPTTVN0060,,,Dựng núm vú,KNP00008,,,,,,,,27000000,24500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,14,5,Năm,Bảo Hành 5 năm,12,1,,,,,,sci_brand.res_brand_kn,0.09,"- Sau phẫu thuật có thể sưng tím khu trú vùng quanh núm vú 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn.
 - Lấy Tăm bông nhựa thấm ướt bằng Nước muối dùng ngoài rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó sát trùng bằng Povidin 10% 20ml (10 chai/lốc), tiếp theo bôi 1 lớp mỏng thuốc mỡ Gentamycin 0.3% vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Không mặc áo ngực chật trong 1 tháng đầu.
 - Kiêng ăn đồ nếp, rau muống, thịt bò, thịt gà, trứng trong 1 tháng sau phẫu thuật.
 - Để hỗ trợ quá trình giảm đau, sưng nề, bầm tím sau phẫu thuật khách hàng sử dụng thêm thực phẩm chức năng DEHEMA (có thể mua tại Bệnh viện) với liều uống từ 20 -30 ml/lần mỗi ngày uống từ 2-3 lần. Uống sau ăn no, khách hàng có thể pha loãng với nước lọc nếu thấy khó uống.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại Bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
-- Bôi thuốc chống sẹo Xeragel (có thể mua tại Bệnh viện) sau cắt chỉ 2 ngày để làm mờ sẹo. Bôi 2 lần/ngày (sáng, tối).",Cho phép tính,
+- Bôi thuốc chống sẹo Xeragel (có thể mua tại Bệnh viện) sau cắt chỉ 2 ngày để làm mờ sẹo. Bôi 2 lần/ngày (sáng, tối).",Cho phép tính,,1
 ,,KNPTTVN0061,,,Chỉnh hình quầng vú,KNP00008,,,,,,,,27000000,24500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,14,5,Năm,Bảo Hành 5 năm,12,1,,,,,,sci_brand.res_brand_kn,0.09,"- Lấy Tăm bông nhựa thấm ướt bằng Nước muối dùng ngoài rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại Bệnh viện) lên da vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng nề bầm tím, tái tạo liền vết thương nhanh hơn.
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6- 9 tháng.
@@ -788,7 +788,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI vận hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………….. (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTVN0015,,,Cắt tuyến vú phụ,KNP00008,,,,,,,,17000000,15000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,50,14,2,Năm,Bảo Hành 2 năm,9,1,,,,,,sci_brand.res_brand_kn,0.12,"- Lấy Tăm bông nhựa thấm ướt bằng Nước muối dùng ngoài rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó sát trùng bằng Povidin 10% 20ml tiếp theo bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu..
 - Sau phẫu thuật có thể sưng tím khu trú vùng quanh vùng phẫu thuật 5-7 ngày, sau chuyển sang vàng dần rồi hết hẳn
 - Kiêng ăn đồ nếp, rau muống, hải sản, thịt bò, thịt gà, trứng trong vòng 1 tháng.
@@ -799,7 +799,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau)",Cho phép tính,,1
 ,,KNPTTCG0002,,,Phẫu thuật cắt tuyến vú (cắt bỏ tuyến),KNP00008,,,,,,,,77000000,73000000,base.VND,TRUE,Đại phẫu,Gây Mê,,Lần,Lần,Lần,Surgery,4,135,21,999,Năm,Bảo hành trọn đời,34,1,,,,,,sci_brand.res_brand_kn,0.05,"- Rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu. Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật bác sĩ cắt bỏ và thu gọn lượng da thừa lớn nên thời gian đầu vết mổ sẽ nhăn là bình thường, vết mổ sẽ phục hồi phẳng lại sau 6- 9 tháng.
@@ -813,7 +813,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ±10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"sửa tên, bỏ độ 1"
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,"sửa tên, bỏ độ 1",1
 ,,KNPTTMK0001,,,"Cắt bỏ sẹo co kéo, sẹo xấu do phẫu thuật mức 1",KNP00054,,,,,,,,7000000,6000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,40,14,1,Năm,Bảo Hành 1 năm,4,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -825,7 +825,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0002,,,"Cắt bỏ sẹo co kéo, sẹo xấu do phẫu thuật mức 2",KNP00054,,,,,,,,13000000,11000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,14,1,Năm,Bảo Hành 1 năm,7,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -837,7 +837,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0003,,,"Cắt bỏ sẹo co kéo, sẹo xấu do phẫu thuật mức 3",KNP00054,,,,,,,,19000000,16000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,90,14,1,Năm,Bảo Hành 1 năm,11,1,,,,,,sci_brand.res_brand_kn,0.16,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -849,7 +849,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0004,,,"Cắt bỏ sẹo co kéo, sẹo xấu do phẫu thuật mức 4",KNP00054,,,,,,,,26000000,22000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2.5,120,14,1,Năm,Bảo Hành 1 năm,14,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -861,7 +861,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0005,,,Phẫu thuật cắt u mức 1,KNP00054,,,,,,,,7000000,6000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,40,14,0,,0,4,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -873,7 +873,7 @@ LƯU Ý:
 LƯU Ý: 
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0006,,,Phẫu thuật cắt u mức 2,KNP00054,,,,,,,,13000000,11000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,14,0,,0,7,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -885,7 +885,7 @@ LƯU Ý:
 LƯU Ý: 
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0007,,,Phẫu thuật cắt u mức 3,KNP00054,,,,,,,,19000000,16000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,90,14,0,,0,11,1,,,,,,sci_brand.res_brand_kn,0.16,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -897,7 +897,7 @@ LƯU Ý:
 LƯU Ý: 
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0008,,,Phẫu thuật cắt u mức 4,KNP00054,,,,,,,,26000000,22000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2.5,120,14,0,,0,14,1,,,,,,sci_brand.res_brand_kn,0.15,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -909,7 +909,7 @@ LƯU Ý:
 LƯU Ý: 
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+- KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:…………….. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTMK0017,,,Điều trị sẹo lõm mặt bằng phương pháp cấy mỡ,KNP00054,,,,,,,,22000000,19000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,60,21,0,,0,11,1,,,,,,sci_brand.res_brand_kn,0.14,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -921,10 +921,10 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
-,,KNPTTMK0018,,,PRP sẹo sau phẫu thuật,KNP00054,,,,,,,,7000000,6000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,21,0,,0,5,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,
-,,KNPTTGD0002,,,Ghép da mức 2,KNP00056,,,,,,,,17000000,15500000,base.VND,TRUE,Tiểu phẫu,Gây tê,,Lần,Lần,Lần,Surgery,2,80,21,0,,0,10,1,,,,,,sci_brand.res_brand_kn,0.09,,Cho phép tính,
-,,KNPTTGD0003,,,Ghép da mức 3,KNP00056,,,,,,,,28000000,25000000,base.VND,TRUE,Tiểu phẫu,Gây tê,,Lần,Lần,Lần,Surgery,2.5,90,21,0,,0,14,1,,,,,,sci_brand.res_brand_kn,0.11,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:……………… (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
+,,KNPTTMK0018,,,PRP sẹo sau phẫu thuật,KNP00054,,,,,,,,7000000,6000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,21,0,,0,5,1,,,,,,sci_brand.res_brand_kn,0.14,,Cho phép tính,,1
+,,KNPTTGD0002,,,Ghép da mức 2,KNP00056,,,,,,,,17000000,15500000,base.VND,TRUE,Tiểu phẫu,Gây tê,,Lần,Lần,Lần,Surgery,2,80,21,0,,0,10,1,,,,,,sci_brand.res_brand_kn,0.09,,Cho phép tính,,1
+,,KNPTTGD0003,,,Ghép da mức 3,KNP00056,,,,,,,,28000000,25000000,base.VND,TRUE,Tiểu phẫu,Gây tê,,Lần,Lần,Lần,Surgery,2.5,90,21,0,,0,14,1,,,,,,sci_brand.res_brand_kn,0.11,,Cho phép tính,,1
 ,,KNPTTVK0005,,,Thẩm mỹ môi lớn E-Young,KNP00057,,,,,,,,13000000,10000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,21,1,Năm,Bảo Hành 1 năm,7,1,,,,,,sci_brand.res_brand_kn,0.23,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Có thể có sưng tím khu trú xung quanh vùng phẫu thuật, sau sẽ hết dần
@@ -934,7 +934,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTVK0007,,,Trẻ hóa E-Young môi lớn + bé/âm đạo,KNP00057,,,,,,,,27000000,21500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,2,90,21,1,Năm,Bảo Hành 1 năm,13,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Có thể có sưng tím khu trú xung quanh vùng phẫu thuật, sau sẽ hết dần
@@ -944,7 +944,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,P00240,,,"Trẻ hóa toàn diện cô bé (thì 2: Laser thâm, cấy dặm chỉ, filler)",KNP00057,,,,,,,,33000000,26500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,60,,0,,Không bảo hành,14,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Khách hàng lưu ý: vệ sinh vết thương vùng lấy mỡ
@@ -958,7 +958,7 @@ LƯU Ý:
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
 - KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 
-( chỉ gọi vào buổi tối thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+( chỉ gọi vào buổi tối thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,P00241,,,"Trẻ hóa toàn diện cô bé (thì 3: Cấy dặm chỉ, filler)",KNP00057,,,,,,,,22000000,17500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,40,,0,,Không bảo hành,10,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Khách hàng lưu ý: vệ sinh vết thương vùng lấy mỡ
@@ -972,7 +972,7 @@ LƯU Ý:
 - Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 - Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
 - KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 
-( chỉ gọi vào buổi tối thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+( chỉ gọi vào buổi tối thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTVK0010,,,Thẩm mỹ E-Young tầng sinh môn trong,KNP00057,,,,,,,,22000000,17500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,21,1,Năm,Bảo Hành 1 năm,11,1,,,,,,sci_brand.res_brand_kn,0.2,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Có thể có sưng tím khu trú xung quanh vùng phẫu thuật, sau sẽ hết dần
@@ -982,7 +982,7 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
 ,,KNPTTVK0003,,,Thẩm mỹ E-Young trẻ hóa âm vật,KNP00057,,,,,,,,11000000,8500000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1.5,60,21,1,Năm,Bảo Hành 1 năm,7,1,,,,,,sci_brand.res_brand_kn,0.23,"- Sau phẫu thuật có thể ra một ít dịch màu hồng là bình thường. Nếu sau 3 ngày vẫn thấy ra dịch hồng thì cần quay lại tái khám hoặc tới cơ sở y tế gần nhất để kiểm tra.
 - Pha Nước muối dùng ngoài với Povidin 10% 20ml rửa vết thương vùng phẫu thuật 2-3 lần/ ngày để giúp luôn sạch sẽ. 
 - Có thể có sưng tím khu trú xung quanh vùng phẫu thuật, sau sẽ hết dần
@@ -992,8 +992,8 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: 0965531466. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
-,,KNPTPTK0002,,,Cắt bao quy đầu,KNP00057,,,,,,,,14000000,13000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,0.5,60,,1,Năm,Bảo hành 1 năm,7,1,,,,,,sci_brand.res_brand_kn,0.07,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:0978993925 (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
+,,KNPTPTK0002,,,Cắt bao quy đầu,KNP00057,,,,,,,,14000000,13000000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,0.5,60,,1,Năm,Bảo hành 1 năm,7,1,,,,,,sci_brand.res_brand_kn,0.07,,Cho phép tính,,1
 ,,KNPTTMK0009,,,Phẫu thuật nốt ruồi mức 1 (nhỏ),KNP00014,,,,,,,,1000000,800000,base.VND,TRUE,Tiểu phẫu,Tê tại chỗ,,Lần,Lần,Lần,Surgery,1,30,14,0,,0,2,1,,,,,,sci_brand.res_brand_kn,0.2,"- Lấy Tăm bông nhựa thấm ướt bằng Natri clorid 0.9% (dd nhỏ mũi mắt)10ml rửa vết thương, lấy hết chất cặn, dịch bám vào vết khâu, sau đó bôi 1 lớp mỏng thuốc mỡ Gentamicin 0,3% (thuốc mỡ) tuýp 5 gam vào vết khâu (nếu không dùng kem L.C.E). Giữ vệ sinh tuyệt đối vết khâu.
 - Để hỗ trợ quá trình phục hồi vết thương, bôi một lớp mỏng kem Baume L.C.E (có thể mua tại bệnh viện) lên vùng phẫu thuật giúp nhanh liền vết thương, giảm sưng tím.
 - Sau phẫu thuật có thể sưng tím vùng phẫu thuật từ 5-7 ngày; lúc đầu xanh tím, sau chuyển sang vàng dần rồi hết hẳn.
@@ -1005,8 +1005,8 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: ……………… để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,
-,,P00354,,,Tiêm giải filler kết hợp phẫu thuật,KNP00014,,,,,,,,7000000,2500000,base.VND,TRUE,,Bôi tê,,Lần,Lần,Lần,Surgery,,,,,,,2,,,,,,,sci_brand.res_brand_kn,0.64,,Cho phép tính,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,,1
+,,P00354,,,Tiêm giải filler kết hợp phẫu thuật,KNP00014,,,,,,,,7000000,2500000,base.VND,TRUE,,Bôi tê,,Lần,Lần,Lần,Surgery,,,,,,,2,,,,,,,sci_brand.res_brand_kn,0.64,,Cho phép tính,,1
 ,,P00398,,,Lipo mini 1 vùng lẻ,KNP00009,,,,,,,,45000000,34000000,base.VND,TRUE,Đại phẫu,Tiền Mê,,Vùng,Vùng,Vùng,Surgery,3,60,21,1,Năm,Bảo hành 1 năm,20,1,,,,,,sci_brand.res_brand_kn,0.24,"- Thay băng vết thương hàng ngày trong 3-5 ngày đầu cho đến khi vết thương kết vảy. Sau đó thay băng 2 ngày 1 lần đến khi cắt chỉ
 - Dùng gen định hình bụng trong vòng 1 tháng sau phẫu thuật (trong đó 10 ngày đầu gen bằng gen cứng sau đó có thể chuyển mặc gen định hình mềm).
 - Sau phẫu thuật có thể sưng, tím nhẹ, sau đó chuyển sang màu vàng và hết
@@ -1016,10 +1016,10 @@ LƯU Ý:
 LƯU Ý: 
 • Để đảm bảo kiểm soát tốt về chất lượng chuyên môn và an toàn dịch vụ khách hàng vui lòng tuân thủ về lịch tái khám theo Quy định của Bệnh viện. Nếu KH có việc bận có thể khám ± 10 ngày. Trường hợp KH không thể đến khám được vì lý do bất khả kháng thì Bệnh viện sẽ thực hiện khám online qua kết nối video call với bác sĩ Kangnam thăm khám cho KH. (Để đặt lịch khám online KH vui lòng liên hệ với phòng tái khám ĐT: …………….. để chúng tôi hỗ trợ Quý KH) 
 • Khách hàng không tuân thủ lịch tái khám theo chỉ định của bác sỹ KANGNAM SẼ TỪ CHỐI bảo hành dịch vụ của Khách hàng.
-• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Bổ sung điểm/ độ khó/ thơi gian/ bảo hành/ HDCS/ tính hoa hồng
-,,N000106,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 1,PRP00002,,,,,,,,1500000,1000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,1.6,,,,,,,sci_brand.res_brand_kn,0.33,46281,,
-,,N000107,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 2,PRP00002,,,,,,,,2000000,1700000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,2.4,,,,,,,sci_brand.res_brand_kn,0.15,46281,,
-,,N000108,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 3,PRP00002,,,,,,,,2500000,2000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,3,,,,,,,sci_brand.res_brand_kn,0.2,46281,,
-,,N000174,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 1,PRP00002,,,,,,,,2000000,1700000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,1.6,,,,,,,sci_brand.res_brand_kn,0.15,46281,,
-,,N000175,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 2,PRP00002,,,,,,,,3000000,2500000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,2.4,,,,,,,sci_brand.res_brand_kn,0.17,46281,,
-,,N000176,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 3,PRP00002,,,,,,,,5000000,3000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,3,,,,,,,sci_brand.res_brand_kn,0.4,46281,,
+• KH cần hỗ trợ CẤP CỨU về chuyên môn sau vui lòng liên hệ: ĐT:………………. (thời gian từ 17h30 – 8h sáng hôm sau).",Cho phép tính,Bổ sung điểm/ độ khó/ thơi gian/ bảo hành/ HDCS/ tính hoa hồng,1
+,,N000106,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 1,PRP00002,,,,,,,,1500000,1000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,1.6,,,,,,,sci_brand.res_brand_kn,0.33,46281,,,1
+,,N000107,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 2,PRP00002,,,,,,,,2000000,1700000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,2.4,,,,,,,sci_brand.res_brand_kn,0.15,46281,,,1
+,,N000108,,,Phẫu thuật nhổ răng khôn mọc lệch hàm trên - Mức 3,PRP00002,,,,,,,,2500000,2000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,3,,,,,,,sci_brand.res_brand_kn,0.2,46281,,,1
+,,N000174,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 1,PRP00002,,,,,,,,2000000,1700000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,1.6,,,,,,,sci_brand.res_brand_kn,0.15,46281,,,1
+,,N000175,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 2,PRP00002,,,,,,,,3000000,2500000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,2.4,,,,,,,sci_brand.res_brand_kn,0.17,46281,,,1
+,,N000176,,,Phẫu thuật nhổ răng khôn mọc lệch hàm dưới - Mức 3,PRP00002,,,,,,,,5000000,3000000,base.VND,TRUE,Đại phẫu,Gây mê,,Răng,Răng,Răng,Nha,0,,,,,,3,,,,,,,sci_brand.res_brand_kn,0.4,46281,,,1

@@ -1,124 +1,108 @@
 ﻿stt,id,pricelist_id,pricelist_id/id,product_id/id,product_id,fixed_price - giá gốc,fixed_price - giá min,applied_on,bảng giá trong khoảng,max_discount_mkt,max_discount_increase_local,discount_old_customer,deep_discount,ghi_chu,brand
-1,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00031,9000000,7000000,Biến thể sản phẩm,True,,,,,,1
-2,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00032,9000000,7000000,Biến thể sản phẩm,True,,,,,,1
-3,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00033,15000000,12000000,Biến thể sản phẩm,True,,,,,,1
-4,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00034,15000000,15000000,Biến thể sản phẩm,False,,,,,,1
-5,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00035,7000000,5600000,Biến thể sản phẩm,True,,,,,,1
-6,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00036,14000000,11000000,Biến thể sản phẩm,True,,,,,,1
-7,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00037,14000000,12000000,Biến thể sản phẩm,True,,,,,,1
-8,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00038,10000000,8000000,Biến thể sản phẩm,True,,,,,,1
-9,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00039,23000000,18000000,Biến thể sản phẩm,True,,,,,,1
-10,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00040,35000000,30000000,Biến thể sản phẩm,True,,,,,,1
-11,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00041,,30000000,Biến thể sản phẩm,True,,,,,,1
-12,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00042,,40000000,Biến thể sản phẩm,True,,,,,,1
-13,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00043,7000000,6000000,Biến thể sản phẩm,True,,,,,,1
-14,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMAT00044,3000000,2500000,Biến thể sản phẩm,True,,,,,,1
-15,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00028,36000000,28000000,Biến thể sản phẩm,True,,,,,,1
-16,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00029,44000000,35000000,Biến thể sản phẩm,True,,,,,,1
-17,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00030,60000000,48000000,Biến thể sản phẩm,True,,,,,,1
-18,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00031,71000000,55000000,Biến thể sản phẩm,True,,,,,,1
-19,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00032,79000000,70000000,Biến thể sản phẩm,True,,,,,,1
-20,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00033,93000000,80000000,Biến thể sản phẩm,True,,,,,,1
-21,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00034,98000000,90000000,Biến thể sản phẩm,True,,,,,,1
-22,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00035,7000000,6000000,Biến thể sản phẩm,True,,,,,,1
-23,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00036,12000000,12000000,Biến thể sản phẩm,False,,,,,,1
-24,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00037,15000000,12000000,Biến thể sản phẩm,True,,,,,,1
-25,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00038,18000000,10000000,Biến thể sản phẩm,True,,,,,,1
-26,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00039,7000000,7000000,Biến thể sản phẩm,False,,,,,,1
-27,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00040,26000000,22000000,Biến thể sản phẩm,True,,,,,,1
-28,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00041,15000000,15000000,Biến thể sản phẩm,False,,,,,,1
-29,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00042,15000000,14000000,Biến thể sản phẩm,True,,,,,,1
-30,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00043,11000000,10000000,Biến thể sản phẩm,True,,,,,,1
-31,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMUI00044,30000000,15000000,Biến thể sản phẩm,True,,,,,,1
-32,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00001,45000000,36000000,Biến thể sản phẩm,True,,,,,,1
-33,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00002,45000000,36000000,Biến thể sản phẩm,True,,,,,,1
-34,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00003,30000000,24000000,Biến thể sản phẩm,True,,,,,,1
-35,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00004,68000000,54400000,Biến thể sản phẩm,True,,,,,,1
-36,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00005,90000000,85500000,Biến thể sản phẩm,True,,,,,,1
-37,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00006,68000000,54400000,Biến thể sản phẩm,True,,,,,,1
-38,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00007,68000000,54400000,Biến thể sản phẩm,True,,,,,,1
-39,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00008,12000000,9600000,Biến thể sản phẩm,True,,,,,,1
-40,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00009,25000000,23750000,Biến thể sản phẩm,True,,,,,,1
-41,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00010,40000000,38000000,Biến thể sản phẩm,True,,,,,,1
-42,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00011,30000000,24000000,Biến thể sản phẩm,True,,,,,,1
-43,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00012,70000000,66500000,Biến thể sản phẩm,True,,,,,,1
-44,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00013,90000000,85500000,Biến thể sản phẩm,True,,,,,,1
-45,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00014,120000000,114000000,Biến thể sản phẩm,True,,,,,,1
-46,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00015,150000000,142500000,Biến thể sản phẩm,True,,,,,,1
-47,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00016,15000000,14250000,Biến thể sản phẩm,True,,,,,,1
-48,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00017,20000000,19000000,Biến thể sản phẩm,True,,,,,,1
-49,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00018,30000000,27000000,Biến thể sản phẩm,True,,,,,,1
-50,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00019,50000000,45000000,Biến thể sản phẩm,True,,,,,,1
-51,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00020,70000000,66500000,Biến thể sản phẩm,True,,,,,,1
-52,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHMT00021,70000000,66500000,Biến thể sản phẩm,True,,,,,,1
-53,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00003,12000000,9600000,Biến thể sản phẩm,True,,,,,,1
-54,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00004,12000000,9600000,Biến thể sản phẩm,True,,,,,,1
-55,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00005,10000000,8500000,Biến thể sản phẩm,True,,,,,,1
-56,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00006,15000000,12000000,Biến thể sản phẩm,True,,,,,,1
-57,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00007,20000000,17000000,Biến thể sản phẩm,True,,,,,,1
-58,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00008,10000000,8500000,Biến thể sản phẩm,True,,,,,,1
-59,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMOI00009,15000000,12000000,Biến thể sản phẩm,True,,,,,,1
-60,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00025,64000000,50000000,Biến thể sản phẩm,True,,,,,,1
-61,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00026,89000000,70000000,Biến thể sản phẩm,True,,,,,,1
-62,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00027,50000000,40000000,Biến thể sản phẩm,True,,,,,,1
-63,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00028,50000000,40000000,Biến thể sản phẩm,True,,,,,,1
-64,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00029,35000000,30000000,Biến thể sản phẩm,True,,,,,,1
-65,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00030,50000000,40000000,Biến thể sản phẩm,True,,,,,,1
-66,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCD00031,60000000,50000000,Biến thể sản phẩm,True,,,,,,1
-67,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00036,60000000,45000000,Biến thể sản phẩm,True,,,,,,1
-68,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00037,75000000,50000000,Biến thể sản phẩm,True,,,,,,1
-69,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00038,54000000,40000000,Biến thể sản phẩm,True,,,,,,1
-70,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00039,64000000,45000000,Biến thể sản phẩm,True,,,,,,1
-71,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00040,74000000,55000000,Biến thể sản phẩm,True,,,,,,1
-72,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00041,20000000,10000000,Biến thể sản phẩm,True,,,,,,1
-73,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00042,24000000,17000000,Biến thể sản phẩm,True,,,,,,1
-74,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHM00043,60000000,50000000,Biến thể sản phẩm,True,,,,,,1
-75,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00017,20000000,15000000,Biến thể sản phẩm,True,,,,,,1
-76,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00018,38000000,35000000,Biến thể sản phẩm,True,,,,,,1
-77,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00019,35000000,25000000,Biến thể sản phẩm,True,,,,,,1
-78,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00020,35000000,30000000,Biến thể sản phẩm,True,,,,,,1
-79,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00021,18000000,15000000,Biến thể sản phẩm,True,,,,,,1
-80,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00022,70000000,55000000,Biến thể sản phẩm,True,,,,,,1
-81,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00023,70000000,55000000,Biến thể sản phẩm,True,,,,,,1
-82,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCM00024,30000000,20000000,Biến thể sản phẩm,True,,,,,,1
-83,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00027,30000000,25000000,Biến thể sản phẩm,True,,,,,,1
-84,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00028,60000000,55000000,Biến thể sản phẩm,True,,,,,,1
-85,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00029,79000000,65000000,Biến thể sản phẩm,True,,,,,,1
-86,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00030,99000000,84000000,Biến thể sản phẩm,True,,,,,,1
-87,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00031,120000000,100000000,Biến thể sản phẩm,True,,,,,,1
-88,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00032,75000000,60000000,Biến thể sản phẩm,True,,,,,,1
-89,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00033,130000000,110000000,Biến thể sản phẩm,True,,,,,,1
-90,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00034,98000000,82000000,Biến thể sản phẩm,True,,,,,,1
-91,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00035,70000000,55000000,Biến thể sản phẩm,True,,,,,,1
-92,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00036,12000000,10000000,Biến thể sản phẩm,True,,,,,,1
-93,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00037,12000000,15000000,Biến thể sản phẩm,True,,,,,,1
-94,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00038,20000000,20000000,Biến thể sản phẩm,False,,,,,,1
-95,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00039,20000000,20000000,Biến thể sản phẩm,False,,,,,,1
-96,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTNGUC00040,70000000,60000000,Biến thể sản phẩm,True,,,,,,1
-97,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTMONG00003,89000000,80000000,Biến thể sản phẩm,True,,,,,,1
-98,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCS00003,6000000,5000000,Biến thể sản phẩm,True,,,,,,1
-99,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCS00004,12000000,10000000,Biến thể sản phẩm,True,,,,,,1
-100,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCS00005,18000000,15000000,Biến thể sản phẩm,True,,,,,,1
-101,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTCS00006,24000000,20000000,Biến thể sản phẩm,True,,,,,,1
-102,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTHTMH00003,10000000,10000000,Biến thể sản phẩm,False,,,,,,1
-103,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTSM00013,15000000,15000000,Biến thể sản phẩm,False,,,,,,1
-104,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTSM00014,15000000,15000000,Biến thể sản phẩm,False,,,,,,1
-105,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DAPTSM00015,40000000,40000000,Biến thể sản phẩm,False,,,,,,1
-106,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00072,3000000,3000000,Biến thể sản phẩm,False,,,,,,1
-107,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00073,500000,500000,Biến thể sản phẩm,False,,,,,,1
-108,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00074,1300000,1300000,Biến thể sản phẩm,False,,,,,,1
-109,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00075,500000,500000,Biến thể sản phẩm,False,,,,,,1
-110,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00076,700000,700000,Biến thể sản phẩm,False,,,,,,1
-111,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00077,270000,270000,Biến thể sản phẩm,False,,,,,,1
-112,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00078,270000,270000,Biến thể sản phẩm,False,,,,,,1
-113,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00079,300000,300000,Biến thể sản phẩm,False,,,,,,1
-114,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00080,300000,300000,Biến thể sản phẩm,False,,,,,,1
-115,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00081,110000,110000,Biến thể sản phẩm,False,,,,,,1
-116,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00082,100000,100000,Biến thể sản phẩm,False,,,,,,1
-117,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00083,2500000,2500000,Biến thể sản phẩm,False,,,,,,1
-118,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00084,4000000,4000000,Biến thể sản phẩm,False,,,,,,1
-119,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00085,10000000,10000000,Biến thể sản phẩm,False,,,,,,1
-120,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00086,500000,500000,Biến thể sản phẩm,False,,,,,,1
-121,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00087,800000,800000,Biến thể sản phẩm,False,,,,,,1
-122,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00088,500000,500000,Biến thể sản phẩm,False,,,,,,1
-123,,Bảng giá dịch vụ Đông Á 2026,__export__.product_pricelist_144_f401ba5f,,DADVK00089,1000000,1000000,Biến thể sản phẩm,False,,,,,,1
+1,,Bảng giá dịch vụ Kangnam 2026,,,KNPTCMM0011,15400000,12000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+2,,Bảng giá dịch vụ Kangnam 2026,,,KNPTCMM0056,15400000,12000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+3,,Bảng giá dịch vụ Kangnam 2026,,,KNPTCMM0022,38000000,34000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+4,,Bảng giá dịch vụ Kangnam 2026,,,KNPTCMM0023,38000000,34000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+5,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0058,71000000,56800000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+6,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0059,79000000,71000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+7,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0060,93000000,83700000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+8,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0023,98000000,88200000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+9,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0029,8000000,6500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+10,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0027,13000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+11,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0052,28000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+12,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVM0051,12000000,11000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+13,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0019,49000000,39000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+14,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0017,49000000,39000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+15,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0033,33000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+16,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0007,74000000,59000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+17,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0072,74000000,59000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+18,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0001,68000000,54500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+19,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0003,74000000,59000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+20,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0015,13000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+21,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0046,28000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+22,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0048,43000000,41000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+23,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0037,33000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+24,,Bảng giá dịch vụ Kangnam 2026,,,P00099,17000000,16000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+25,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTNV0001,22000000,20500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+26,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTNV0003,22000000,21000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+27,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0060,77000000,73000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+28,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0021,77000000,73000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+29,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTHM0074,77000000,73000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+30,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMM0001,13000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+31,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMM0003,13000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+32,,Bảng giá dịch vụ Kangnam 2026,,,P00106,11000000,9500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+33,,Bảng giá dịch vụ Kangnam 2026,,,P00107,11000000,9500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+34,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMM0009,16000000,13500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+35,,Bảng giá dịch vụ Kangnam 2026,,,P00114,22000000,18500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+36,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMM0010,11000000,9500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+37,,Bảng giá dịch vụ Kangnam 2026,,,P00116,17000000,14500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+38,,Bảng giá dịch vụ Kangnam 2026,,,P00118,22000000,18500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+39,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMM0024,17000000,14500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+40,,Bảng giá dịch vụ Kangnam 2026,,,P00122,97000000,77500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+41,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTCD0009,38000000,30500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+42,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTCD0015,55000000,47000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+43,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTCD0025,66000000,56000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+44,,Bảng giá dịch vụ Kangnam 2026,,,P00353,75000000,56500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+45,,Bảng giá dịch vụ Kangnam 2026,,,P00138,64000000,45000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+46,,Bảng giá dịch vụ Kangnam 2026,,,P00139,74000000,52000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+47,,Bảng giá dịch vụ Kangnam 2026,,,P00140,94000000,66000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+48,,Bảng giá dịch vụ Kangnam 2026,,,P00148,22000000,12000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+49,,Bảng giá dịch vụ Kangnam 2026,,,P00141,33000000,24000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+50,,Bảng giá dịch vụ Kangnam 2026,,,P00344,12000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+51,,Bảng giá dịch vụ Kangnam 2026,,,P00173,44000000,39500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+52,,Bảng giá dịch vụ Kangnam 2026,,,P00347,49000000,42000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+53,,Bảng giá dịch vụ Kangnam 2026,,,P00349,18000000,15500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+54,,Bảng giá dịch vụ Kangnam 2026,,,P00399,106880000,82000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+55,,Bảng giá dịch vụ Kangnam 2026,,,P00400,136880000,105000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+56,,Bảng giá dịch vụ Kangnam 2026,,,P00401,153580000,115000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+57,,Bảng giá dịch vụ Kangnam 2026,,,P00402,109880000,80000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+58,,Bảng giá dịch vụ Kangnam 2026,,,P00408,54000000,42000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+59,,Bảng giá dịch vụ Kangnam 2026,,,P00409,64000000,45000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+60,,Bảng giá dịch vụ Kangnam 2026,,,P00410,74000000,52000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+61,,Bảng giá dịch vụ Kangnam 2026,,,P00414,24500000,19000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+62,,Bảng giá dịch vụ Kangnam 2026,,,P00224,22000000,17500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+63,,Bảng giá dịch vụ Kangnam 2026,,,P00364,35000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+64,,Bảng giá dịch vụ Kangnam 2026,,,P00363,38000000,36000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+65,,Bảng giá dịch vụ Kangnam 2026,,,P00225,38000000,30500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+66,,Bảng giá dịch vụ Kangnam 2026,,,P00366,85000000,64000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+67,,Bảng giá dịch vụ Kangnam 2026,,,P00373,75000000,56500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+68,,Bảng giá dịch vụ Kangnam 2026,,,P00375,85000000,64000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+69,,Bảng giá dịch vụ Kangnam 2026,,,P00380,93500000,70000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+70,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTCM0009,12000000,10500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+71,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0055,105000000,90000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+72,,Bảng giá dịch vụ Kangnam 2026,,,P00356,105000000,90000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+73,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0019,95000000,81000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+74,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0034,98000000,84000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+75,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0030,13000000,11000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+76,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0028,14000000,12500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+77,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0060,27000000,24500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+78,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0061,27000000,24500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+79,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVN0015,17000000,15000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+80,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTCG0002,77000000,73000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+81,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0001,7000000,6000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+82,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0002,13000000,11000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+83,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0003,19000000,16000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+84,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0004,26000000,22000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+85,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0005,7000000,6000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+86,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0006,13000000,11000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+87,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0007,19000000,16000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+88,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0008,26000000,22000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+89,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0017,22000000,19000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+90,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0018,7000000,6000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+91,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTGD0002,17000000,15500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+92,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTGD0003,28000000,25000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+93,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVK0005,13000000,10000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+94,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVK0007,27000000,21500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+95,,Bảng giá dịch vụ Kangnam 2026,,,P00240,33000000,26500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+96,,Bảng giá dịch vụ Kangnam 2026,,,P00241,22000000,17500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+97,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVK0010,22000000,17500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+98,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTVK0003,11000000,8500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+99,,Bảng giá dịch vụ Kangnam 2026,,,KNPTPTK0002,14000000,13000000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+100,,Bảng giá dịch vụ Kangnam 2026,,,KNPTTMK0009,1000000,800000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+101,,Bảng giá dịch vụ Kangnam 2026,,,P00354,7000000,2500000,Biến thể sản phẩm,,,,,,Điều chỉnh giá,1
+102,,Bảng giá dịch vụ Kangnam 2026,,,N000106,1500000,1000000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
+103,,Bảng giá dịch vụ Kangnam 2026,,,N000107,2000000,1700000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
+104,,Bảng giá dịch vụ Kangnam 2026,,,N000108,2500000,2000000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
+105,,Bảng giá dịch vụ Kangnam 2026,,,N000174,2000000,1700000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
+106,,Bảng giá dịch vụ Kangnam 2026,,,N000175,3000000,2500000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
+107,,Bảng giá dịch vụ Kangnam 2026,,,N000176,5000000,3000000,Biến thể sản phẩm,,,,,,Cập nhật thêm vào bảng giá PT,1
