@@ -110,4 +110,4 @@ SELECT
     e.account_fb::text                                               AS account_fb,
     e.nhom_dv_raw::text                                               AS nhom_dv_muc_tieu_code
 FROM enriched e
-LEFT JOIN {{ source('kangnam','ucbt_page_config') }} upc ON upc.page_code = e.page_code
+LEFT JOIN {{ ref('ucbt_page_config') }} upc ON upc.page_code = e.page_code

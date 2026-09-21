@@ -70,7 +70,7 @@ LEFT JOIN LATERAL (
 LEFT JOIN {{ source('kangnam', 'ggs_region_map') }} grm
        ON grm.location = tn.tinh_noi
 LEFT JOIN {{ ref('dim_page') }} mcp ON mcp.page_id::text = f.page_id::text
-LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+LEFT JOIN {{ ref('ucbt_country_continent') }} ccm
     ON ccm.country = f.quoc_gia
 LEFT JOIN LATERAL (
     SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
@@ -108,7 +108,7 @@ SELECT
     m.nguon_moi_v2                                           AS nguon_moi_v2,
     m.nhom_nguon_moi_v2                                      AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_region') }} m
-    LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+    LEFT JOIN {{ ref('ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
@@ -147,7 +147,7 @@ SELECT
     COALESCE(m.nguon_moi_v2,'KXĐ')::text                      AS nguon_moi_v2,
     COALESCE(m.nhom_nguon_moi_v2,'KXĐ')::text                 AS nhom_nguon_moi_v2
 FROM {{ ref('int_frmack_region') }} m
-    LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
+    LEFT JOIN {{ ref('ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
     LEFT JOIN LATERAL (
         SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
