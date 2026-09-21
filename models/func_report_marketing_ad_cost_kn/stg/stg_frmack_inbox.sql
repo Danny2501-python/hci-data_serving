@@ -62,7 +62,7 @@ i AS (
         upc.page_name  ,upc.page_id, a.actor_code, a.nhom_dv_muc_tieu_code, da.account_name AS account_fb
     FROM a
     -- Regular LEFT JOIN (not LATERAL) — matching original Pass 9
-    LEFT JOIN {{ source('kangnam', 'campaign_name_split') }} cns
+    LEFT JOIN {{ ref('campaign_name_split') }} cns
            ON UPPER(cns.campain_name_split) = UPPER(a.nhom_dv_qc)
     LEFT JOIN {{ source('kangnam', 'ucbt_page_config') }} upc
            ON upc.page_code = a.page_code

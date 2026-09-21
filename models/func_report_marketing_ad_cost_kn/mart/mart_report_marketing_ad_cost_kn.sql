@@ -73,7 +73,7 @@ LEFT JOIN {{ ref('dim_page') }} mcp ON mcp.page_id::text = f.page_id::text
 LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
     ON ccm.country = f.quoc_gia
 LEFT JOIN LATERAL (
-    SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+    SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
     WHERE UPPER(campain_name_split) = UPPER(f.nhom_dv_muc_tieu_code) LIMIT 1
 ) cns_mt ON TRUE
 
@@ -111,7 +111,7 @@ FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
     LEFT JOIN LATERAL (
-        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
         WHERE UPPER(campain_name_split) = UPPER(m.nhom_dv_muc_tieu_code) LIMIT 1
     ) cns_mt ON TRUE
 WHERE m.ticket_id <> 0
@@ -150,7 +150,7 @@ FROM {{ ref('int_frmack_region') }} m
     LEFT JOIN {{ source('kangnam','ucbt_country_continent') }} ccm
         ON ccm.country = m.quoc_gia
     LEFT JOIN LATERAL (
-        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
         WHERE UPPER(campain_name_split) = UPPER(m.nhom_dv_muc_tieu_code) LIMIT 1
     ) cns_mt ON TRUE
 WHERE (m.ticket_id = 0 OR m.ticket_id IS NULL)

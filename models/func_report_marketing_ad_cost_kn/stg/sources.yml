@@ -18,7 +18,6 @@ sources:
       # Mapping / config
       - name: ty_gia_techcombank
       - name: location_kangnam_adnet
-      - name: campaign_name_split
       - name: ggs_region_map
       - name: product_category
       - name: crm_lead

@@ -65,7 +65,7 @@ enriched AS (
     FROM base b
     LEFT JOIN LATERAL (
         SELECT nhom_dv
-        FROM {{ source('kangnam', 'campaign_name_split') }}
+        FROM {{ ref('campaign_name_split') }}
         WHERE UPPER(campain_name_split) = UPPER(b.nhom_dv_raw)
         LIMIT 1
     ) cns ON TRUE
