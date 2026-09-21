@@ -61,6 +61,41 @@ seeds:
         id: integer
         country: varchar
         continent: varchar
+  - name: ucbt_page_config
+    description: >
+      Cấu hình page (page_code -> page_name/brand/channel...) dùng ở
+      func_report_marketing_ad_cost_kn qua ref(). page_id để varchar (id Facebook
+      dài, có dòng trống) — downstream đã cast ::text khi so khớp.
+    config:
+      column_types:
+        page_name: varchar
+        page_id: varchar
+        type: varchar
+        group: varchar
+        channel: varchar
+        brand: varchar
+        page_code: varchar
+  - name: ucbt_camp_actor
+    config:
+      column_types:
+        name: varchar
+        email: varchar
+        actor_code: varchar
+  - name: campaign_name_split
+    description: >
+      Bảng map token nhóm dịch vụ trong tên campaign (campain_name_split, so khớp
+      không phân biệt hoa/thường) sang tên nhóm dịch vụ chuẩn (nhom_dv). Dùng ở
+      func_report_marketing_ad_cost_kn (int_frmack_fb_cost và
+      mart_report_marketing_ad_cost_kn) qua ref() nên phải `dbt seed --select
+      campaign_name_split` chạy trước `dbt build --select tag:report_kn`.
+      Tên cột campain_name_split (thiếu chữ g) là cố ý, khớp với SQL đang dùng.
+    config:
+      column_types:
+        campain_name_split: varchar
+        nhom_dv: varchar
+        snapshot_date: date
+        ingestion_timestamp: timestamp
+        source_server: varchar
   - name: import_stag_employee_null
     config:
       column_types:

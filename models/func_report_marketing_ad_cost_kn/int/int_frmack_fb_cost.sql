@@ -25,11 +25,11 @@ WITH fb AS (
         fc.country_name_vn,fc.continent_vn
     FROM {{ ref('stg_frmack_fb_insight_v3') }} s
     LEFT JOIN LATERAL (
-        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
         WHERE UPPER(campain_name_split) = UPPER(s.nhom_dv) LIMIT 1
     ) cns  ON TRUE
     LEFT JOIN LATERAL (
-        SELECT nhom_dv FROM {{ source('kangnam', 'campaign_name_split') }}
+        SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
         WHERE UPPER(campain_name_split) = (s.nhom_dv2) LIMIT 1
     ) cns2 ON TRUE
     LEFT JOIN {{source('kangnam','fb_country_code_mapping')}} fc on fc.country_code = s.country
