@@ -16,6 +16,7 @@ sources:
       - name: crm_line_product
       - name: stag_payment_transfer
       - name: utm_source
+      - name: utm_source_old_source_rel
       - name: table_team_sale_trans_field
       - name: m_res_company
       - name: stag_sources
@@ -37,3 +38,16 @@ sources:
       - name: product_category
       - name: cs_deal_detail_api_v2
       - name: cs_custom_fields
+      # Bo sung cho rhh_thuchi / rhh_doanh_so_san_khoa / rhh_doanh_so_pttm_erp
+      - name: ehc_tb_phieuthuchi_tondauky
+      - name: ehc_tb_phieuthuchi
+      - name: ehc_tb_dm_phieuthuchi_noidung
+      - name: ehc_tb_dm_invoice_hinhthuc
+      - name: ehc_tb_hoahongbacsiinvoice
+      - name: ehc_tb_nguoigioithieuinvoice
+      - name: ehc_tb_ptttchi_invoice
+      - name: ehc_tb_nhanvien
+      - name: ehc_tb_servicedata
+      - name: ehc_tb_service
+      - name: ehc_tb_dm_servicegroup
+      - name: ehc_tb_dm_servicesubgroup
