@@ -167,7 +167,7 @@ models:
       mart:
         +materialized: table
     master_data:
-      +tags: ["master_data"]
+      +tags: ["report_kn", "master_data"]
     report_vong_doi_kh_kn:
       +tags: ["report_vong_doi_kh_kn"]
       stg:
