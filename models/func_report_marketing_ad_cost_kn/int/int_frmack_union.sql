@@ -77,11 +77,12 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
   and (reason_cancel_booking not in ('tao_booking_bh') or reason_cancel_booking is null)
@@ -99,11 +100,12 @@ SELECT
     pwp.account_fb::text as account_fb,
     pwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     pwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    pwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     pwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     pwp.nguon_moi_v2::text as nguon_moi_v2,
     pwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM payment_with_page pwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on pwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on pwp.page_code = upc.page_code
 
 UNION ALL
 -- Lead (Pass 5)
@@ -119,11 +121,12 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 1
 
@@ -140,6 +143,7 @@ SELECT
     account_fb::text as account_fb,
     nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Facebook'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2
@@ -159,11 +163,12 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on cbwp.page_code = upc.page_code
 WHERE ngay_den_cua >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND tong_tien > 0 AND loai_ban_ghi = 2
   and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
@@ -181,6 +186,7 @@ SELECT
     null as account_fb,
     null as nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Google_Ads'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2
@@ -200,11 +206,12 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on cbwp.page_code = upc.page_code
 WHERE ngay_tao >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
   and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
@@ -223,11 +230,12 @@ SELECT
     cbwp.account_fb::text as account_fb,
     cbwp.nhom_dv_muc_tieu_code::text as nhom_dv_muc_tieu_code,
     cbwp.nhom_dv_KH_quan_tam::text as nhom_dv_KH_quan_tam,
+    cbwp.nhom_dv_KH_quan_tam_goc::text as nhom_dv_KH_quan_tam_goc,
     cbwp.nhom_dv_chinh_booking::text as nhom_dv_chinh_booking,
     cbwp.nguon_moi_v2::text as nguon_moi_v2,
     cbwp.nhom_nguon_moi_v2::text as nhom_nguon_moi_v2
 FROM crm_base_with_page cbwp
-  left join {{source('kangnam','ucbt_page_config')}} upc on cbwp.page_code = upc.page_code
+  left join {{ ref('ucbt_page_config') }} upc on cbwp.page_code = upc.page_code
 WHERE ngay_hl >= '{{ var("start_date", "2025-08-01") }}'::date
   AND nhom_dv <> 'SAN PHAM' AND loai_ban_ghi = 2
   and (reason_cancel_booking <> 'tao_booking_bh' or reason_cancel_booking is null)
@@ -245,6 +253,7 @@ SELECT
     type_data, ticket_id, campaign, page_name, page_id_from_camp,
     actor_code, account_fb, nhom_dv_muc_tieu_code,
     null::text as nhom_dv_KH_quan_tam,
+    null::text as nhom_dv_KH_quan_tam_goc,
     null::text as nhom_dv_chinh_booking,
     'Facebook'::text as nguon_moi_v2,
     'Online'::text as nhom_nguon_moi_v2

@@ -63,6 +63,13 @@ models:
   data_serving:
     common:
       +materialized: ephemeral
+      # stg_common_tongquan_khachhang_sm_pr override materialized='view' trong
+      # file .sql (khong phai ephemeral nhu default cua common) nen can tag
+      # rieng de DAG 'tag:report_pr_daily_chinhanh' build no truoc khi
+      # report_pr_daily_chinhanh chay - truoc day khong co tag nen khong DAG
+      # nao tung build ra view nay, gay loi "relation does not exist".
+      stg_common_tongquan_khachhang_sm_pr:
+        +tags: ["report_pr_daily_chinhanh"]
     func_report_marketing_ad_cost_kn:
       +tags: ["report_kn"]
       stg:
@@ -190,7 +197,7 @@ models:
       mart:
         +materialized: table
     master_data:
-      +tags: ["master_data"]
+      +tags: ["report_kn", "master_data"]
     report_vong_doi_kh_kn:
       +tags: ["report_vong_doi_kh_kn"]
       stg:
@@ -348,6 +355,16 @@ seeds:
         table_name: varchar(63)
         column_name: varchar(63)
         description: text
+    # Seed dung cho func_report_marketing_ad_cost_kn: gan tag report_kn de
+    # `dbt build --select tag:report_kn` load seed truoc khi build model.
+    campaign_name_split:
+      +tags: ["report_kn"]
+    ucbt_camp_actor:
+      +tags: ["report_kn"]
+    ucbt_country_continent:
+      +tags: ["report_kn"]
+    ucbt_page_config:
+      +tags: ["report_kn"]
     rtr_target:
       # Target/chi tieu doanh thu THV theo thang - doi ke hoach tu sua file
       # seeds/rtr_target.csv (Excel/CSV) roi chay `dbt seed --select rtr_target`,

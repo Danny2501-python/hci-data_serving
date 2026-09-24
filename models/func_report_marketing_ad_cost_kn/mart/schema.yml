@@ -105,6 +105,20 @@ models:
           this raw (always NULL, same as `page`/`account_fb`/`nhom_dv_muc_tieu`
           there); Stream 2 & 3 (non-FB) COALESCE to `'KXĐ'` — same treatment
           as `actor`.
+      - name: nhom_dv_KH_quan_tam_goc
+        description: >
+          Raw (un-grouped) counterpart of `nhom_dv_KH_quan_tam`: the customer's
+          first `crm_line`'s `view_stag_products.product_category` (the raw
+          category — input of the CASE WHEN that produces `product_group`),
+          from `stg_dv_khach_hang_quan_tam.first_product_category`. Same join
+          key/mechanism, same population scope, and same NULL/COALESCE
+          treatment as `nhom_dv_KH_quan_tam` (populated for DC/Lead/TC/BK/HL/DS;
+          raw NULL for Inbox, Google, DealCS, and Stream 1; Stream 2 & 3
+          COALESCE to `'KXĐ'`). Không nhầm với `nhom_dv_KH_quan_tam` — cột đó
+          là nhãn ĐÃ gom nhóm (`PTTM MẮT`, `BEAUTY & SPA`...); cột này là danh
+          mục gốc trước khi CASE WHEN gom nhóm (vd `HÚT MỠ`, `GIẢM BÉO KHÔNG
+          PT`...), có thể có nhiều giá trị khác nhau cùng đổ về 1 nhóm ở cột
+          `nhom_dv_KH_quan_tam`.
       - name: nhom_dv_chinh_booking
         description: >
           Booking-level "main service group", bucketed into 9 groups
