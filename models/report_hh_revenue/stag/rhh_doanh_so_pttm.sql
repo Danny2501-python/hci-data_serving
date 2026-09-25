@@ -23,7 +23,7 @@ with base as (
     select
         *,
         date_trunc('month', invoicedate)::date as thang
-    from {{ ref('rhh_ehc_payment_service') }}
+    from {{ ref('rhh_ehc_payment_service_base') }}
 ),
 
 pttm_patientcode as (
