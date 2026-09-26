@@ -343,6 +343,11 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    # Bao cao Tableau doanh so tap doan HCI. Chi gan tag, KHONG doi materialized (stg = view mac
+    # dinh, int/mart tu khai bao table trong file .sql). Chay: dbt build --select tag:rtds
+    # (+ tag:report_thv_revenue neu can lam moi THV, + tag:erp_staging neu can lam moi Kangnam/Paris).
+    report_tableau_doanh_so_tap_doan_HCI:
+      +tags: ["rtds"]
 
 
 # report_table_definitions/report_column_definitions: business context for
@@ -397,15 +402,17 @@ seeds:
     # mart/report_rtds_doanh_so_thang_tableau.sql + report_rtds_target_thang_tableau.sql): gia tri
     # tien VND vuot range integer 32-bit (>2,1 ty) - ep bigint tranh loi "integer out of range".
     seed_doanh_so_2025_mockup:
+      +tags: ["rtds"]
       +column_types:
         tong_so_tien: bigint
     seed_target_thv_2026_mockup:
       +column_types:
         target: bigint
-    # 2026-09-16: seed "số chốt" thủ công cho Hồng Hà/Tiêu Hóa Việt — ghi đè tạm số doanh số ra báo
-    # cáo cho CÁC THÁNG ĐÃ QUA (không áp dụng tháng hiện tại), trong khi luồng dbt tự động
-    # (int_rtds_hongha.sql/int_rtds_thv.sql) vẫn chạy song song để tiện điều chỉnh/đối soát sau —
+    # 2026-09-16: seed "so chot" thu cong cho Hong Ha (THV da bo ra tu 2026-09-26, dung live tu
+    # report_thv_revenue) - ghi de tam so doanh so ra bao cao cho CAC THANG DA QUA (khong ap dung
+    # thang hien tai), luong dbt tu dong (int_rtds_hongha.sql) van chay song song de doi soat -
     # xem report_rtds_doanh_so_thang_tableau.sql.
     seed_doanh_so_chot_hongha_thv:
+      +tags: ["rtds"]
       +column_types:
         tong_so_tien: bigint
