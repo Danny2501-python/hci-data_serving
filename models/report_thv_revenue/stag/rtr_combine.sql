@@ -150,5 +150,13 @@ select
     -- Hoàn toàn không có nguồn (nguon_ehc/nguoigioithieu NULL) -> giữ NULL,
     -- không đoán/mặc định nhóm nào cả (áp dụng cho cả dich_vu và nha_thuoc).
     grouped.nhom_nguon_baocao_raw as nhom_nguon_baocao,
-    grouped.nhom_md_ml_baocao_raw as nhom_md_ml_baocao
+    -- TỪ T9/2026: nhóm VL ("N - Vãng lai") xếp sang ML thay vì MD (yêu cầu
+    -- người dùng). Điều kiện theo invoicedate nên phải đặt ở đây, không đặt ở
+    -- rtr_nhom_nguoigioithieu (dimension người giới thiệu, không có ngày).
+    -- Tháng <= T8/2026 giữ nguyên VL -> MD như trước.
+    case
+        when grouped.invoicedate >= date '2026-09-01'
+             and grouped.nhom_nguon_baocao_raw = 'VL' then 'ML'
+        else grouped.nhom_md_ml_baocao_raw
+    end as nhom_md_ml_baocao
 from grouped
