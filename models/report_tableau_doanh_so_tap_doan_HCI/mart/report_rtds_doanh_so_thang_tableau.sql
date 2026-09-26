@@ -48,10 +48,13 @@ live as (
     where nam >= 2026
 ),
 
+-- (2026-09-26) Bật/tắt ghi đè số chốt bằng var `rtds_ap_dung_so_chot` (dbt_project.yml). Hiện TẮT:
+-- báo cáo dùng số tính dbt, seed vẫn giữ nguyên dữ liệu để so sánh (query thẳng bảng seed khi cần).
 seed_chot as (
     select brand, nam, thang, tong_so_tien
     from {{ ref('seed_doanh_so_chot_hongha_thv') }}
     where nam >= 2026
+      and {{ 'true' if var('rtds_ap_dung_so_chot', false) else 'false' }}
 ),
 
 live_khong_bi_ghi_de as (

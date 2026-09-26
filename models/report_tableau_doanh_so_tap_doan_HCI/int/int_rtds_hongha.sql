@@ -1,21 +1,19 @@
--- Doanh số Hồng Hà (EHC, brand_etl=4 bên CRM) — nguồn CHÍNH là ehc_tb_invoice (đúng pattern
--- fct_doanhso_ehc_theo_nguon.sql đã có sẵn trong repo: chỉ tính dm_invoice_typeid 1 (Phiếu thu) và
--- 2 (Hoàn tiền, đảo dấu) là doanh số thật — các loại phiếu khác (Tạm ứng/Miễn giảm/Thu 0đ/Chi BHYT)
--- KHÔNG tính vào doanh số, giữ nguyên logic gốc, không tự mở rộng thêm loại phiếu).
---
--- Chi tiết booking/dịch vụ/nguồn: bắc cầu `ehc_tb_patientrecord.id_booking` ↔ `crm_lead.name` (LỌC
--- brand_etl=4 TRƯỚC khi so khớp — mã booking trùng ngẫu nhiên giữa các brand, đã verify thực tế
--- 2026-08-27, xem lịch sử trao đổi). Coverage cầu này ~85-100% từ T8/2025 trở đi (sau khi backfill
--- crm_lead từ sandbox, mục 2026-08-27) — các dòng KHÔNG khớp được (đa số trước T8/2025, hoặc bệnh
--- nhân không qua CRM) vẫn giữ nguyên dòng doanh số, chỉ để trống ma_booking/nhom_dich_vu/san_pham
--- (co_chi_tiet_booking=false) — KHÔNG loại bỏ khỏi báo cáo.
---
--- ⚠ 1 booking (crm_id) có thể có NHIỀU dòng crm_line/crm_line_product (nhiều dịch vụ trong 1 lần
--- khám), nhưng 1 invoice EHC = 1 dòng doanh số duy nhất — nếu join thẳng sẽ FAN-OUT nhân bản doanh
--- số. Dùng `distinct on (crm_id)` lấy đúng 1 dòng dịch vụ ĐẠI DIỆN (không phải đầy đủ mọi dịch vụ
--- của booking đó) — ưu tiên id nhỏ nhất, chọn tuỳ ý vì mục đích chỉ để có 1 nhãn dịch vụ tham khảo,
--- KHÔNG phải để tính lại doanh số theo dịch vụ (doanh số vẫn lấy nguyên từ invoice, không bị ảnh
--- hưởng bởi việc chọn dòng nào).
+-- Doanh số Hồng Hà (EHC, brand_etl=4 bên CRM).
+-- ⚠ (2026-09-26) ĐỔI NGUỒN doanh số: lấy thẳng từ mart `rhh_ehc_payment_service` (folder
+-- report_hh_revenue, do hahth xây — xem models/report_hh_revenue/LOGIC.md), theo yêu cầu người dùng
+-- "khớp logic doanh số theo nhánh hahth". Chỉ lấy `nguon_du_lieu in ('Dịch vụ','Nhà thuốc')` (bỏ
+-- 'Target'). Khác biệt so với bản cũ (tự tính trên ehc_tb_invoice, chỉ phiếu loại 1/2):
+--   - Viện phí: cùng ngày `invoicedate`, nhưng tính MỌI loại phiếu chưa huỷ (hahth đảo dấu loại 2
+--     Hoàn tiền / 4 Hoàn ứng, các loại khác cộng dương) — `sotienphieu` cộng thẳng.
+--   - THÊM cọc (`ehc_tb_invoicerequest`, pl = 'Cọc trong tháng', ngày = `ngayyeucau`).
+--   - THÊM nhà thuốc (`ehc_tb_invoicemedicine`, ngày = `invoicemedicinedate`), nhom_dich_vu = 'Nhà thuốc'.
+--   - KHÔNG loại CBNV (hahth không loại cho Hồng Hà).
+-- GIỮ NGUYÊN phần trừ túi ngực/túi mông (union "âm" bên dưới) — hahth không có phần này.
+-- THÊM (2026-09-26) phần trừ lương bác sĩ PTTM theo ca ra viện 2026 (union "âm" cuối file, CTE luong_bs).
+-- Nguồn/nhóm nguồn/nhóm dịch vụ vẫn bắc cầu id_booking ↔ crm_lead.name (brand_etl=4) như cũ, fallback
+-- về người giới thiệu/nhóm hoa hồng EHC mà hahth đã join sẵn.
+-- ⚠ 1 booking (crm_id) có thể có NHIỀU dòng crm_line/crm_line_product — dùng `distinct on (crm_id)`
+-- lấy 1 dòng dịch vụ ĐẠI DIỆN làm nhãn tham khảo, tránh fan-out (doanh số không bị ảnh hưởng).
 --
 -- (Var `closed_company_ids` trong dbt_project.yml — loại chi nhánh Kangnam/Paris đã đóng cửa theo
 -- Tableau — KHÔNG áp dụng ở đây: hệ EHC không có company_id/m_res_company tương ứng, chi_nhanh
@@ -63,35 +61,24 @@ cline_one as (
 ),
 
 base as (
-    select
-        iv.invoiceid,
-        iv.patientrecordid,
-        iv.invoicedate,
-        case iv.dm_invoice_typeid when 1 then iv.sotienphieu when 2 then -iv.sotienphieu end as so_tien
-    from {{ ref('stg_rtds_ehc_tb_invoice') }} iv
-    where iv.huyphieu_status = 0
-      and iv.invoiceid not in (select invoiceid from {{ ref('stg_rtds_ehc_tb_invoicerequest') }})
+    select *
+    from {{ ref('rhh_ehc_payment_service') }}
+    where nguon_du_lieu in ('Dịch vụ', 'Nhà thuốc')
 ),
 
 pr as (
-    select patientrecordid, patientcode, patientname, nguoigioithieuid, id_booking
+    select patientrecordid, patientcode, patientname
     from {{ ref('stg_rtds_ehc_tb_patientrecord') }}
 ),
 
-ng as (
-    select nguoigioithieuid, nguoigioithieuname, dm_hoahongnguoigioithieu_nguoigioithieuid
-    from {{ ref('stg_rtds_ehc_tb_nguoigioithieu') }}
-),
-
-nhom_ng as (
-    select dm_hoahongnguoigioithieu_nguoigioithieuid, dm_hoahongnguoigioithieu_nguoigioithieuname
-    from {{ ref('stg_rtds_ehc_nhom_nguon') }}
-),
-
+-- ⚠ (2026-09-26) crm_lead brand_etl=4 có ~2.000 `name` (mã booking) bị TRÙNG → join thẳng làm
+-- FAN-OUT nhân bản doanh số (đã đo: T6/2026 +254tr, T8 −6,9tr do nhân cả phiếu hoàn tiền âm). Khử
+-- trùng giống hahth (rhh_ehc_payment_service): giữ bản ghi write_date mới nhất mỗi name.
 bridge as (
-    select id as crm_lead_id, name as ma_booking, source_id
+    select distinct on (name) id as crm_lead_id, name as ma_booking, source_id
     from {{ ref('stg_rtds_crm_lead') }}
     where brand_etl = 4
+    order by name, write_date desc nulls last, id desc
 ),
 
 -- ⚠ Dùng EXISTS (không phải IN (SELECT DISTINCT ...)) — đã đo bằng EXPLAIN ANALYZE trên DB thật:
@@ -112,32 +99,54 @@ tui_nguc_mong as (
           select 1 from {{ ref('stg_rtds_ehc_tb_servicedata') }} s2
           where s2.patientrecordid = sd.patientrecordid and s2.dm_report_groupid = 5
       )
+),
+
+-- ⚠⚠ (2026-09-26) TRỪ LƯƠNG BÁC SĨ PTTM theo ca ra viện (yêu cầu người dùng, CHỈ năm 2026 — 3 mã
+-- dưới đây thuộc bảng giá "2026-L", chỉ phát sinh từ 2026-01-02):
+--   - Đại phẫu  = DVHH0700 "Dịch vụ PTTM (gây mê)" đơn giá 13.000.000 → trừ 2.000.000/ca.
+--   - Tiểu phẫu = DVHH0701 "Dịch vụ PTTM (tiền mê)" 3.900.000 hoặc DVHH0702 "(Gây tê)" 3.000.000
+--                 → trừ 500.000/ca.
+-- Lọc theo servicecode (KHÔNG theo đơn giá — nhiều dịch vụ khác tình cờ cùng giá: cắt mí, nẹp vít...).
+-- 1 ca = 1 hồ sơ bệnh án (patientrecordid) × 1 loại: hồ sơ có nhiều dòng cùng loại chỉ tính 1 ca; hồ
+-- sơ có CẢ đại lẫn tiểu phẫu trừ CẢ 2 khoản (người dùng chốt). Chỉ dòng tongbenhnhan > 0 (giống query
+-- HIS gốc). Chỉ hồ sơ ĐÃ RA VIỆN (dm_patientrecordstatusid = 1), tháng ghi nhận = tháng
+-- medicalrecorddate_out (ngày ra viện) — hồ sơ chưa ra viện (ngày để trống 0001-01-01) chưa trừ.
+luong_bs as (
+    select
+        sd.patientrecordid,
+        case when sd.servicecode = 'DVHH0700' then 'dai' else 'tieu' end as loai_phau
+    from {{ ref('stg_rtds_ehc_tb_servicedata') }} sd
+    where sd.servicecode in ('DVHH0700', 'DVHH0701', 'DVHH0702')
+      and sd.tongbenhnhan > 0
+      and sd.servicedatadate >= date '2026-01-01'
+    group by 1, 2
 )
 
 select
     'Hồng Hà' as brand,
     'EHC' as nguon_he_thong,
-    b.invoiceid::text as ma_giao_dich,
+    case
+        when b.nguon_du_lieu = 'Nhà thuốc' then 'nt-' || b.sophieu
+        when b.pl = 'Cọc trong tháng' then 'coc-' || coalesce(b.sophieu, b.invoiceid::text)
+        else b.invoiceid::text
+    end as ma_giao_dich,
     (bridge.crm_lead_id is not null) as co_chi_tiet_booking,
     b.invoicedate::date as ngay,
     extract(year from b.invoicedate)::int as nam,
     extract(month from b.invoicedate)::int as thang,
-    pr.patientcode as ma_khach_hang,
-    pr.patientname as ten_khach_hang,
+    b.patientcode as ma_khach_hang,
+    b.patientname as ten_khach_hang,
     bridge.ma_booking as ma_booking,
-    sp.product_category as nhom_dich_vu,
-    sp.product as san_pham,
+    case when b.nguon_du_lieu = 'Nhà thuốc' then 'Nhà thuốc' else sp.product_category end as nhom_dich_vu,
+    case when b.nguon_du_lieu = 'Nhà thuốc' then null else sp.product end as san_pham,
     'Hồng Hà' as chi_nhanh,
-    coalesce(ss.source, ng.nguoigioithieuname) as nguon,
-    coalesce(ss.newcat_source, nhom_ng.dm_hoahongnguoigioithieu_nguoigioithieuname) as nhom_nguon_khach,
-    b.so_tien::numeric as so_tien
+    coalesce(ss.source, b.source_ehc) as nguon,
+    coalesce(ss.newcat_source, b.dm_hoahongnguoigioithieu_nguoigioithieuname) as nhom_nguon_khach,
+    b.sotienphieu::numeric as so_tien
 from base b
-left join pr on pr.patientrecordid = b.patientrecordid
-left join ng on ng.nguoigioithieuid = pr.nguoigioithieuid
-left join nhom_ng on nhom_ng.dm_hoahongnguoigioithieu_nguoigioithieuid = ng.dm_hoahongnguoigioithieu_nguoigioithieuid
-left join bridge on bridge.ma_booking = pr.id_booking
+left join bridge on bridge.ma_booking = b.id_booking
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = bridge.source_id
-left join cline_one cl2 on cl2.crm_id = bridge.crm_lead_id
+left join cline_one cl2 on cl2.crm_id = bridge.crm_lead_id and b.nguon_du_lieu = 'Dịch vụ'
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = cl2.product_id and sp.brand_etl = cl2.brand_etl
 
 union all
@@ -163,3 +172,29 @@ select
     tnm.so_tien::numeric as so_tien
 from tui_nguc_mong tnm
 left join pr pr2 on pr2.patientrecordid = tnm.patientrecordid
+
+union all
+
+-- Dòng "âm" trừ lương bác sĩ PTTM theo ca ra viện — xem chú thích CTE luong_bs.
+select
+    'Hồng Hà' as brand,
+    'EHC' as nguon_he_thong,
+    'luongbs-' || lbs.loai_phau || '-' || lbs.patientrecordid::text as ma_giao_dich,
+    false as co_chi_tiet_booking,
+    pr3.medicalrecorddate_out::date as ngay,
+    extract(year from pr3.medicalrecorddate_out)::int as nam,
+    extract(month from pr3.medicalrecorddate_out)::int as thang,
+    pr3.patientcode as ma_khach_hang,
+    pr3.patientname as ten_khach_hang,
+    null::text as ma_booking,
+    'Lương bác sĩ PTTM (loại trừ)' as nhom_dich_vu,
+    case lbs.loai_phau when 'dai' then 'Đại phẫu' else 'Tiểu phẫu' end as san_pham,
+    'Hồng Hà' as chi_nhanh,
+    null::text as nguon,
+    null::text as nhom_nguon_khach,
+    (case lbs.loai_phau when 'dai' then -2000000 else -500000 end)::numeric as so_tien
+from luong_bs lbs
+join {{ ref('stg_rtds_ehc_tb_patientrecord') }} pr3
+  on pr3.patientrecordid = lbs.patientrecordid
+ and pr3.dm_patientrecordstatusid = 1
+ and pr3.medicalrecorddate_out >= date '2026-01-01'

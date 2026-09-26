@@ -31,6 +31,9 @@ vars:
   # `date_sys` trong script gốc jupiter_sand_box/quentk_3_report_kpi_bonus_commission_New_sys.py,
   # PHẢI nâng dần tay theo thời gian giống cách bản gốc vẫn làm (xem int_rkbc_base_payment.sql).
   rkbc_floor_date: '2026-08-01'
+  # report_tableau_doanh_so_tap_doan_HCI: true = dung so chot (seed_doanh_so_chot_hongha_thv) ghi de
+  # so live cac thang da qua; false (2026-09-26) = bao cao dung so tinh dbt, seed CHI giu de so sanh.
+  rtds_ap_dung_so_chot: false
   # Danh sách company_id (m_res_company, brand Kangnam/Paris) của các chi nhánh ĐÃ ĐÓNG CỬA/không
   # cần tính vào doanh số — copy nguyên từ calculated field "is_company_not_active" trong Tableau
   # workbook "KANGNAM - BỘ CHỈ SỐ KINH DOANH - 2025.twbx" (đã đối chiếu khớp số Kangnam T8/2026,
@@ -412,7 +415,13 @@ seeds:
     # report_thv_revenue) - ghi de tam so doanh so ra bao cao cho CAC THANG DA QUA (khong ap dung
     # thang hien tai), luong dbt tu dong (int_rtds_hongha.sql) van chay song song de doi soat -
     # xem report_rtds_doanh_so_thang_tableau.sql.
+    # 2026-09-26: TAT ghi de so chot (var rtds_ap_dung_so_chot: false) - bao cao dung so tinh dbt
+    # (int_rtds_hongha: doanh so hahth - tui nguc/mong - luong BS PTTM). Seed VAN GIU DU LIEU de so
+    # sanh. Khai bao du kieu cot cho on dinh (tranh dbt tu suy kieu sai).
     seed_doanh_so_chot_hongha_thv:
       +tags: ["rtds"]
       +column_types:
+        brand: varchar(64)
+        nam: integer
+        thang: integer
         tong_so_tien: bigint
