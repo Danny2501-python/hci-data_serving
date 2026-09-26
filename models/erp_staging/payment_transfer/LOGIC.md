@@ -166,3 +166,29 @@ tắt/xoá theo xác nhận của user). Bước 2 và 5 **chưa xác nhận l�
 6. Theo dõi các model/report đang `source()` trực tiếp `stag_payment_transfer` sau cutover
    (vd `report_kn_tele_transfer/int/ktt_payment.sql`) — không đổi tên bảng nên các model này
    không cần sửa gì.
+
+## Sự cố mất lịch sử 2026-09-26 + bảng backup đóng băng
+
+**Hiện tượng**: sau lần chạy 04:00 ngày 2026-09-26 (DAG `data_serving_erp_staging_etl`,
+`dbt run --select tag:erp_staging`), `public.stag_payment_transfer` chỉ còn 32.106 dòng: brand_etl=0
+= 0 dòng, phần cold brand 1/3/4 = 0 dòng (chỉ còn đúng các crm_id trong `int_sptr_recent_crm_scope`),
+Kangnam T1-T4/2026 = 0. Bản đầy đủ (~883K dòng) vẫn còn ở `sandbox.public.stag_payment_transfer`.
+
+**Gốc rễ (thiết kế)**: mart tự đọc lại CHÍNH NÓ (source `sptr_legacy.stag_payment_transfer`) để lấy
+phần legacy + cold — trong `new_product` không có nguồn lịch sử độc lập nào khác. Chỉ cần 1 lần bảng
+rỗng/thiếu đúng lúc build (nguyên nhân cụ thể lần này CHƯA xác minh — nghi DAG đồng bộ
+`call_functions_erp_direct_dag` 03:30) là lịch sử mất vĩnh viễn, các lần chạy sau tự "chốt" trạng thái
+thiếu.
+
+**Khắc phục**: bảng `public.stag_payment_transfer_backup_20260926` = copy 1 LẦN từ sandbox, ĐÓNG BĂNG
+(không job nào ghi đè). `stg/stg_sptr_legacy_all` (table) = bảng hiện tại + bồi từ backup những khách
+(crm_id, brand_etl) KHÔNG CÒN dòng nào trong bảng hiện tại (crm_id NULL → bồi theo id). Bảng hiện tại
+luôn ưu tiên → lúc bình thường phần bồi ≈ 0; lúc bảng hiện tại mất dữ liệu → backup làm gốc, phần tính
+lại từ ERP bồi thêm khách gần đây. `stg_sptr_legacy_brand0/134` đọc qua model này; cột phụ `tu_backup`
+đánh dấu dòng lấy từ backup.
+
+```
+backup đóng băng ─┐
+                   ├─→ stg_sptr_legacy_all ─→ legacy_brand0 / legacy_brand134 ─→ cold / fdate / ...
+bảng hiện tại ─────┘                                                              └─→ stag_payment_transfer
+```

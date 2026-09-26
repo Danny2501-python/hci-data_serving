@@ -20,3 +20,8 @@ sources:
     tables:
       - name: stag_payment_transfer
       - name: stag_payment_transfer_grby_date
+      # (2026-09-26) BẢN BACKUP ĐÓNG BĂNG — copy 1 lần từ sandbox.public.stag_payment_transfer (đủ lịch
+      # sử brand_etl 0/1/3/4, dữ liệu tới 2026-09-25) sau sự cố bảng đích mất lịch sử ngày 2026-09-26.
+      # KHÔNG job nào được ghi đè/đồng bộ lại bảng này. Dùng trong stg_sptr_legacy_all làm "gốc" bồi
+      # vào khi bảng đích thiếu khách (crm_id) — xem chú thích file đó.
+      - name: stag_payment_transfer_backup_20260926
