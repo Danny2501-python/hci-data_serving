@@ -60,17 +60,30 @@ backup as (
     from {{ source('sptr_legacy', 'stag_payment_transfer_backup_20260926') }}
 ),
 
+-- ⚠ Hiệu năng (2026-09-26): KHÔNG viết `NOT EXISTS (...)` lồng trong `OR` — Postgres không đổi được
+-- thành anti-join, chạy SubPlan quét lại toàn bộ hien_tai (883K) cho TỪNG dòng backup (~7,7e11 phép so,
+-- build treo hàng giờ). Dùng tập khoá đã distinct + LEFT JOIN ... IS NULL → hash join, vài giây.
+id_hien_tai as (
+    select distinct id from hien_tai
+),
+
+khach_hien_tai as (
+    select distinct crm_id, brand_etl from hien_tai where crm_id is not null
+),
+
 backup_boi as (
     select b.*
     from backup b
-    where not exists (select 1 from hien_tai h where h.id = b.id)
+    left join id_hien_tai hi
+           on hi.id = b.id
+    left join khach_hien_tai hk
+           on hk.crm_id = b.crm_id
+          and hk.brand_etl = b.brand_etl
+    where hi.id is null
       and (
             b.crm_id is null
          or b.payment_date < greatest(date_trunc('month', current_date - interval '1 month')::date, date '2025-12-01')
-         or not exists (
-                select 1 from hien_tai h
-                where h.crm_id = b.crm_id and h.brand_etl = b.brand_etl
-            )
+         or hk.crm_id is null
       )
 )
 
