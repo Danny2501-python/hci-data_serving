@@ -60,10 +60,13 @@ select
     bridge.ma_booking as ma_booking,
     case when b.nguon_doanh_thu = 'nha_thuoc' then 'Nhà thuốc' else sp.product_category end as nhom_dich_vu,
     case when b.nguon_doanh_thu = 'nha_thuoc' then null else sp.product end as san_pham,
-    'Tiêu Hóa Việt' as chi_nhanh,
+    'Phòng Khám Tiêu Hóa Việt' as chi_nhanh,  -- = m_res_company id 57 brand_etl 8 (khớp target/khách hàng)
     b.nguoigioithieu as nguon,
     b.nhom_nguon_baocao as nhom_nguon_khach,
-    b.sotienphieu::numeric as so_tien
+    b.sotienphieu::numeric as so_tien,
+    -- (2026-09-26) MD/ML theo nhóm báo cáo của hahth (nhom_md_ml_baocao: MD/ML/MO/CBNV — CBNV đã loại
+    -- ở base): MD → MD, còn lại (ML, MO, không nguồn) → ML (user chốt).
+    case when b.nhom_md_ml_baocao = 'MD' then 'MD' else 'ML' end as nhom_md_ml
 from base b
 left join pr on pr.patientrecordid = b.patientrecordid
 left join bridge on bridge.ma_booking = b.id_booking

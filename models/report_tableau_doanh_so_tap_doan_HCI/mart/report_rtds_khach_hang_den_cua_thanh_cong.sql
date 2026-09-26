@@ -13,10 +13,10 @@
 {{ config(materialized='table') }}
 
 with base as (
-    select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong
+    select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml
     from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong') }}
     union all
-    select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong
+    select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml
     from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
 )
 
@@ -25,7 +25,8 @@ select
     chi_nhanh,
     nam,
     thang,
+    nhom_md_ml,  -- (2026-09-26) MD/ML
     count(*) as so_khach_den_cua,
     count(*) filter (where da_thanh_cong) as so_khach_thanh_cong
 from base
-group by 1, 2, 3, 4
+group by 1, 2, 3, 4, 5

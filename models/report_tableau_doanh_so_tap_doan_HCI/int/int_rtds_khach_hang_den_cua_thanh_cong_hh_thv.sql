@@ -109,7 +109,9 @@ source_flag as (
             or coalesce(ss.source ilike '%đối ngoại%', false)
             or coalesce(ss.source ilike '%thuê phòng mổ%', false)
             or coalesce(ss.source ilike '%tpm%', false)
-        ) as nguon_bi_loai
+        ) as nguon_bi_loai,
+        -- (2026-09-26) MD/ML theo nguồn CRM, quy tắc workbook "Bộ chỉ số kinh doanh" (macros/rtds_nhom_md_ml.sql)
+        {{ rtds_nhom_md_ml_khach('b.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
     from base b
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
 ),
@@ -121,7 +123,8 @@ current_hh_thv as (
         mrc.name as chi_nhanh,
         extract(year from b.arrival_date)::int as nam,
         extract(month from b.arrival_date)::int as thang,
-        (b.amount_paid > 0) as da_thanh_cong
+        (b.amount_paid > 0) as da_thanh_cong,
+        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml
     from base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = b.brand_etl
@@ -161,7 +164,9 @@ old_hongha_source_flag as (
             or coalesce(ss.source ilike '%đối ngoại%', false)
             or coalesce(ss.source ilike '%thuê phòng mổ%', false)
             or coalesce(ss.source ilike '%tpm%', false)
-        ) as nguon_bi_loai
+        ) as nguon_bi_loai,
+        -- (2026-09-26) MD/ML theo nguồn CRM, quy tắc workbook "Bộ chỉ số kinh doanh" (macros/rtds_nhom_md_ml.sql)
+        {{ rtds_nhom_md_ml_khach('b.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
     from old_hongha_base b
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
 ),
@@ -173,7 +178,8 @@ old_hongha as (
         mrc.name as chi_nhanh,
         extract(year from b.arrival_date)::int as nam,
         extract(month from b.arrival_date)::int as thang,
-        (b.amount_paid > 0) as da_thanh_cong
+        (b.amount_paid > 0) as da_thanh_cong,
+        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml
     from old_hongha_base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = 4
@@ -184,6 +190,6 @@ old_hongha as (
       and not coalesce(sf.nguon_bi_loai, false)
 )
 
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong from current_hh_thv
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml from current_hh_thv
 union all
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong from old_hongha
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml from old_hongha

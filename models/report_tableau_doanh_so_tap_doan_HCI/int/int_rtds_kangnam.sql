@@ -51,7 +51,10 @@ select
     mrc.name as chi_nhanh,
     ss.source as nguon,
     ss.newcat_source as nhom_nguon_khach,
-    spt.payment::numeric as so_tien
+    spt.payment::numeric as so_tien,
+    -- (2026-09-26) Nhóm nguồn MD/ML theo class_source_inidcate của workbook "Bộ chỉ số kinh doanh"
+    -- — xem macros/rtds_nhom_md_ml.sql.
+    {{ rtds_nhom_md_ml('cl.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
 from {{ ref('stag_payment_transfer') }} spt
 left join (
     select * from {{ ref('stg_rtds_crm_lead') }} where brand_etl = 1

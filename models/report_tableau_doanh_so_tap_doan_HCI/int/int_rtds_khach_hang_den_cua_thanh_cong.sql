@@ -55,7 +55,10 @@ with dedup as (
         customer_come,
         type_customer_arrived,
         total_received,
-        clineid
+        clineid,
+        source_id,
+        category_source_id,
+        source
     from {{ ref('stg_rtds_report_crm_lead_customer_out_sold') }}
     where (brand_etl = 0 and brand_id in (1, 3))
        or brand_etl in (1, 3)
@@ -70,7 +73,10 @@ select
     chi_nhanh,
     extract(year from report_date)::int as nam,
     extract(month from report_date)::int as thang,
-    (type_customer_arrived in ('deposit', 'outsold_return', 'success', 'success_return')) as da_thanh_cong
+    (type_customer_arrived in ('deposit', 'outsold_return', 'success', 'success_return')) as da_thanh_cong,
+    -- (2026-09-26) MD/ML đúng quy tắc workbook "Bộ chỉ số kinh doanh" (cùng cột source_id /
+    -- category_source_id / source workbook đọc từ bảng out_sold) — biến thể KHÁCH HÀNG rtds_nhom_md_ml_khach (cờ is_source_md), macros/rtds_nhom_md_ml.sql.
+    {{ rtds_nhom_md_ml_khach('source_id', 'category_source_id', 'source') }} as nhom_md_ml
 from dedup
 where report_date is not null
   and (customer_come = 'yes' or (customer_come is null and arrival_date is not null))

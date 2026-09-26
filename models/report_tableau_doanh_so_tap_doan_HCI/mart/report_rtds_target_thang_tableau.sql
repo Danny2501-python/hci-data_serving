@@ -14,13 +14,20 @@
 
 {{ config(materialized='table') }}
 
+-- (2026-09-26) chi_nhanh lấy tên chuẩn từ m_res_company (company_id + brand_etl = brand_id) để khớp
+-- với doanh số/khách hàng khi join theo chi nhánh — tên trong ggs_target_company có chỗ lệch:
+-- Paris company 20 'NGUYỄN THÁI HỌC' → 'NGUYỄN T.M KHAI' (đúng field company_rename của workbook
+-- Kangnam), THV company 57 'TRUNG TÂM NỘI SOI DR GIANG' → 'Phòng Khám Tiêu Hóa Việt'.
 select
-    brand,
-    company as chi_nhanh,
-    extract(year from time)::int as nam,
-    extract(month from time)::int as thang,
-    target,
+    t.brand,
+    coalesce(mrc.name, t.company) as chi_nhanh,
+    extract(year from t.time)::int as nam,
+    extract(month from t.time)::int as thang,
+    t.target,
     'DB_LIVE' as nguon_du_lieu
-from {{ ref('stg_rtds_ggs_target_company') }}
-where active = true
-  and brand in ('Kangnam', 'Paris', 'Hồng Hà', 'Tiêu Hóa Việt')
+from {{ ref('stg_rtds_ggs_target_company') }} t
+left join {{ ref('stg_rtds_m_res_company') }} mrc
+       on mrc.id = t.company_id
+      and mrc.brand_etl = t.brand_id
+where t.active = true
+  and t.brand in ('Kangnam', 'Paris', 'Hồng Hà', 'Tiêu Hóa Việt')

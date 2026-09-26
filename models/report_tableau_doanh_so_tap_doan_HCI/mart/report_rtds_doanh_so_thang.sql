@@ -21,9 +21,10 @@ select
     nhom_dich_vu,
     nguon,
     nhom_nguon_khach,
+    nhom_md_ml,  -- (2026-09-26) MD/ML, xem macros/rtds_nhom_md_ml.sql
     sum(so_tien) as tong_so_tien,
     count(*) as so_giao_dich,
     count(distinct ma_khach_hang) as so_khach_hang,
     count(distinct ma_booking) as so_booking
 from {{ ref('report_rtds_doanh_so') }}
-group by 1, 2, 3, 4, 5, 6, 7, 8
+group by 1, 2, 3, 4, 5, 6, 7, 8, 9

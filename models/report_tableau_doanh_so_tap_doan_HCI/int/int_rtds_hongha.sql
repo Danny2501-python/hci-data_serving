@@ -139,10 +139,21 @@ select
     bridge.ma_booking as ma_booking,
     case when b.nguon_du_lieu = 'Nhà thuốc' then 'Nhà thuốc' else sp.product_category end as nhom_dich_vu,
     case when b.nguon_du_lieu = 'Nhà thuốc' then null else sp.product end as san_pham,
-    'Hồng Hà' as chi_nhanh,
+    'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
     coalesce(ss.source, b.source_ehc) as nguon,
     coalesce(ss.newcat_source, b.dm_hoahongnguoigioithieu_nguoigioithieuname) as nhom_nguon_khach,
-    b.sotienphieu::numeric as so_tien
+    b.sotienphieu::numeric as so_tien,
+    -- (2026-09-26) MD/ML: ưu tiên nguồn ERP (booking có source trong stag_sources → quy tắc workbook
+    -- "Bộ chỉ số kinh doanh", macros/rtds_nhom_md_ml.sql); không có → nhóm hoa hồng người giới thiệu
+    -- EHC: [MD]/Marketing Digital → MD, còn lại → ML (user chốt).
+    case
+        when ss.old_id is not null
+            then {{ rtds_nhom_md_ml('bridge.source_id', 'ss.category_id', 'ss.source') }}
+        when b.dm_hoahongnguoigioithieu_nguoigioithieuname ilike '[MD]%'
+          or b.dm_hoahongnguoigioithieu_nguoigioithieuname ilike '%marketing digital%'
+            then 'MD'
+        else 'ML'
+    end as nhom_md_ml
 from base b
 left join bridge on bridge.ma_booking = b.id_booking
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = bridge.source_id
@@ -166,10 +177,11 @@ select
     null::text as ma_booking,
     'Vật tư túi ngực/túi mông (loại trừ)' as nhom_dich_vu,
     null::text as san_pham,
-    'Hồng Hà' as chi_nhanh,
+    'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
     null::text as nguon,
     null::text as nhom_nguon_khach,
-    tnm.so_tien::numeric as so_tien
+    tnm.so_tien::numeric as so_tien,
+    'ML' as nhom_md_ml  -- dòng trừ không có nguồn → ML (nhóm "Khác" thuộc khối ML)
 from tui_nguc_mong tnm
 left join pr pr2 on pr2.patientrecordid = tnm.patientrecordid
 
@@ -189,10 +201,11 @@ select
     null::text as ma_booking,
     'Lương bác sĩ PTTM (loại trừ)' as nhom_dich_vu,
     case lbs.loai_phau when 'dai' then 'Đại phẫu' else 'Tiểu phẫu' end as san_pham,
-    'Hồng Hà' as chi_nhanh,
+    'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
     null::text as nguon,
     null::text as nhom_nguon_khach,
-    (case lbs.loai_phau when 'dai' then -2000000 else -500000 end)::numeric as so_tien
+    (case lbs.loai_phau when 'dai' then -2000000 else -500000 end)::numeric as so_tien,
+    'ML' as nhom_md_ml  -- dòng trừ không có nguồn → ML
 from luong_bs lbs
 join {{ ref('stg_rtds_ehc_tb_patientrecord') }} pr3
   on pr3.patientrecordid = lbs.patientrecordid

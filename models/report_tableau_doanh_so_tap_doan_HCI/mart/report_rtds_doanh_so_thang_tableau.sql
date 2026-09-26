@@ -43,7 +43,8 @@ with current_period as (
 live as (
     select
         brand, nam, thang, nguon_he_thong, chi_nhanh, nhom_dich_vu, nguon, nhom_nguon_khach,
-        tong_so_tien, so_giao_dich, so_khach_hang, so_booking
+        tong_so_tien, so_giao_dich, so_khach_hang, so_booking,
+        nhom_md_ml  -- (2026-09-26) MD/ML, xem macros/rtds_nhom_md_ml.sql
     from {{ ref('report_rtds_doanh_so_thang') }}
     where nam >= 2026
 ),
@@ -81,7 +82,8 @@ seed_ap_dung as (
         s.tong_so_tien,
         cast(null as bigint) as so_giao_dich,
         cast(null as bigint) as so_khach_hang,
-        cast(null as bigint) as so_booking
+        cast(null as bigint) as so_booking,
+        cast(null as text) as nhom_md_ml
     from seed_chot s
     cross join current_period cp
     where not (s.nam = cp.nam_hien_tai and s.thang = cp.thang_hien_tai)
@@ -108,5 +110,6 @@ select
     cast(null as bigint) as so_giao_dich,
     cast(null as bigint) as so_khach_hang,
     cast(null as bigint) as so_booking,
+    cast(null as text) as nhom_md_ml,  -- seed 2025 chỉ có tổng theo brand, không tách được MD/ML
     'MOCKUP_2025' as nguon_du_lieu
 from {{ ref('seed_doanh_so_2025_mockup') }}
