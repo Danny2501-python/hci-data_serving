@@ -8,16 +8,19 @@
 -- brand_etl=0 và lịch sử Kangnam/Paris trước ~T8/2026 (chỉ còn 32K dòng). Xem LOGIC.md mục "Sự cố mất
 -- lịch sử 2026-09-26".
 --
--- Quy tắc bồi (BẢNG HIỆN TẠI LUÔN ƯU TIÊN, backup chỉ lấp chỗ trống):
---   - Chỉ lấy từ backup những khách (crm_id, brand_etl) HOÀN TOÀN KHÔNG CÒN dòng nào trong bảng hiện tại.
---     Khách còn trong bảng hiện tại (kể cả đã được tính lại từ ERP, có thể khác id/số dòng so với backup)
---     → giữ nguyên bản hiện tại, KHÔNG trộn dòng backup vào (tránh đếm trùng/hồi sinh dòng đã sửa/xoá).
---   - Dòng crm_id NULL (không nhóm được theo khách) → bồi theo `id` (chỉ lấy dòng backup có id không tồn
---     tại trong bảng hiện tại).
---   - Lúc bình thường (bảng hiện tại đầy đủ) phần bồi ≈ 0 dòng; lúc bảng hiện tại rỗng/mất lịch sử →
---     backup tự làm "gốc", phần tính lại từ ERP (int_sptr_final_calc) bồi thêm các khách gần đây.
--- Hạn chế đã biết: khách thật sự bị xoá HẾT mọi dòng khỏi bảng đích sau 2026-09-26 sẽ bị backup "hồi
--- sinh" (hiếm, chấp nhận). Backup là bản ĐÓNG BĂNG — KHÔNG job nào được ghi đè/đồng bộ lại bảng này.
+-- Quy tắc bồi (BẢNG HIỆN TẠI LUÔN ƯU TIÊN, backup chỉ lấp chỗ trống) — 1 dòng backup được lấy khi `id`
+-- của nó KHÔNG có trong bảng hiện tại VÀ thoả 1 trong 2:
+--   a. Khách (crm_id, brand_etl) KHÔNG CÒN dòng nào trong bảng hiện tại → lấy mọi dòng của khách đó.
+--   b. Dòng CŨ HƠN cửa sổ tính lại (payment_date < đầu tháng trước, cùng mốc int_sptr_recent_crm_scope):
+--      khách vẫn còn trong bảng (vì có giao dịch gần đây) nhưng dòng cũ của họ không dựng lại được từ ERP
+--      (ERP chi tiết chỉ còn ~4 tháng) → lấy từ backup. Đã đo 2026-09-26: thiếu quy tắc này KN T1-T5/2026
+--      hụt 0,1-0,38 tỷ/tháng so với sandbox.
+--   Trong cửa sổ tính lại, dòng của khách còn trong bảng → KHÔNG lấy backup (bản tính lại là chuẩn).
+--   Dòng crm_id NULL → chỉ xét theo id.
+--   Lúc bình thường (bảng hiện tại đầy đủ) phần bồi ≈ 0 dòng; lúc bảng hiện tại rỗng/mất lịch sử →
+--   backup tự làm "gốc", phần tính lại từ ERP (int_sptr_final_calc) bồi thêm các khách gần đây.
+-- Hạn chế đã biết: dòng cũ (trước cửa sổ) thật sự bị xoá khỏi bảng đích sau 2026-09-26 sẽ bị backup
+-- "hồi sinh" (hiếm, chấp nhận). Backup là bản ĐÓNG BĂNG — KHÔNG job nào được ghi đè/đồng bộ lại bảng này.
 --
 -- Ép kiểu tường minh về đúng kiểu cột của bảng đích dbt (backup copy từ sandbox có vài cột khác kiểu:
 -- integer/numeric thay vì double precision/bigint).
@@ -25,7 +28,7 @@
 -- Materialized TABLE (không phải view như các stg khác): tính 1 lần/lần chạy thay vì mỗi model int
 -- đọc lại view (NOT EXISTS trên ~900K dòng), và bảng không bị Postgres DROP ... CASCADE kéo theo khi mart
 -- stag_payment_transfer được build lại (view đọc source() thì bị — xem Lỗi 3 trong LOGIC.md).
-{{ config(materialized='table', indexes=[{'columns': ['crm_id', 'brand_etl']}]) }}
+{{ config(materialized='table', indexes=[{'columns': ['crm_id', 'brand_etl']}, {'columns': ['id']}]) }}
 
 {% set cols = [
     ('id', 'varchar'), ('ma_phieu', 'varchar'), ('crm_id', 'integer'), ('payment_date', 'date'),
@@ -60,17 +63,15 @@ backup as (
 backup_boi as (
     select b.*
     from backup b
-    where (
-            b.crm_id is not null
-        and not exists (
-            select 1 from hien_tai h
-            where h.crm_id = b.crm_id and h.brand_etl = b.brand_etl
-        )
-    )
-    or (
+    where not exists (select 1 from hien_tai h where h.id = b.id)
+      and (
             b.crm_id is null
-        and not exists (select 1 from hien_tai h where h.id = b.id)
-    )
+         or b.payment_date < greatest(date_trunc('month', current_date - interval '1 month')::date, date '2025-12-01')
+         or not exists (
+                select 1 from hien_tai h
+                where h.crm_id = b.crm_id and h.brand_etl = b.brand_etl
+            )
+      )
 )
 
 select *, false as tu_backup from hien_tai
