@@ -1,6 +1,7 @@
--- Bảng test: vật thể hoá model ephemeral rhh_ehc_payment_service ra một bảng
--- để tiện truy vấn/đối soát bằng tay, KÈM 4 cột nguồn bên ERP map theo
--- id_booking. Mọi logic doanh số vẫn nằm nguyên ở int/rhh_ehc_payment_service.
+-- Output của report_hh_revenue: gộp doanh thu dịch vụ (int/rhh_ehc_payment_service_base),
+-- nhà thuốc (stag/rhh_doanh_so_nha_thuoc) và target (ggs_target_company brand_id = 4),
+-- phân biệt bằng cột nguon_du_lieu, KÈM 4 cột nguồn bên ERP map theo id_booking
+-- và tên phòng. Logic doanh thu dịch vụ nằm ở int/rhh_ehc_payment_service_base.
 --
 -- Bảng map dùng m_utm_source_old_new_map (brand_etl = 4, 38 dòng / 38
 -- old_source_id duy nhất nên join không nhân dòng), khớp 100% với
@@ -42,7 +43,8 @@
 --     ngược lại old_source_id là DUY NHẤT (38/38 dòng) nên join theo
 --     old_source_id không nhân dòng.
 --
--- Tên cột khớp rhh_doanh_so_combine: old_source_name / new_source_name.
+-- Tên cột old_source_name / new_source_name được report_hh_thv_ds_kh
+-- (int/rhtdk_hh) dùng lại nguyên tên.
 --
 -- Độ phủ T8/2026: ~19% booking map được; phần còn lại là [TPM]Thuê phòng mổ và
 -- [CTV]Cộng tác viên — tên bác sĩ/cá nhân không tồn tại trong utm_source.
