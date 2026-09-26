@@ -63,7 +63,10 @@ with dedup as (
 )
 select
     crm_id,
-    case brand_id when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
+    -- (2026-09-26) brand_etl 1/3 (giai đoạn mới) → lấy theo brand_etl; chỉ dữ liệu cũ brand_etl=0 mới
+    -- dựa vào brand_id. Trước đây dùng thẳng brand_id → 3 dòng brand_etl=1 có brand_id NULL (2024-05-02)
+    -- ra brand NULL, sinh 1 dòng "brand NULL" trong report_rtds_doanh_so_target_thang_tableau.
+    case coalesce(nullif(brand_etl, 0), brand_id) when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
     chi_nhanh,
     extract(year from report_date)::int as nam,
     extract(month from report_date)::int as thang,
