@@ -335,6 +335,14 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    report_hh_thv_ds_kh:
+      +tags: ["report_hh_thv_ds_kh"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
 
 
 # report_table_definitions/report_column_definitions: business context for
