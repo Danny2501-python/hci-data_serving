@@ -299,7 +299,7 @@ lk_all as (
 -- (2026-09-27) Cột lũy kế MD/ML: chỉ có giá trị trên dòng 'Lũy kế cùng kỳ' (dòng tháng/HCI Group =
 -- NULL qua macro rtds_cot_luy_ke_md_ml_null). target_khach_*_ml_luy_ke, chi_phi_ads_luy_ke: CHƯA có
 -- nguồn → NULL giữ chỗ để Tableau dựng sẵn scorecard Tổng quan ("Chưa có chỉ tiêu", Chi phí ads,
--- ROAS = doanh_so_luy_ke / chi_phi_ads_luy_ke) — khi có nguồn chỉ cần sửa dbt.
+-- ROAS = doanh_so_md_luy_ke / chi_phi_ads_luy_ke) — khi có nguồn chỉ cần sửa dbt.
 select
     brand, nam, thang, chi_nhanh,
     tong_so_tien, target, so_khach_den_cua, so_khach_thanh_cong,
