@@ -26,6 +26,10 @@ sources:
       - name: ehc_tb_nguoigioithieu_thv
       - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_thv
       - name: ggs_target_company
+      # ggs_target_company_source: chỉ tiêu chi tiết theo nhóm/nguồn (DS MKT = MD, DS nguồn CN = ML,
+      # số khách đến cửa/thành công MD) — cùng nguồn Custom SQL Query4 của workbook "KANGNAM - BỘ CHỈ
+      # SỐ KINH DOANH - 2025". Dùng cho scorecard lũy kế MD/ML dashboard Tổng quan (2026-09-27).
+      - name: ggs_target_company_source
       # report_crm_lead_customer_out_sold: bảng do job Python/Airflow NGOÀI dbt tạo (xem
       # quentk_3_report_crm_lead_customer_out_sold_New_sys.py), sống sẵn trong new_product. Dùng cho
       # tính năng "Khách hàng đến cửa/thành công" — xem int_rtds_khach_hang_den_cua_thanh_cong.sql,
