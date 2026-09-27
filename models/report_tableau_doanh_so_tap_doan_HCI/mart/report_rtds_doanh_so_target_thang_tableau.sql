@@ -141,6 +141,91 @@ hci_group as (
         c.so_khach_thanh_cong_ml
     from hci_group_revenue r
     full outer join hci_group_customer c on r.nam = c.nam and r.thang = c.thang
+),
+
+-- ============================================================================================
+-- (2026-09-27) LŨY KẾ CÙNG KỲ cho scorecard (user chốt): năm nay = T1 → THÁNG HIỆN TẠI (theo
+-- current_date, tính cả tháng đang dở), năm trước = T1 → cùng tháng đó, ĐỦ CẢ THÁNG. Trước đây
+-- scorecard SUM cả năm nên so 2026 T1-T9 với 2025 đủ 12 tháng (không cùng kỳ).
+-- Số khách lũy kế = số khách DUY NHẤT cả kỳ (COUNT DISTINCT ma_khach trên toàn kỳ), KHÔNG cộng các
+-- tháng (cộng tháng sẽ đếm trùng khách quay lại). Ra 1 dòng/brand + 1 dòng HCI Group với
+-- chi_nhanh = 'Lũy kế cùng kỳ', nam = năm hiện tại, thang = tháng hiện tại; CÁC CỘT CŨ = NULL trên dòng
+-- này nên các sheet đang SUM cột cũ không bị ảnh hưởng. Chỉ dùng cột *_luy_ke* trên dòng này.
+-- ============================================================================================
+ky as (
+    select
+        extract(year from current_date)::int as nam_nay,
+        extract(month from current_date)::int as thang_nay
+),
+
+lk_doanh_so as (
+    select
+        b.brand,
+        sum(b.tong_so_tien) filter (where b.nam = k.nam_nay) as doanh_so_luy_ke,
+        sum(b.tong_so_tien) filter (where b.nam = k.nam_nay - 1) as doanh_so_luy_ke_cung_ky_nam_truoc,
+        sum(b.target) filter (where b.nam = k.nam_nay) as target_luy_ke
+    from brand_total b
+    cross join ky k
+    where b.nam in (k.nam_nay, k.nam_nay - 1)
+      and b.thang <= k.thang_nay
+    group by 1
+),
+
+lk_khach_nguon as (
+    select brand, nam, thang, da_thanh_cong, ma_khach
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong') }}
+    union all
+    select brand, nam, thang, da_thanh_cong, ma_khach
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
+),
+
+lk_khach as (
+    select
+        n.brand,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay) as so_khach_den_cua_luy_ke,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay - 1) as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.da_thanh_cong) as so_khach_thanh_cong_luy_ke,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay - 1 and n.da_thanh_cong) as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
+    from lk_khach_nguon n
+    cross join ky k
+    where n.nam in (k.nam_nay, k.nam_nay - 1)
+      and n.thang <= k.thang_nay
+    group by 1
+),
+
+lk_brand as (
+    select
+        coalesce(d.brand, c.brand) as brand,
+        d.doanh_so_luy_ke, d.doanh_so_luy_ke_cung_ky_nam_truoc, d.target_luy_ke,
+        c.so_khach_den_cua_luy_ke, c.so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+        c.so_khach_thanh_cong_luy_ke, c.so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
+    from lk_doanh_so d
+    full outer join lk_khach c on c.brand = d.brand
+),
+
+-- HCI Group lũy kế: cùng quy tắc với dòng tháng — doanh số/target chỉ khi đủ 4 brand; khách = tổng
+-- Kangnam + Paris + Hồng Hà (đủ cả 3, không cộng THV). Mã khách có kèm brand nên cộng giữa các brand
+-- không bị trùng.
+lk_hci as (
+    select
+        case when count(doanh_so_luy_ke) = 4 then sum(doanh_so_luy_ke) end as doanh_so_luy_ke,
+        case when count(doanh_so_luy_ke_cung_ky_nam_truoc) = 4 then sum(doanh_so_luy_ke_cung_ky_nam_truoc) end as doanh_so_luy_ke_cung_ky_nam_truoc,
+        case when count(target_luy_ke) = 4 then sum(target_luy_ke) end as target_luy_ke,
+        case when count(so_khach_den_cua_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_den_cua_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_den_cua_luy_ke,
+        case when count(so_khach_den_cua_luy_ke_cung_ky_nam_truoc) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_den_cua_luy_ke_cung_ky_nam_truoc) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+        case when count(so_khach_thanh_cong_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_thanh_cong_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_thanh_cong_luy_ke,
+        case when count(so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
+    from lk_brand
+),
+
+lk_all as (
+    select * from lk_brand
+    union all
+    select 'HCI Group' as brand, * from lk_hci
 )
 
 select
@@ -148,7 +233,11 @@ select
     tong_so_tien, target, so_khach_den_cua, so_khach_thanh_cong,
     doanh_so_md, doanh_so_ml,
     so_khach_den_cua_md, so_khach_den_cua_ml,
-    so_khach_thanh_cong_md, so_khach_thanh_cong_ml
+    so_khach_thanh_cong_md, so_khach_thanh_cong_ml,
+    null::numeric as doanh_so_luy_ke, null::numeric as doanh_so_luy_ke_cung_ky_nam_truoc,
+    null::numeric as target_luy_ke,
+    null::bigint as so_khach_den_cua_luy_ke, null::bigint as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+    null::bigint as so_khach_thanh_cong_luy_ke, null::bigint as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
 from combined
 
 union all
@@ -158,5 +247,24 @@ select
     tong_so_tien, target, so_khach_den_cua, so_khach_thanh_cong,
     doanh_so_md, doanh_so_ml,
     so_khach_den_cua_md, so_khach_den_cua_ml,
-    so_khach_thanh_cong_md, so_khach_thanh_cong_ml
+    so_khach_thanh_cong_md, so_khach_thanh_cong_ml,
+    null::numeric as doanh_so_luy_ke, null::numeric as doanh_so_luy_ke_cung_ky_nam_truoc,
+    null::numeric as target_luy_ke,
+    null::bigint as so_khach_den_cua_luy_ke, null::bigint as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+    null::bigint as so_khach_thanh_cong_luy_ke, null::bigint as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
 from hci_group
+
+union all
+
+select
+    l.brand, k.nam_nay as nam, k.thang_nay as thang, 'Lũy kế cùng kỳ' as chi_nhanh,
+    null::numeric as tong_so_tien, null::numeric as target,
+    null::bigint as so_khach_den_cua, null::bigint as so_khach_thanh_cong,
+    null::numeric as doanh_so_md, null::numeric as doanh_so_ml,
+    null::bigint as so_khach_den_cua_md, null::bigint as so_khach_den_cua_ml,
+    null::bigint as so_khach_thanh_cong_md, null::bigint as so_khach_thanh_cong_ml,
+    l.doanh_so_luy_ke, l.doanh_so_luy_ke_cung_ky_nam_truoc, l.target_luy_ke,
+    l.so_khach_den_cua_luy_ke, l.so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
+    l.so_khach_thanh_cong_luy_ke, l.so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc
+from lk_all l
+cross join ky k
