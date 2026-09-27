@@ -75,7 +75,9 @@ with base as (
         cl.arrival_date,
         cl.type_crm_id,
         cl.amount_paid,
-        cl.source_id
+        cl.source_id,
+        cl.code_customer,
+        cl.partner_id
     from {{ ref('stg_rtds_crm_lead') }} cl
     where cl.brand_etl in (4, 8)
       and cl.type = 'opportunity'
@@ -124,7 +126,9 @@ current_hh_thv as (
         extract(year from b.arrival_date)::int as nam,
         extract(month from b.arrival_date)::int as thang,
         (b.amount_paid > 0) as da_thanh_cong,
-        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml
+        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml,
+        -- (2026-09-27) mã khách để đếm theo khách hàng; thiếu code_customer → partner_id → crm_id
+        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || b.brand_etl::text as ma_khach
     from base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = b.brand_etl
@@ -145,7 +149,9 @@ old_hongha_base as (
         cle.arrival_date,
         cle.type_crm_id,
         cle.amount_paid,
-        cle.source_id
+        cle.source_id,
+        cle.code_customer,
+        cle.partner_id
     from {{ ref('stg_rtds_crm_lead_etl0') }} cle
     where cle.brand_id = 4
       and cle.type = 'opportunity'
@@ -179,7 +185,8 @@ old_hongha as (
         extract(year from b.arrival_date)::int as nam,
         extract(month from b.arrival_date)::int as thang,
         (b.amount_paid > 0) as da_thanh_cong,
-        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml
+        coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml,
+        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || 4::text as ma_khach
     from old_hongha_base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = 4
@@ -190,6 +197,6 @@ old_hongha as (
       and not coalesce(sf.nguon_bi_loai, false)
 )
 
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml from current_hh_thv
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach from current_hh_thv
 union all
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml from old_hongha
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach from old_hongha
