@@ -14,7 +14,10 @@
 -- của model này trước khi đổi tên 2026-08-28 — datasource "report_doanh_so_HCI (new_product)" của
 -- workbook vẫn trỏ bảng đó) → dbt thay bảng cũ. Thêm cột his_service_type, source_id; nhom_md_ml
 -- có thêm 'SP' (sản phẩm KN/PR, không thuộc MD/ML).
-{{ config(materialized='table', alias='report_doanh_so_HCI_thang') }}
+-- (2026-09-28) Thêm 3 cột lead/booking Kangnam/Paris (so_sdt_verify, so_booking_tao, so_lich_hen_kh) — DÒNG
+-- RIÊNG union từ int_rtds_lead_booking_thang (tong_so_tien/so_giao_dich NULL); dòng doanh số có 3 cột này
+-- NULL. ⚠ report_rtds_doanh_so_thang_tableau lọc bỏ dòng lead (so_giao_dich IS NULL).
+{{ config(materialized='table', alias='report_doanh_so_thang_HCI') }}
 
 select
     brand,
@@ -29,6 +32,22 @@ select
     sum(so_tien) as tong_so_tien,
     count(*) as so_giao_dich,
     count(distinct ma_khach_hang) as so_khach_hang,
-    count(distinct ma_booking) as so_booking
+    count(distinct ma_booking) as so_booking,
+    null::bigint as so_sdt_verify,
+    null::bigint as so_booking_tao,
+    null::bigint as so_lich_hen_kh
 from {{ ref('report_rtds_doanh_so') }}
 group by 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+union all
+
+select
+    brand, nam, thang, nguon_he_thong, chi_nhanh, nhom_dich_vu, nguon, nhom_nguon_khach, nhom_md_ml,
+    null::numeric as tong_so_tien,
+    null::bigint as so_giao_dich,
+    null::bigint as so_khach_hang,
+    null::bigint as so_booking,
+    so_sdt_verify,
+    so_booking_tao,
+    so_lich_hen_kh
+from {{ ref('int_rtds_lead_booking_thang') }}

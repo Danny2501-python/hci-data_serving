@@ -47,6 +47,7 @@ live as (
         nhom_md_ml  -- (2026-09-26) MD/ML, xem macros/rtds_nhom_md_ml.sql
     from {{ ref('report_rtds_doanh_so_thang') }}
     where nam >= 2026
+      and so_giao_dich is not null  -- (2026-09-28) bỏ dòng lead/booking (int_rtds_lead_booking_thang)
 ),
 
 -- (2026-09-26) Bật/tắt ghi đè số chốt bằng var `rtds_ap_dung_so_chot` (dbt_project.yml). Hiện TẮT:
