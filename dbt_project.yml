@@ -385,6 +385,9 @@ seeds:
     ucbt_page_config:
       +tags: ["report_kn"]
     rtr_target:
+      # Gan tag report_thv_revenue de `dbt build --select tag:report_thv_revenue`
+      # (DAG data_serving_thv_revenue_etl) tu load lai seed truoc khi build model.
+      +tags: ["report_thv_revenue"]
       # Target/chi tieu doanh thu THV theo thang - doi ke hoach tu sua file
       # seeds/rtr_target.csv (Excel/CSV) roi chay `dbt seed --select rtr_target`,
       # khong can sua SQL nua (thay cho VALUES hard-code cu trong
