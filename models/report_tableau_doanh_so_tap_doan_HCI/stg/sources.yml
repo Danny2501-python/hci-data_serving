@@ -30,6 +30,18 @@ sources:
       # số khách đến cửa/thành công MD) — cùng nguồn Custom SQL Query4 của workbook "KANGNAM - BỘ CHỈ
       # SỐ KINH DOANH - 2025". Dùng cho scorecard lũy kế MD/ML dashboard Tổng quan (2026-09-27).
       - name: ggs_target_company_source
+      # Chi phí ads Kangnam cho ROAS scorecard Tổng quan (2026-09-28) — xem int_rtds_chi_phi_ads.sql.
+      # cs_facebook_insight chỉ lưu từ 2026-04-07 (brand_etl: 1 = Kangnam, 3 = Paris; KHÔNG có cột
+      # brand_id); stg_fb_insight_old = legacy FB Kangnam (có đủ T1-T4/2026, khác stg_fb_insight_old_zero
+      # mà func_report_marketing_ad_cost_kn đang dùng — bảng đó không có dữ liệu 2026).
+      - name: cs_facebook_insight
+      - name: stg_fb_insight_old
+      - name: cp_google_kangnam
+      # ggs_target_ads_thv_hh: Google Sheet chi phí online ads (tổng, không tách kênh) theo NGÀY của
+      # Hồng Hà (brand_etl 4) / Tiêu Hóa Việt (brand_etl 8) — user cung cấp 2026-09-28, sheet không bị
+      # ghi đè khi sang tháng (giữ lịch sử). Lúc đấu nối chỉ có T9/2026. Cột date/thang là TEXT
+      # ('DD/MM/YYYY', 'Tháng 9'); muc_tieu_tuan/muc_tieu_thang = ngân sách, CHƯA dùng (user: tính sau).
+      - name: ggs_target_ads_thv_hh
       # report_crm_lead_customer_out_sold: bảng do job Python/Airflow NGOÀI dbt tạo (xem
       # quentk_3_report_crm_lead_customer_out_sold_New_sys.py), sống sẵn trong new_product. Dùng cho
       # tính năng "Khách hàng đến cửa/thành công" — xem int_rtds_khach_hang_den_cua_thanh_cong.sql,

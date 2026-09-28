@@ -153,7 +153,10 @@ select
           or b.dm_hoahongnguoigioithieu_nguoigioithieuname ilike '%marketing digital%'
             then 'MD'
         else 'ML'
-    end as nhom_md_ml
+    end as nhom_md_ml,
+    -- (2026-09-28) Thêm his_service_type (view_stag_products) + source_id (crm_lead) theo yêu cầu user.
+    case when b.nguon_du_lieu = 'Nhà thuốc' then null else sp.his_service_type end::text as his_service_type,
+    bridge.source_id::int as source_id
 from base b
 left join bridge on bridge.ma_booking = b.id_booking
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = bridge.source_id
@@ -181,7 +184,9 @@ select
     null::text as nguon,
     null::text as nhom_nguon_khach,
     tnm.so_tien::numeric as so_tien,
-    'ML' as nhom_md_ml  -- dòng trừ không có nguồn → ML (nhóm "Khác" thuộc khối ML)
+    'ML' as nhom_md_ml,  -- dòng trừ không có nguồn → ML (nhóm "Khác" thuộc khối ML)
+    null::text as his_service_type,
+    null::int as source_id
 from tui_nguc_mong tnm
 left join pr pr2 on pr2.patientrecordid = tnm.patientrecordid
 
@@ -205,7 +210,9 @@ select
     null::text as nguon,
     null::text as nhom_nguon_khach,
     (case lbs.loai_phau when 'dai' then -2000000 else -500000 end)::numeric as so_tien,
-    'ML' as nhom_md_ml  -- dòng trừ không có nguồn → ML
+    'ML' as nhom_md_ml,  -- dòng trừ không có nguồn → ML
+    null::text as his_service_type,
+    null::int as source_id
 from luong_bs lbs
 join {{ ref('stg_rtds_ehc_tb_patientrecord') }} pr3
   on pr3.patientrecordid = lbs.patientrecordid

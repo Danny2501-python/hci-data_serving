@@ -10,7 +10,11 @@
 -- Chi BHYT của EHC — xem chú thích trong int_rtds_hongha.sql/int_rtds_thv.sql) — nhưng so_giao_dich
 -- (count(*)) vẫn đếm cả các dòng đó vì đếm số giao dịch, không phải số tiền.
 
-{{ config(materialized='table') }}
+-- (2026-09-28) User chốt: ghi ra đúng tên bảng Tableau đang dùng `report_doanh_so_HCI_thang` (tên cũ
+-- của model này trước khi đổi tên 2026-08-28 — datasource "report_doanh_so_HCI (new_product)" của
+-- workbook vẫn trỏ bảng đó) → dbt thay bảng cũ. Thêm cột his_service_type, source_id; nhom_md_ml
+-- có thêm 'SP' (sản phẩm KN/PR, không thuộc MD/ML).
+{{ config(materialized='table', alias='report_doanh_so_HCI_thang') }}
 
 select
     brand,

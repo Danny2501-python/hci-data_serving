@@ -9,5 +9,7 @@
     null::bigint as so_khach_thanh_cong_md_luy_ke, null::bigint as so_khach_thanh_cong_ml_luy_ke,
     null::numeric as target_khach_den_cua_md_luy_ke, null::numeric as target_khach_den_cua_ml_luy_ke,
     null::numeric as target_khach_thanh_cong_md_luy_ke, null::numeric as target_khach_thanh_cong_ml_luy_ke,
-    null::numeric as chi_phi_ads_luy_ke
+    null::numeric as chi_phi_ads_luy_ke,
+    null::numeric as doanh_so_md_roas_luy_ke,
+    null::int as ads_tu_thang
 {% endmacro %}

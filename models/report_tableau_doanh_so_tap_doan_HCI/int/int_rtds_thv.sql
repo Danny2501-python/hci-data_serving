@@ -42,7 +42,7 @@ pr as (
 ),
 
 bridge as (
-    select id as crm_lead_id, name as ma_booking
+    select id as crm_lead_id, name as ma_booking, source_id
     from {{ ref('stg_rtds_crm_lead') }}
     where brand_etl = 8
 )
@@ -66,7 +66,10 @@ select
     b.sotienphieu::numeric as so_tien,
     -- (2026-09-26) MD/ML theo nhóm báo cáo của hahth (nhom_md_ml_baocao: MD/ML/MO/CBNV — CBNV đã loại
     -- ở base): MD → MD, còn lại (ML, MO, không nguồn) → ML (user chốt).
-    case when b.nhom_md_ml_baocao = 'MD' then 'MD' else 'ML' end as nhom_md_ml
+    case when b.nhom_md_ml_baocao = 'MD' then 'MD' else 'ML' end as nhom_md_ml,
+    -- (2026-09-28) Thêm his_service_type (view_stag_products) + source_id (crm_lead) theo yêu cầu user.
+    case when b.nguon_doanh_thu = 'nha_thuoc' then null else sp.his_service_type end::text as his_service_type,
+    bridge.source_id::int as source_id
 from base b
 left join pr on pr.patientrecordid = b.patientrecordid
 left join bridge on bridge.ma_booking = b.id_booking

@@ -10,7 +10,8 @@
 --     chi_nhanh NULL, không tách MD/ML.
 --   - MD/ML: xem macros/rtds_nhom_md_ml.sql (KN/PR + nguồn ERP Hồng Hà theo workbook "Bộ chỉ số kinh
 --     doanh"; Hồng Hà fallback nhóm hoa hồng EHC; THV theo nhom_md_ml_baocao của hahth; khách hàng
---     theo nguồn CRM). *_md + *_ml = tổng (nhóm "Khác" tính vào ML).
+--     theo nguồn CRM). *_md + *_ml = tổng (nhóm "Khác" tính vào ML). (2026-09-28) Kangnam/Paris: sản phẩm
+--     tách cột *_sp → *_md + *_ml + *_sp = tổng.
 --
 -- Thiết kế CỐ TÌNH tránh Tableau Relationship/LOD: mọi phép gộp (kể cả dòng "HCI Group") đã tính
 -- SẴN trong SQL này. "HCI Group" = tổng 4 thương hiệu, CHỈ tính khi CẢ 4 thương hiệu cùng có giá trị
@@ -30,7 +31,9 @@ with revenue as (
         brand, nam, thang, coalesce(chi_nhanh, '') as cn,
         sum(tong_so_tien) as tong_so_tien,
         sum(tong_so_tien) filter (where nhom_md_ml = 'MD') as doanh_so_md,
-        sum(tong_so_tien) filter (where nhom_md_ml = 'ML') as doanh_so_ml
+        sum(tong_so_tien) filter (where nhom_md_ml = 'ML') as doanh_so_ml,
+        -- (2026-09-28) Doanh số sản phẩm KN/PR (nhóm 'SAN PHAM') tách riêng, không thuộc MD/ML
+        sum(tong_so_tien) filter (where nhom_md_ml = 'SP') as doanh_so_sp
     from {{ ref('report_rtds_doanh_so_thang_tableau') }}
     group by 1, 2, 3, 4
 ),
@@ -50,7 +53,10 @@ customer as (
         sum(so_khach_den_cua) filter (where nhom_md_ml = 'MD') as so_khach_den_cua_md,
         sum(so_khach_den_cua) filter (where nhom_md_ml = 'ML') as so_khach_den_cua_ml,
         sum(so_khach_thanh_cong) filter (where nhom_md_ml = 'MD') as so_khach_thanh_cong_md,
-        sum(so_khach_thanh_cong) filter (where nhom_md_ml = 'ML') as so_khach_thanh_cong_ml
+        sum(so_khach_thanh_cong) filter (where nhom_md_ml = 'ML') as so_khach_thanh_cong_ml,
+        -- (2026-09-28) Khách chỉ mua sản phẩm (KN/PR) tách riêng, không thuộc MD/ML
+        sum(so_khach_den_cua) filter (where nhom_md_ml = 'SP') as so_khach_den_cua_sp,
+        sum(so_khach_thanh_cong) filter (where nhom_md_ml = 'SP') as so_khach_thanh_cong_sp
     from {{ ref('report_rtds_khach_hang_den_cua_thanh_cong') }}
     group by 1, 2, 3, 4
 ),
@@ -70,7 +76,10 @@ combined as (
         c.so_khach_den_cua_md,
         c.so_khach_den_cua_ml,
         c.so_khach_thanh_cong_md,
-        c.so_khach_thanh_cong_ml
+        c.so_khach_thanh_cong_ml,
+        r.doanh_so_sp,
+        c.so_khach_den_cua_sp,
+        c.so_khach_thanh_cong_sp
     from revenue r
     full outer join target t
         on r.brand = t.brand and r.nam = t.nam and r.thang = t.thang and r.cn = t.cn
@@ -92,7 +101,10 @@ brand_total as (
         sum(so_khach_den_cua_md) as so_khach_den_cua_md,
         sum(so_khach_den_cua_ml) as so_khach_den_cua_ml,
         sum(so_khach_thanh_cong_md) as so_khach_thanh_cong_md,
-        sum(so_khach_thanh_cong_ml) as so_khach_thanh_cong_ml
+        sum(so_khach_thanh_cong_ml) as so_khach_thanh_cong_ml,
+        sum(doanh_so_sp) as doanh_so_sp,
+        sum(so_khach_den_cua_sp) as so_khach_den_cua_sp,
+        sum(so_khach_thanh_cong_sp) as so_khach_thanh_cong_sp
     from combined
     group by 1, 2, 3
 ),
@@ -105,7 +117,8 @@ hci_group_revenue as (
         case when count(target) = 4 then sum(target) end as target,
         -- MD/ML: cùng điều kiện đủ 4 thương hiệu như tong_so_tien
         case when count(tong_so_tien) = 4 then sum(doanh_so_md) end as doanh_so_md,
-        case when count(tong_so_tien) = 4 then sum(doanh_so_ml) end as doanh_so_ml
+        case when count(tong_so_tien) = 4 then sum(doanh_so_ml) end as doanh_so_ml,
+        case when count(tong_so_tien) = 4 then sum(doanh_so_sp) end as doanh_so_sp
     from brand_total
     group by nam, thang
 ),
@@ -119,7 +132,9 @@ hci_group_customer as (
         case when count(so_khach_den_cua) = 3 then sum(so_khach_den_cua_md) end as so_khach_den_cua_md,
         case when count(so_khach_den_cua) = 3 then sum(so_khach_den_cua_ml) end as so_khach_den_cua_ml,
         case when count(so_khach_thanh_cong) = 3 then sum(so_khach_thanh_cong_md) end as so_khach_thanh_cong_md,
-        case when count(so_khach_thanh_cong) = 3 then sum(so_khach_thanh_cong_ml) end as so_khach_thanh_cong_ml
+        case when count(so_khach_thanh_cong) = 3 then sum(so_khach_thanh_cong_ml) end as so_khach_thanh_cong_ml,
+        case when count(so_khach_den_cua) = 3 then sum(so_khach_den_cua_sp) end as so_khach_den_cua_sp,
+        case when count(so_khach_thanh_cong) = 3 then sum(so_khach_thanh_cong_sp) end as so_khach_thanh_cong_sp
     from brand_total
     where brand in ('Kangnam', 'Paris', 'Hồng Hà')
     group by nam, thang
@@ -138,7 +153,10 @@ hci_group as (
         c.so_khach_den_cua_md,
         c.so_khach_den_cua_ml,
         c.so_khach_thanh_cong_md,
-        c.so_khach_thanh_cong_ml
+        c.so_khach_thanh_cong_ml,
+        r.doanh_so_sp,
+        c.so_khach_den_cua_sp,
+        c.so_khach_thanh_cong_sp
     from hci_group_revenue r
     full outer join hci_group_customer c on r.nam = c.nam and r.thang = c.thang
 ),
@@ -165,7 +183,8 @@ lk_doanh_so as (
         sum(b.tong_so_tien) filter (where b.nam = k.nam_nay - 1) as doanh_so_luy_ke_cung_ky_nam_truoc,
         sum(b.target) filter (where b.nam = k.nam_nay) as target_luy_ke,
         sum(b.doanh_so_md) filter (where b.nam = k.nam_nay) as doanh_so_md_luy_ke,
-        sum(b.doanh_so_ml) filter (where b.nam = k.nam_nay) as doanh_so_ml_luy_ke
+        sum(b.doanh_so_ml) filter (where b.nam = k.nam_nay) as doanh_so_ml_luy_ke,
+        sum(b.doanh_so_sp) filter (where b.nam = k.nam_nay) as doanh_so_sp_luy_ke
     from brand_total b
     cross join ky k
     where b.nam in (k.nam_nay, k.nam_nay - 1)
@@ -181,8 +200,9 @@ lk_khach_nguon as (
     from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
 ),
 
--- Khách MD lũy kế = khách có ≥1 booking nguồn MD trong kỳ; ML = tổng − MD (tính ở lk_brand, cùng
--- quy ước với report_rtds_khach_hang_den_cua_thanh_cong) → MD + ML = tổng.
+-- Khách MD lũy kế = khách có ≥1 booking nguồn MD trong kỳ; (2026-09-28) ML = khách có booking dịch vụ
+-- (nhom_md_ml <> 'SP') − MD; SP = tổng − khách có booking dịch vụ (tính ở lk_brand, cùng quy ước với
+-- report_rtds_khach_hang_den_cua_thanh_cong) → MD + ML + SP = tổng.
 lk_khach as (
     select
         n.brand,
@@ -191,7 +211,9 @@ lk_khach as (
         count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.da_thanh_cong) as so_khach_thanh_cong_luy_ke,
         count(distinct n.ma_khach) filter (where n.nam = k.nam_nay - 1 and n.da_thanh_cong) as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc,
         count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.nhom_md_ml = 'MD') as so_khach_den_cua_md_luy_ke,
-        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.da_thanh_cong and n.nhom_md_ml = 'MD') as so_khach_thanh_cong_md_luy_ke
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.da_thanh_cong and n.nhom_md_ml = 'MD') as so_khach_thanh_cong_md_luy_ke,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.nhom_md_ml <> 'SP') as so_khach_den_cua_dv_luy_ke,
+        count(distinct n.ma_khach) filter (where n.nam = k.nam_nay and n.da_thanh_cong and n.nhom_md_ml <> 'SP') as so_khach_thanh_cong_dv_luy_ke
     from lk_khach_nguon n
     cross join ky k
     where n.nam in (k.nam_nay, k.nam_nay - 1)
@@ -236,6 +258,33 @@ lk_target_ct as (
     group by 1
 ),
 
+-- (2026-09-28) Chi phí ads lũy kế T1 → tháng hiện tại (int_rtds_chi_phi_ads: Kangnam, Paris, Hồng Hà,
+-- THV). User chốt (phương án 1a): CHỈ tính các tháng CÓ chi phí ads (> 0) — tử số ROAS
+-- (doanh_so_md_roas_luy_ke) cũng chỉ cộng DS MD của đúng các tháng đó, để ROAS không bị thổi phồng khi
+-- nguồn ads thiếu tháng (Hồng Hà/THV chỉ có từ T9/2026). KN/PR có ads đủ mọi tháng → không đổi.
+-- ads_tu_thang = tháng đầu tiên có chi phí ads trong kỳ (Tableau ghi chú "tính từ T..").
+lk_ads_thang as (
+    select a.brand, a.thang, sum(a.chi_phi_ads) as chi_phi_ads
+    from {{ ref('int_rtds_chi_phi_ads') }} a
+    cross join ky k
+    where a.nam = k.nam_nay
+      and a.thang <= k.thang_nay
+    group by 1, 2
+    having sum(a.chi_phi_ads) > 0
+),
+
+lk_ads as (
+    select
+        a.brand,
+        sum(a.chi_phi_ads) as chi_phi_ads_luy_ke,
+        sum(b.doanh_so_md) as doanh_so_md_roas_luy_ke,
+        min(a.thang) as ads_tu_thang
+    from lk_ads_thang a
+    cross join ky k
+    left join brand_total b on b.brand = a.brand and b.nam = k.nam_nay and b.thang = a.thang
+    group by 1
+),
+
 lk_brand as (
     select
         coalesce(d.brand, c.brand) as brand,
@@ -245,14 +294,23 @@ lk_brand as (
         d.doanh_so_md_luy_ke, d.doanh_so_ml_luy_ke,
         tc.target_md_luy_ke, tc.target_ml_luy_ke,
         c.so_khach_den_cua_md_luy_ke,
-        c.so_khach_den_cua_luy_ke - c.so_khach_den_cua_md_luy_ke as so_khach_den_cua_ml_luy_ke,
+        c.so_khach_den_cua_dv_luy_ke - c.so_khach_den_cua_md_luy_ke as so_khach_den_cua_ml_luy_ke,
         c.so_khach_thanh_cong_md_luy_ke,
-        c.so_khach_thanh_cong_luy_ke - c.so_khach_thanh_cong_md_luy_ke as so_khach_thanh_cong_ml_luy_ke,
+        c.so_khach_thanh_cong_dv_luy_ke - c.so_khach_thanh_cong_md_luy_ke as so_khach_thanh_cong_ml_luy_ke,
         tc.target_khach_den_cua_md_luy_ke,
-        tc.target_khach_thanh_cong_md_luy_ke
+        tc.target_khach_thanh_cong_md_luy_ke,
+        ads.chi_phi_ads_luy_ke,
+        -- Tử số ROAS: DS MD các tháng CÓ chi phí ads (brand chưa có nguồn ads → NULL)
+        ads.doanh_so_md_roas_luy_ke,
+        ads.ads_tu_thang,
+        -- (2026-09-28) Sản phẩm lũy kế (KN/PR) — không thuộc MD/ML
+        d.doanh_so_sp_luy_ke,
+        c.so_khach_den_cua_luy_ke - c.so_khach_den_cua_dv_luy_ke as so_khach_den_cua_sp_luy_ke,
+        c.so_khach_thanh_cong_luy_ke - c.so_khach_thanh_cong_dv_luy_ke as so_khach_thanh_cong_sp_luy_ke
     from lk_doanh_so d
     full outer join lk_khach c on c.brand = d.brand
     left join lk_target_ct tc on tc.brand = coalesce(d.brand, c.brand)
+    left join lk_ads ads on ads.brand = coalesce(d.brand, c.brand)
 ),
 
 -- HCI Group lũy kế: cùng quy tắc với dòng tháng — doanh số/target chỉ khi đủ 4 brand; khách = tổng
@@ -286,7 +344,20 @@ lk_hci as (
         case when count(target_khach_den_cua_md_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
              then sum(target_khach_den_cua_md_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as target_khach_den_cua_md_luy_ke,
         case when count(target_khach_thanh_cong_md_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
-             then sum(target_khach_thanh_cong_md_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as target_khach_thanh_cong_md_luy_ke
+             then sum(target_khach_thanh_cong_md_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as target_khach_thanh_cong_md_luy_ke,
+        -- Chi phí ads / tử số ROAS HCI Group = Kangnam + Paris, chỉ khi cả 2 cùng có. User chốt
+        -- 2026-09-28: GIỮ KN + PR kể cả khi Hồng Hà/THV đã có ads (HH/THV chỉ hiện trên dòng brand).
+        case when count(chi_phi_ads_luy_ke) filter (where brand in ('Kangnam','Paris')) = 2
+             then sum(chi_phi_ads_luy_ke) filter (where brand in ('Kangnam','Paris')) end as chi_phi_ads_luy_ke,
+        case when count(doanh_so_md_roas_luy_ke) filter (where brand in ('Kangnam','Paris')) = 2
+             then sum(doanh_so_md_roas_luy_ke) filter (where brand in ('Kangnam','Paris')) end as doanh_so_md_roas_luy_ke,
+        case when count(chi_phi_ads_luy_ke) filter (where brand in ('Kangnam','Paris')) = 2
+             then max(ads_tu_thang) filter (where brand in ('Kangnam','Paris')) end as ads_tu_thang,
+        case when count(doanh_so_luy_ke) = 4 then sum(doanh_so_sp_luy_ke) end as doanh_so_sp_luy_ke,
+        case when count(so_khach_den_cua_sp_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_den_cua_sp_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_den_cua_sp_luy_ke,
+        case when count(so_khach_thanh_cong_sp_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) = 3
+             then sum(so_khach_thanh_cong_sp_luy_ke) filter (where brand in ('Kangnam','Paris','Hồng Hà')) end as so_khach_thanh_cong_sp_luy_ke
     from lk_brand
 ),
 
@@ -297,9 +368,10 @@ lk_all as (
 )
 
 -- (2026-09-27) Cột lũy kế MD/ML: chỉ có giá trị trên dòng 'Lũy kế cùng kỳ' (dòng tháng/HCI Group =
--- NULL qua macro rtds_cot_luy_ke_md_ml_null). target_khach_*_ml_luy_ke, chi_phi_ads_luy_ke: CHƯA có
--- nguồn → NULL giữ chỗ để Tableau dựng sẵn scorecard Tổng quan ("Chưa có chỉ tiêu", Chi phí ads,
--- ROAS = doanh_so_md_luy_ke / chi_phi_ads_luy_ke) — khi có nguồn chỉ cần sửa dbt.
+-- NULL qua macro rtds_cot_luy_ke_md_ml_null). target_khach_*_ml_luy_ke: CHƯA có nguồn → NULL giữ chỗ
+-- ("Chưa có chỉ tiêu"). (2026-09-28) chi_phi_ads_luy_ke từ int_rtds_chi_phi_ads (4 brand; HCI Group =
+-- KN + PR). ROAS = doanh_so_md_roas_luy_ke / chi_phi_ads_luy_ke — tử số là DS MD của đúng các brand và
+-- các THÁNG có chi phí ads (HCI Group = DS MD KN + PR). ads_tu_thang: tháng bắt đầu tính ads.
 select
     brand, nam, thang, chi_nhanh,
     tong_so_tien, target, so_khach_den_cua, so_khach_thanh_cong,
@@ -310,7 +382,11 @@ select
     null::numeric as target_luy_ke,
     null::bigint as so_khach_den_cua_luy_ke, null::bigint as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
     null::bigint as so_khach_thanh_cong_luy_ke, null::bigint as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc,
-    {{ rtds_cot_luy_ke_md_ml_null() }}
+    {{ rtds_cot_luy_ke_md_ml_null() }},
+    -- (2026-09-28) Sản phẩm (KN/PR) tách riêng khỏi MD/ML: tổng = MD + ML + SP. Cột SP đặt CUỐI bảng.
+    doanh_so_sp, so_khach_den_cua_sp, so_khach_thanh_cong_sp,
+    null::numeric as doanh_so_sp_luy_ke, null::bigint as so_khach_den_cua_sp_luy_ke,
+    null::bigint as so_khach_thanh_cong_sp_luy_ke
 from combined
 
 union all
@@ -325,7 +401,10 @@ select
     null::numeric as target_luy_ke,
     null::bigint as so_khach_den_cua_luy_ke, null::bigint as so_khach_den_cua_luy_ke_cung_ky_nam_truoc,
     null::bigint as so_khach_thanh_cong_luy_ke, null::bigint as so_khach_thanh_cong_luy_ke_cung_ky_nam_truoc,
-    {{ rtds_cot_luy_ke_md_ml_null() }}
+    {{ rtds_cot_luy_ke_md_ml_null() }},
+    doanh_so_sp, so_khach_den_cua_sp, so_khach_thanh_cong_sp,
+    null::numeric as doanh_so_sp_luy_ke, null::bigint as so_khach_den_cua_sp_luy_ke,
+    null::bigint as so_khach_thanh_cong_sp_luy_ke
 from hci_group
 
 union all
@@ -346,6 +425,10 @@ select
     l.so_khach_thanh_cong_md_luy_ke::bigint, l.so_khach_thanh_cong_ml_luy_ke::bigint,
     l.target_khach_den_cua_md_luy_ke::numeric, null::numeric as target_khach_den_cua_ml_luy_ke,
     l.target_khach_thanh_cong_md_luy_ke::numeric, null::numeric as target_khach_thanh_cong_ml_luy_ke,
-    null::numeric as chi_phi_ads_luy_ke
+    l.chi_phi_ads_luy_ke::numeric,
+    l.doanh_so_md_roas_luy_ke::numeric,
+    l.ads_tu_thang::int,
+    null::numeric as doanh_so_sp, null::bigint as so_khach_den_cua_sp, null::bigint as so_khach_thanh_cong_sp,
+    l.doanh_so_sp_luy_ke::numeric, l.so_khach_den_cua_sp_luy_ke::bigint, l.so_khach_thanh_cong_sp_luy_ke::bigint
 from lk_all l
 cross join ky k

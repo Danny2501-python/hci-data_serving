@@ -44,7 +44,24 @@
 
 {{ config(materialized='table') }}
 
-with dedup as (
+-- (2026-09-28) User chốt: khách chỉ mua sản phẩm tách riêng nhóm 'SP' — KHÔNG nằm trong MD/ML (tổng
+-- KHĐC/KHTC giữ nguyên = MD + ML + SP, cách đếm ở report_rtds_khach_hang_den_cua_thanh_cong). Bảng out_sold có 1 dòng / crm_line (dịch vụ); booking KHÔNG có crm_line thì lấy
+-- 1 dòng crm_line_product đầu tiên (product_category 'SAN PHAM', channel_code KH099) → booking "chỉ sản
+-- phẩm" = MỌI dòng của booking đều product_category = 'SAN PHAM' (tính trên toàn bộ dòng, TRƯỚC dedupe).
+-- Booking chỉ sản phẩm → nhom_md_ml = 'SP'.
+with booking_chi_san_pham as (
+    select
+        crm_id,
+        brand_etl,
+        brand_id,
+        bool_and(coalesce(product_category, '') = 'SAN PHAM') as chi_san_pham
+    from {{ ref('stg_rtds_report_crm_lead_customer_out_sold') }}
+    where (brand_etl = 0 and brand_id in (1, 3))
+       or brand_etl in (1, 3)
+    group by 1, 2, 3
+),
+
+dedup as (
     select distinct on (crm_id, brand_etl, brand_id)
         crm_id,
         brand_etl,
@@ -67,22 +84,29 @@ with dedup as (
     order by crm_id, brand_etl, brand_id, coalesce(total_received, 0) desc, clineid
 )
 select
-    crm_id,
+    d.crm_id,
     -- (2026-09-26) brand_etl 1/3 (giai đoạn mới) → lấy theo brand_etl; chỉ dữ liệu cũ brand_etl=0 mới
     -- dựa vào brand_id. Trước đây dùng thẳng brand_id → 3 dòng brand_etl=1 có brand_id NULL (2024-05-02)
     -- ra brand NULL, sinh 1 dòng "brand NULL" trong report_rtds_doanh_so_target_thang_tableau.
-    case coalesce(nullif(brand_etl, 0), brand_id) when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
+    case coalesce(nullif(d.brand_etl, 0), d.brand_id) when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
     chi_nhanh,
     extract(year from report_date)::int as nam,
     extract(month from report_date)::int as thang,
     (type_customer_arrived in ('deposit', 'outsold_return', 'success', 'success_return')) as da_thanh_cong,
     -- (2026-09-26) MD/ML đúng quy tắc workbook "Bộ chỉ số kinh doanh" (cùng cột source_id /
     -- category_source_id / source workbook đọc từ bảng out_sold) — biến thể KHÁCH HÀNG rtds_nhom_md_ml_khach (cờ is_source_md), macros/rtds_nhom_md_ml.sql.
-    {{ rtds_nhom_md_ml_khach('source_id', 'category_source_id', 'source') }} as nhom_md_ml,
+    -- (2026-09-28) booking chỉ sản phẩm → SP (xem đầu CTE booking_chi_san_pham).
+    case
+        when b.chi_san_pham then 'SP'
+        else {{ rtds_nhom_md_ml_khach('d.source_id', 'd.category_source_id', 'd.source') }}
+    end as nhom_md_ml,
+    b.chi_san_pham,
     -- (2026-09-27) Mã khách để đếm theo KHÁCH HÀNG (user chốt, khớp workbook: COUNTD(code_customer + '_' +
     -- brand_id)). Thiếu code_customer → partner_id → crm_id (không bỏ mất booking).
-    coalesce(nullif(code_customer, ''), 'p' || partner_id::text, 'crm' || crm_id::text)
-        || '_' || coalesce(nullif(brand_etl, 0), brand_id)::text as ma_khach
-from dedup
+    coalesce(nullif(code_customer, ''), 'p' || partner_id::text, 'crm' || d.crm_id::text)
+        || '_' || coalesce(nullif(d.brand_etl, 0), d.brand_id)::text as ma_khach
+from dedup d
+left join booking_chi_san_pham b
+    on b.crm_id = d.crm_id and b.brand_etl = d.brand_etl and b.brand_id is not distinct from d.brand_id
 where report_date is not null
   and (customer_come = 'yes' or (customer_come is null and arrival_date is not null))

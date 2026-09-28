@@ -39,8 +39,11 @@ dem as (
         thang,
         count(distinct ma_khach) as kh,
         count(distinct ma_khach) filter (where nhom_md_ml = 'MD') as kh_md,
+        -- (2026-09-28) khách có ≥1 booking KHÔNG chỉ sản phẩm (MD hoặc ML) — phần còn lại = khách chỉ SP
+        count(distinct ma_khach) filter (where nhom_md_ml <> 'SP') as kh_dv,
         count(distinct ma_khach) filter (where da_thanh_cong) as tc,
-        count(distinct ma_khach) filter (where da_thanh_cong and nhom_md_ml = 'MD') as tc_md
+        count(distinct ma_khach) filter (where da_thanh_cong and nhom_md_ml = 'MD') as tc_md,
+        count(distinct ma_khach) filter (where da_thanh_cong and nhom_md_ml <> 'SP') as tc_dv
     from base
     group by 1, 2, 3, 4
 )
@@ -49,6 +52,12 @@ select brand, chi_nhanh, nam, thang, 'MD' as nhom_md_ml,
        kh_md as so_khach_den_cua, tc_md as so_khach_thanh_cong
 from dem
 union all
+-- (2026-09-28) MD = có ≥1 booking MD; ML = có booking dịch vụ nhưng không MD; SP = mọi booking chỉ sản
+-- phẩm (Kangnam/Paris; HH/THV = 0) → MD + ML + SP = tổng.
 select brand, chi_nhanh, nam, thang, 'ML' as nhom_md_ml,
-       kh - kh_md as so_khach_den_cua, tc - tc_md as so_khach_thanh_cong
+       kh_dv - kh_md as so_khach_den_cua, tc_dv - tc_md as so_khach_thanh_cong
+from dem
+union all
+select brand, chi_nhanh, nam, thang, 'SP' as nhom_md_ml,
+       kh - kh_dv as so_khach_den_cua, tc - tc_dv as so_khach_thanh_cong
 from dem

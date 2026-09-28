@@ -8,7 +8,11 @@
 -- KHÔNG PHẢI "doanh số tổng" thô nữa — xem chi tiết int_rtds_kangnam.sql. Hồng Hà/THV không đổi
 -- (vẫn là doanh số tổng, hệ EHC không có khái niệm is_kpi_branch tương ứng).
 
-{{ config(materialized='table') }}
+-- (2026-09-28) User chốt: ghi ra đúng tên bảng Tableau đang dùng `report_doanh_so_HCI` (tên cũ của model
+-- này trước khi đổi tên 2026-08-28 — datasource "report_doanh_so_HCI (new_product)" của workbook vẫn trỏ
+-- bảng đó) → dbt thay bảng cũ. Thêm cột his_service_type, source_id; nhom_md_ml có thêm 'SP' (sản phẩm
+-- KN/PR, không thuộc MD/ML).
+{{ config(materialized='table', alias='report_doanh_so_HCI') }}
 
 select * from {{ ref('int_rtds_kangnam') }}
 union all

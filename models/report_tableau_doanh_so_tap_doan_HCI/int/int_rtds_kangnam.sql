@@ -54,7 +54,15 @@ select
     spt.payment::numeric as so_tien,
     -- (2026-09-26) Nhóm nguồn MD/ML theo class_source_inidcate của workbook "Bộ chỉ số kinh doanh"
     -- — xem macros/rtds_nhom_md_ml.sql.
-    {{ rtds_nhom_md_ml('cl.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
+    -- (2026-09-28) User chốt: doanh số sản phẩm (nhóm 'SAN PHAM') tách riêng nhóm 'SP' — KHÔNG nằm trong
+    -- MD/ML (tổng DS KPI giữ nguyên = MD + ML + SP). THẺ DA LIỄU vẫn theo nguồn như dịch vụ.
+    case
+        when sp.product_category = 'SAN PHAM' then 'SP'
+        else {{ rtds_nhom_md_ml('cl.source_id', 'ss.category_id', 'ss.source') }}
+    end as nhom_md_ml,
+    -- (2026-09-28) Thêm his_service_type (view_stag_products) + source_id (crm_lead) theo yêu cầu user.
+    sp.his_service_type::text as his_service_type,
+    cl.source_id::int as source_id
 from {{ ref('stag_payment_transfer') }} spt
 left join (
     select * from {{ ref('stg_rtds_crm_lead') }} where brand_etl = 1
