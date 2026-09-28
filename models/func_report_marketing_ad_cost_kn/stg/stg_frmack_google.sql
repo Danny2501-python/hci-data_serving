@@ -5,14 +5,14 @@
 -- =============================================================================
 WITH base AS (
     SELECT
-        cgk.campaign, cgk.account, cgk.cost, cgk.date::date          AS ngay,
+        cgk.campaign, cgk.account, cgk.cost, NULLIF(TRIM(cgk.date), '')::date AS ngay,
         split_part(cgk.campaign, '_', 1)                              AS dv,
         split_part(cgk.campaign, '_', 2)                              AS cn1,
         split_part(cgk.campaign, '_', 3)                              AS cn2,
         split_part(cgk.campaign, ' - ', 1)                            AS cn_dash
     FROM {{ source('kangnam', 'cp_google_kangnam') }} cgk
     WHERE cgk.account IS NOT NULL
-      AND cgk.date::date >= '{{ var("start_date", "2025-08-01") }}'::date
+      AND NULLIF(TRIM(cgk.date), '')::date >= '{{ var("start_date", "2025-08-01") }}'::date
 ),
 a AS (
     SELECT
