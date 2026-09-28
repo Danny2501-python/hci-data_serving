@@ -6,6 +6,10 @@
 --                    MD — tháng theo ngày tạo lead (create_date).
 --   so_booking_tao = số booking (type = 'opportunity') theo create_date — mọi nguồn, tách MD/ML.
 --   so_lich_hen_kh = số booking (type = 'opportunity') theo booking_date — mọi nguồn, tách MD/ML.
+-- (2026-09-28 tối) User chốt: cả 3 chỉ số ĐẾM THEO SỐ ĐIỆN THOẠI KHÁCH HÀNG DUY NHẤT (crm_lead.phone), không
+-- đếm theo id lead/booking. Chuẩn hoá nhẹ: bỏ ký tự không phải số, '84' + 9 số → '0' + 9 số; phone rỗng → bỏ
+-- (~20 dòng/2026). Duy nhất TRONG từng dòng grain (brand × tháng × chi nhánh × nguồn × MD/ML) → SUM qua
+-- nhiều chi nhánh/nguồn/tháng có thể đếm trùng 1 SĐT.
 -- Ngày trong crm_lead lưu UTC → +7h trước khi lấy tháng (giống script out_sold: booking_date/create_on + 7h).
 -- MD/ML: quy tắc KHÁCH HÀNG (rtds_nhom_md_ml_khach — cờ is_source_md, như khách đến cửa MD).
 -- Lọc: active + loại như doanh số KPI (int_rtds_kangnam/paris): nguồn CBNV/đối ngoại/TPM/bác sĩ hợp tác,
@@ -19,12 +23,17 @@ with lead_booking as (
         l.type,
         l.source_id,
         l.company_id,
+        nullif(
+            regexp_replace(regexp_replace(coalesce(l.phone, ''), '[^0-9]', '', 'g'), '^84([0-9]{9})$', '0\1'),
+            ''
+        ) as sdt,
         l.create_date + interval '7 hours' as ngay_tao,
         l.booking_date + interval '7 hours' as ngay_hen
     from {{ ref('stg_rtds_crm_lead') }} l
     where l.brand_etl in (1, 3)
       and l.active
       and l.type in ('lead', 'opportunity')
+      and nullif(regexp_replace(coalesce(l.phone, ''), '[^0-9]', '', 'g'), '') is not null
 ),
 
 loc as (
@@ -67,7 +76,7 @@ loc as (
 su_kien as (
     -- SĐT verify: lead nguồn MD có crm_line
     select l.brand, l.chi_nhanh, l.nguon, l.nhom_nguon_khach, l.nhom_md_ml, l.ngay_tao as ngay,
-           'verify' as loai, l.id
+           'verify' as loai, l.sdt
     from loc l
     where l.type = 'lead'
       and l.nhom_md_ml = 'MD'
@@ -77,12 +86,12 @@ su_kien as (
       )
     union all
     -- Booking tạo: theo ngày tạo booking
-    select brand, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ngay_tao, 'booking_tao', id
+    select brand, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ngay_tao, 'booking_tao', sdt
     from loc
     where type = 'opportunity'
     union all
     -- Lịch hẹn KH: theo ngày hẹn (booking_date)
-    select brand, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ngay_hen, 'lich_hen', id
+    select brand, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ngay_hen, 'lich_hen', sdt
     from loc
     where type = 'opportunity' and ngay_hen is not null
 )
@@ -97,9 +106,9 @@ select
     nguon,
     nhom_nguon_khach,
     nhom_md_ml,
-    count(distinct id) filter (where loai = 'verify') as so_sdt_verify,
-    count(distinct id) filter (where loai = 'booking_tao') as so_booking_tao,
-    count(distinct id) filter (where loai = 'lich_hen') as so_lich_hen_kh
+    count(distinct sdt) filter (where loai = 'verify') as so_sdt_verify,
+    count(distinct sdt) filter (where loai = 'booking_tao') as so_booking_tao,
+    count(distinct sdt) filter (where loai = 'lich_hen') as so_lich_hen_kh
 from su_kien
 where extract(year from ngay) >= 2026
 group by 1, 2, 3, 4, 5, 6, 7, 8, 9
