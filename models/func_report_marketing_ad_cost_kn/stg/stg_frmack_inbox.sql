@@ -10,7 +10,7 @@ WITH a AS (
         mik."tên chiến dịch",
         mik."vùng",
         mik."id chiến dịch"::text                                    AS id_chien_dich,
-        mik."ngày"::date                                             AS ngay,
+        NULLIF(TRIM(mik."ngày"), '')::date                           AS ngay,
         mik."người liên hệ qua nhắn tin mới",
         lka.tinh,
         lka."chi nhánh"                                              AS chi_nhanh_qc,
@@ -38,10 +38,10 @@ WITH a AS (
         SELECT lka1.tinh, lka1."chi nhánh", lka1.ngay_hh
         FROM {{ source('kangnam', 'location_kangnam_adnet') }} lka1
         WHERE lka1.tinh = mik."vùng"
-          AND mik."ngày"::date >= lka1.ngay_hh
+          AND NULLIF(TRIM(mik."ngày"), '')::date >= lka1.ngay_hh
         ORDER BY lka1.ngay_hh DESC LIMIT 1
     ) lka ON TRUE
-    WHERE mik."ngày"::date >= '{{ var("start_date", "2025-08-01") }}'::date
+    WHERE NULLIF(TRIM(mik."ngày"), '')::date >= '{{ var("start_date", "2025-08-01") }}'::date
 ),
 i AS (
     SELECT
