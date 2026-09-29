@@ -35,6 +35,27 @@ kn_fb as (
     select ngay_chi_phi, chi_phi from kn_fb_new
 ),
 
+-- (2026-09-29) Paris Facebook CẮT THEO NGÀY giống Kangnam (user chốt, chỉ sửa trong báo cáo doanh số HCI):
+-- report_marketing_ad_cost_pr_v2 CỘNG ĐÔI FB 07→12/04/2026 (legacy + nguồn mới, ≈ 2× raw, +156 tr T4) → lấy report
+-- (Cost_fb_cd/th) cho ngày TRƯỚC ngày đầu có dữ liệu Paris trong cs_facebook_insight, từ ngày đó lấy raw
+-- cs_facebook_insight brand_etl 3 (mọi page — đã đối chiếu = report từ 13/04 tới nay). Google/TikTok vẫn từ report.
+pr_fb_new as (
+    select date::date as ngay_chi_phi, spend as chi_phi
+    from {{ ref('stg_rtds_cs_facebook_insight') }}
+    where brand_etl = 3
+),
+
+pr_fb as (
+    select "date"::date as ngay_chi_phi, dt::numeric as chi_phi
+    from {{ ref('mart_report_marketing_ad_cost_pr') }}
+    where type_data in ('Cost_fb_cd', 'Cost_fb_th')
+      and "date" >= '2025-01-01'
+      and "date"::date < (select min(ngay_chi_phi) from pr_fb_new)
+      and dt ~ '^-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$'
+    union all
+    select ngay_chi_phi, chi_phi::numeric from pr_fb_new
+),
+
 nguon as (
     select 'Kangnam' as brand, ngay_chi_phi as ngay, 'Facebook' as kenh, chi_phi::numeric as chi_phi
     from kn_fb
@@ -48,15 +69,17 @@ nguon as (
 
     union all
 
+    select 'Paris', ngay_chi_phi, 'Facebook', chi_phi from pr_fb
+
+    union all
+
     select
         'Paris',
         "date"::date,
-        case when type_data in ('Cost_fb_cd', 'Cost_fb_th') then 'Facebook'
-             when type_data = 'google' then 'Google'
-             else 'TikTok' end,
+        case when type_data = 'google' then 'Google' else 'TikTok' end,
         dt::numeric
     from {{ ref('mart_report_marketing_ad_cost_pr') }}
-    where type_data in ('Cost_fb_cd', 'Cost_fb_th', 'google', 'tiktok')
+    where type_data in ('google', 'tiktok')
       and "date" >= '2025-01-01'
       and dt ~ '^-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$'
 
