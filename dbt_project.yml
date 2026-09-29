@@ -27,6 +27,42 @@ vars:
   all_brand_etl: "(1,3,4,7)"
   # Whitelist of brand codes (campaign name token 1) recognized as the 9+ token naming convention
   all_brand_mkt_camp: "('kgs','kbs','kwl','kwn','kdt','kal','prd','hh','vde')"
+  # report_kpi_bonus_commission: mốc sàn (không xử lý lại dữ liệu trước ngày này) — port từ
+  # `date_sys` trong script gốc jupiter_sand_box/quentk_3_report_kpi_bonus_commission_New_sys.py,
+  # PHẢI nâng dần tay theo thời gian giống cách bản gốc vẫn làm (xem int_rkbc_base_payment.sql).
+  rkbc_floor_date: '2026-08-01'
+  # report_tableau_doanh_so_tap_doan_HCI: true = dung so chot (seed_doanh_so_chot_hongha_thv) ghi de
+  # so live cac thang da qua; false (2026-09-26) = bao cao dung so tinh dbt, seed CHI giu de so sanh.
+  rtds_ap_dung_so_chot: false
+  # tests/rtds/assert_rtds_out_sold_du_du_lieu_kangnam.sql: nguong toi thieu so dong Kangnam (brand_etl=1)
+  # trong report_crm_lead_customer_out_sold - thap hon thi dbt build dung, khong ghi de bao cao (2026-09-27).
+  rtds_out_sold_min_rows_kangnam: 200000
+  # Danh sách company_id (m_res_company, brand Kangnam/Paris) của các chi nhánh ĐÃ ĐÓNG CỬA/không
+  # cần tính vào doanh số — copy nguyên từ calculated field "is_company_not_active" trong Tableau
+  # workbook "KANGNAM - BỘ CHỈ SỐ KINH DOANH - 2025.twbx" (đã đối chiếu khớp số Kangnam T8/2026,
+  # xem lịch sử trao đổi 2026-09-08). CHỈ áp dụng cho Kangnam/Paris (report_tableau_doanh_so_tap_doan_HCI
+  # int_rtds_kangnam.sql/int_rtds_paris.sql) — Hồng Hà/THV dùng hệ EHC, không có company_id tương ứng.
+  closed_company_ids: [1, 5, 9, 23, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 49, 54, 55, 56, 62]
+  # Bộ điều kiện "is_kpi_branch" — copy từ Tableau workbook KANGNAM (sheet GB_result, calculated
+  # field "is_kpi_branch") — các nguồn (source_id/tên nguồn) KHÔNG tính vào doanh số KPI chi nhánh
+  # (nhân viên nội bộ mua dịch vụ, quan hệ đối ngoại, thuê phòng mổ, bác sĩ hợp tác nội bộ). Đã đối
+  # chiếu khớp GB_result T6/2026 (80.943.387.448đ) — xem lịch sử trao đổi 2026-09-11. CHỈ áp dụng cho
+  # Kangnam/Paris (cùng lý do closed_company_ids ở trên) — dùng cho cột "doanh số tính KPI", KHÔNG
+  # thay thế "doanh số tổng" (đã khớp DOANH SỐ TỔNG trước đó).
+  kpi_exclude_source_ids_cbnv: [80, 81, 82, 215, 216, 287, 288, 289, 569]
+  kpi_exclude_source_ids_doi_ngoai: [83, 84, 124, 217, 292]
+  kpi_exclude_source_ids_tpm: [87, 88, 89, 90, 219, 278, 279, 280, 535, 570]
+  kpi_exclude_source_ids_bs_hop_tac: [75, 218, 224, 300]
+  # Nguồn "bác sĩ hợp tác nội bộ" chỉ bị loại từ mốc này trở đi (đúng theo comment gốc trong Tableau:
+  # "Nguồn BS nội bộ từ 13/06/2024") — trước mốc này KHÔNG loại.
+  kpi_exclude_bs_hop_tac_tu_ngay: '2024-06-13'
+  # Riêng Paris: thêm điều kiện loại theo category_source_id (dịch vụ test covid, phụ thu hóa đơn) —
+  # copy từ Tableau workbook "PARIS - TỔNG HỢP DOANH SỐ THƯƠNG HIỆU.twbx" (field
+  # T/F_category_source_no_kpi). Kangnam GB_result KHÔNG có điều kiện category_source_id này (chỉ có
+  # source_id) — user xác nhận 2026-09-12 đây là điều kiện riêng của Paris, KHÔNG áp dụng chung sang
+  # Kangnam trừ khi có xác nhận thêm. Field dùng: ss.category_id (bảng stag_sources), join sẵn qua
+  # ss.old_id = cl.source_id trong int_rtds_paris.sql.
+  kpi_exclude_category_source_ids_paris: [68, 69, 71]
 
 # Model configurations
 models:
@@ -281,6 +317,14 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    report_kpi_bonus_commission:
+      +tags: ["report_kpi_bonus_commission"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
     report_thv_revenue:
       +tags: ["report_thv_revenue"]
       int:
@@ -305,6 +349,11 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    # Bao cao Tableau doanh so tap doan HCI. Chi gan tag, KHONG doi materialized (stg = view mac
+    # dinh, int/mart tu khai bao table trong file .sql). Chay: dbt build --select tag:rtds
+    # (+ tag:report_thv_revenue neu can lam moi THV, + tag:erp_staging neu can lam moi Kangnam/Paris).
+    report_tableau_doanh_so_tap_doan_HCI:
+      +tags: ["rtds"]
 
 
 # report_table_definitions/report_column_definitions: business context for
@@ -358,3 +407,27 @@ seeds:
         target: bigint
         ngay_cap_nhat: date
         active: boolean
+    # 2026-08-31 (data_demo -> Tableau "Doanh so" report, xem report_tableau_doanh_so_tap_doan_HCI/
+    # mart/report_rtds_doanh_so_thang_tableau.sql + report_rtds_target_thang_tableau.sql): gia tri
+    # tien VND vuot range integer 32-bit (>2,1 ty) - ep bigint tranh loi "integer out of range".
+    seed_doanh_so_2025_mockup:
+      +tags: ["rtds"]
+      +column_types:
+        tong_so_tien: bigint
+    seed_target_thv_2026_mockup:
+      +column_types:
+        target: bigint
+    # 2026-09-16: seed "so chot" thu cong cho Hong Ha (THV da bo ra tu 2026-09-26, dung live tu
+    # report_thv_revenue) - ghi de tam so doanh so ra bao cao cho CAC THANG DA QUA (khong ap dung
+    # thang hien tai), luong dbt tu dong (int_rtds_hongha.sql) van chay song song de doi soat -
+    # xem report_rtds_doanh_so_thang_tableau.sql.
+    # 2026-09-26: TAT ghi de so chot (var rtds_ap_dung_so_chot: false) - bao cao dung so tinh dbt
+    # (int_rtds_hongha: doanh so hahth - tui nguc/mong - luong BS PTTM). Seed VAN GIU DU LIEU de so
+    # sanh. Khai bao du kieu cot cho on dinh (tranh dbt tu suy kieu sai).
+    seed_doanh_so_chot_hongha_thv:
+      +tags: ["rtds"]
+      +column_types:
+        brand: varchar(64)
+        nam: integer
+        thang: integer
+        tong_so_tien: bigint

@@ -1,0 +1,12 @@
+-- ref() (KHÔNG dùng source()) — view_stag_products là VIEW do chính dbt quản lý
+-- (models/erp_staging/products/mart/view_stag_products.sql), không phải bảng ERP thô. Dùng
+-- source() làm dbt KHÔNG biết dependency này: mỗi lần stag_products (bảng) được build lại,
+-- Postgres DROP TABLE ... CASCADE sẽ xoá theo cả view_stag_products lẫn view NÀY (build trên
+-- view đó) — nhưng dbt không tự rebuild lại vì không thấy có ref() nào trỏ tới, dẫn tới lỗi
+-- "relation ... does not exist" ở int_rtds_kangnam/int_rtds_paris (đã xác minh thực tế khi chạy
+-- `dbt run --select erp_staging report_kpi_bonus_commission report_tableau_doanh_so_tap_doan_HCI`
+-- ngày 2026-09-09 — KHÔNG phải do tác động ngoài như nhận định ban đầu). Dùng ref() để dbt xếp
+-- đúng thứ tự rebuild bất cứ khi nào 2 model được chọn chạy cùng nhau.
+-- ⚠ Cùng lỗi source()-thay-vì-ref() này còn ở ~27 model khác trong repo (chưa sửa, ngoài phạm vi
+-- report này) — xem lịch sử trao đổi 2026-09-09 nếu cần dọn dẹp diện rộng.
+select * from {{ ref('view_stag_products') }}

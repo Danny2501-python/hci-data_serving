@@ -1,0 +1,64 @@
+version: 2
+
+sources:
+  - name: rtds_source
+    schema: public
+    tables:
+      - name: crm_lead
+      - name: m_res_company
+      - name: stag_sources
+      # view_stag_products: KHÔNG khai báo ở đây — là VIEW do dbt quản lý
+      # (models/erp_staging/products/mart/view_stag_products.sql), dùng ref() thẳng trong
+      # stg_rtds_view_stag_products.sql (xem chú thích ở đó lý do không dùng source()).
+      - name: crm_line
+      - name: crm_line_product
+      - name: ehc_tb_invoice
+      - name: ehc_tb_invoicerequest
+      - name: ehc_tb_patientrecord
+      - name: ehc_tb_nguoigioithieu
+      - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu
+      # ehc_tb_servicedata: dùng để loại trừ chi phí vật tư túi ngực/túi mông của bệnh nhân thuê
+      # phòng mổ khỏi doanh số Hồng Hà — xem int_rtds_hongha.sql, lịch sử trao đổi 2026-09-12.
+      - name: ehc_tb_servicedata
+      - name: ehc_tb_invoice_thv
+      - name: ehc_tb_invoicerequest_thv
+      - name: ehc_tb_patientrecord_thv
+      - name: ehc_tb_nguoigioithieu_thv
+      - name: ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu_thv
+      - name: ggs_target_company
+      # ggs_target_company_source: chỉ tiêu chi tiết theo nhóm/nguồn (DS MKT = MD, DS nguồn CN = ML,
+      # số khách đến cửa/thành công MD) — cùng nguồn Custom SQL Query4 của workbook "KANGNAM - BỘ CHỈ
+      # SỐ KINH DOANH - 2025". Dùng cho scorecard lũy kế MD/ML dashboard Tổng quan (2026-09-27).
+      - name: ggs_target_company_source
+      # Chi phí ads Kangnam cho ROAS scorecard Tổng quan (2026-09-28) — xem int_rtds_chi_phi_ads.sql.
+      # cs_facebook_insight chỉ lưu từ 2026-04-07 (brand_etl: 1 = Kangnam, 3 = Paris; KHÔNG có cột
+      # brand_id); stg_fb_insight_old = legacy FB Kangnam (có đủ T1-T4/2026, khác stg_fb_insight_old_zero
+      # mà func_report_marketing_ad_cost_kn đang dùng — bảng đó không có dữ liệu 2026).
+      - name: cs_facebook_insight
+      - name: stg_fb_insight_old
+      - name: cp_google_kangnam
+      # ggs_target_ads_thv_hh: Google Sheet chi phí online ads (tổng, không tách kênh) theo NGÀY của
+      # Hồng Hà (brand_etl 4) / Tiêu Hóa Việt (brand_etl 8) — user cung cấp 2026-09-28, sheet không bị
+      # ghi đè khi sang tháng (giữ lịch sử). Lúc đấu nối chỉ có T9/2026. Cột date/thang là TEXT
+      # ('DD/MM/YYYY', 'Tháng 9'); muc_tieu_tuan/muc_tieu_thang = ngân sách, CHƯA dùng (user: tính sau).
+      - name: ggs_target_ads_thv_hh
+      # report_crm_lead_customer_out_sold: bảng do job Python/Airflow NGOÀI dbt tạo (xem
+      # quentk_3_report_crm_lead_customer_out_sold_New_sys.py), sống sẵn trong new_product. Dùng cho
+      # tính năng "Khách hàng đến cửa/thành công" — xem int_rtds_khach_hang_den_cua_thanh_cong.sql,
+      # LOGIC.md mục 4f. (2026-09-15) brand_etl đã được backfill đúng cho Kangnam/Paris (khớp 100% với
+      # sandbox), NHƯNG dữ liệu trước ~T8/2025 vẫn nằm ở brand_etl=0 (chưa gắn brand ngay từ gốc, không
+      # phải lỗi backfill) — dùng cột `brand_id` (khác brand_etl) để nhận diện brand cho phần dữ liệu
+      # cũ đó, xem chi tiết trong int_rtds_khach_hang_den_cua_thanh_cong.sql.
+      - name: report_crm_lead_customer_out_sold
+      # crm_lead_etl0: bản sao "chưa gắn brand" của crm_lead (100% brand_etl=0), arrival_date chạy đến
+      # đúng 2025-07-31 — chứa dữ liệu THẬT của giai đoạn trước khi hệ thống bắt đầu gắn brand_etl
+      # (~T8/2025), dùng cột `brand_id` để backfill "Khách hàng đến cửa/thành công" cho giai đoạn cũ
+      # (Kangnam/Paris/Hồng Hà) — xem int_rtds_khach_hang_den_cua_thanh_cong_hh_thv.sql, lịch sử trao
+      # đổi 2026-09-15. Không có bảng "crm_line_etl0" tương ứng — KHÔNG kiểm tra được điều kiện
+      # is_no_kpi cho phần dữ liệu này (mặc định KHÔNG loại trừ, an toàn hơn loại nhầm khách thật).
+      - name: crm_lead_etl0
+      # stag_payment_transfer: KHÔNG khai báo ở đây — đã cutover sang dbt
+      # (models/erp_staging/payment_transfer), dùng ref('stag_payment_transfer') thẳng.
+      # ggs_target_company cũng đã khai báo ở report_tong_quan_ds_kn/stg/sources.yml (source name
+      # 'rtqdk_source') — khai lại ở đây dưới tên 'rtds_source' là CỐ Ý (mỗi report tự đứng riêng,
+      # đúng convention "mỗi report_<code> có sources.yml của chính nó"), KHÔNG phải trùng lặp lỗi.
