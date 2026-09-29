@@ -19,7 +19,8 @@ select  'page' as page,
         stks.tinh,
         stks.chinhanhphanquyen chinhanhphanquyen,
         stks.ten_dv,
-        stks.vao_so ma_phieu
+        stks.vao_so ma_phieu,
+        stks.vk
 from (select * from {{ref('stg_kso_map')}}  stks 
 where stks.trang_thai  in ('Tiềm năng', 'Tham khảo', 'Đặt lịch') and loai_ban_ghi=1) stks
 	left join lateral(

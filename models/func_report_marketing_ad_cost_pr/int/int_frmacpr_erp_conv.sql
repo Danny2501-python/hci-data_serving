@@ -87,6 +87,8 @@ base AS (
         CASE WHEN ll.overseas_vietnamese = 'marketing' THEN 'VIỆT KIỀU' ELSE 'no' END AS vk,
         -- ten_dv: tên dịch vụ/sản phẩm cụ thể (sp đã join sẵn cho nhom_dv).
         sp.product                                                  AS ten_dv,
+        -- product_category: danh mục dịch vụ của chính sp ở trên (thêm 2026-09-24).
+        sp.product_category                                         AS product_category,
         -- local_k_raw/quoc_gia: cùng cơ chế res_country_state/res_country đã
         -- dùng ở KN (stg_frmack_crm_base.sql), qua ll.state_id/country_id.
         CASE
@@ -195,7 +197,8 @@ SELECT nguon, nhom_nguon, kenh,
     nguon_moi_v2, nhom_nguon_moi_v2,
     campaign, actor_code, nhom_dv_muc_tieu_code,
     page_code_raw, NULL::text AS page_id_raw, account_id_raw, vk, ten_dv,
-    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_category
 FROM base
 WHERE create_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
   AND type = 'lead'
@@ -221,7 +224,8 @@ SELECT
     NULL::text AS page_code_raw, NULL::text AS page_id_raw, NULL::text AS account_id_raw,
     NULL::text AS vk, NULL::text AS ten_dv,
     NULL::text AS local_k_raw, NULL::text AS quoc_gia,
-    NULL::text AS nhom_dv_kh_quan_tam, NULL::text AS nhom_dv_chinh_booking
+    NULL::text AS nhom_dv_kh_quan_tam, NULL::text AS nhom_dv_chinh_booking,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_deal_cs')}} sfdc
 
 UNION ALL
@@ -234,7 +238,8 @@ SELECT nguon, nhom_nguon, kenh,
     nguon_moi_v2, nhom_nguon_moi_v2,
     campaign, actor_code, nhom_dv_muc_tieu_code,
     page_code_raw, NULL::text AS page_id_raw, account_id_raw, vk, ten_dv,
-    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_category
 FROM base
 WHERE create_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
   AND type_crm_id = 2
@@ -250,7 +255,8 @@ SELECT nguon, nhom_nguon, kenh,
     nguon_moi_v2, nhom_nguon_moi_v2,
     campaign, actor_code, nhom_dv_muc_tieu_code,
     page_code_raw, NULL::text AS page_id_raw, account_id_raw, vk, ten_dv,
-    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_category
 FROM base
 WHERE booking_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
   AND type_crm_id = 2
@@ -266,7 +272,8 @@ SELECT nguon, nhom_nguon, kenh,
     nguon_moi_v2, nhom_nguon_moi_v2,
     campaign, actor_code, nhom_dv_muc_tieu_code,
     page_code_raw, NULL::text AS page_id_raw, account_id_raw, vk, ten_dv,
-    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_category
 FROM base
 WHERE arrival_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
 
@@ -281,7 +288,8 @@ SELECT nguon, nhom_nguon, kenh,
     nguon_moi_v2, nhom_nguon_moi_v2,
     campaign, actor_code, nhom_dv_muc_tieu_code,
     page_code_raw, NULL::text AS page_id_raw, account_id_raw, vk, ten_dv,
-    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    local_k_raw, quoc_gia, nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_category
 FROM base
 WHERE arrival_date::date >= '{{ var("start_date", "2025-08-01") }}'::date
   AND total_received > 0

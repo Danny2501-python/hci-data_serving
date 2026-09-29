@@ -34,6 +34,15 @@ SELECT
     END                                                             AS chi_nhanh,
     spt.payment::text                                               AS metric,
     'DS'::text                                                      AS type_data,
+    -- product_type: tách Doanh số Dịch vụ ('service', từ crm_line) và Doanh số
+    -- Sản phẩm ('cosmetic', từ crm_line_product) — lấy nguyên từ
+    -- stag_payment_transfer (xem erp_staging/payment_transfer/int/int_sptr_union.sql).
+    -- Verify 2026-09-24 (new_product, brand_etl=3): không có dòng NULL; 'cosmetic'
+    -- trùng khớp 100% với view_stag_products.product_category = 'SAN PHAM'.
+    spt.product_type::text                                          AS product_type,
+    -- product_category: danh mục dịch vụ/sản phẩm (view_stag_products, sp đã
+    -- join sẵn cho ten_dv) — 'SAN PHAM' tương ứng product_type = 'cosmetic'.
+    sp.product_category::text                                       AS product_category,
     COALESCE(us.name, monm.new_source_name)                         AS nguon_moi_v2,
     cat.name                                                        AS nhom_nguon_moi_v2,
     -- Chỉ nhận campaign_name khi account_id resolve được thực sự là 1 trong

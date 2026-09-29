@@ -19,7 +19,8 @@ select 'page' as page,
         stks.tinh,
         stks.chinhanhphanquyen chinhanhphanquyen,
         stks.ten_dv,
-        stks.vao_so ma_phieu
+        stks.vao_so ma_phieu,
+        stks.vk
 from (select * from {{ref('stg_kso_map')}}  stks 
 where loai_ban_ghi= 2 and tong_tien > 0
 and (reason_cancel_booking not in ('tao_booking_bh') 
