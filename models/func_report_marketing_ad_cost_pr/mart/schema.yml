@@ -48,6 +48,22 @@ models:
           dùng, không đổi tên/không thêm cột trùng.
       - name: type_data
         description: Loại dữ liệu (Lead / BK / BKHL / DC / TC / DS / Cost_fb_cd / Cost_fb_th / google / tiktok / ib / target_lead / target_cost)
+      - name: product_type
+        description: >
+          Loại doanh số, CHỈ có giá trị khi `type_data = 'DS'` — lấy nguyên
+          `stag_payment_transfer.product_type`: `'service'` = Doanh số Dịch vụ
+          (thanh toán/chuyển tiền trên `crm_line`), `'cosmetic'` = Doanh số Sản
+          phẩm (trên `crm_line_product`, trùng khớp 100% danh mục `SAN PHAM` —
+          verify 2026-09-24). NULL cho mọi `type_data` khác. Tổng DS =
+          `SUM(dt::numeric)` của cả 2 loại (đã gồm hoàn tiền/chuyển tiền mang dấu âm).
+      - name: product_category
+        description: >
+          Danh mục dịch vụ/sản phẩm — `view_stag_products.product_category`
+          của đúng dịch vụ ở cột `ten_dv` (vd `NIỀNG RĂNG MẮC CÀI KHÁC`,
+          `CẤY GHÉP IMPLANT`, `RĂNG SỨ`, `NHA KHOA KHÁC`, `SAN PHAM`). Có giá
+          trị ở `Lead`/`BK`/`BKHL`/`DC`/`TC` (theo `crm_line`) và `DS` (theo
+          sản phẩm của phiếu thu); NULL ở các `type_data` khác. Có thể NULL cả
+          ở nhánh CRM nếu lead chưa có dòng dịch vụ.
       - name: nguon_moi_v2
         description: >
           "Nguồn mới": tên nguồn từ hệ nguồn mới, lấy `crm_lead.new_source_id`

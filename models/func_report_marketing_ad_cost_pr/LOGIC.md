@@ -791,3 +791,66 @@ func_report_marketing_ad_cost_pr+` rồi kiểm coverage `nhom_dv_muc_tieu` theo
 từng `type_data` (kỳ vọng tương tự pattern coverage của `actor`, vì cùng
 guard, chỉ khác bước tra thêm `campaign_name_split` có thể làm giảm thêm nếu
 token 5 không khớp dòng nào trong bảng mapping).
+
+---
+
+### Thêm `product_type` — tách Doanh số Dịch vụ / Doanh số Sản phẩm — 2026-09-24
+
+Theo yêu cầu người dùng: bảng `report_marketing_ad_cost_pr_v2` lấy doanh số
+(`type_data = 'DS'`) gồm **cả** Dịch vụ lẫn Sản phẩm nhưng trước đây không
+có cột phân biệt. Thêm cột `product_type`, lấy nguyên từ
+`stag_payment_transfer.product_type`:
+
+- `'service'` = Doanh số Dịch vụ: thu tiền `crm_account_payment_detail` →
+  `crm_line` (id `ps-`) + chuyển tiền từ/đến `crm_line` (id `to-`/`ti-`)
+- `'cosmetic'` = Doanh số Sản phẩm: thu tiền
+  `crm_account_payment_product_detail` → `crm_line_product` (id `pc-`) +
+  chuyển tiền từ/đến `crm_line_product`
+
+Chỉ có giá trị ở nhánh DS; mọi nhánh khác `NULL` (không COALESCE `'KXĐ'`).
+
+**Thay đổi theo file:** `stg_frmacpr_doanh_so.sql` (expose cột),
+`int_frmacpr_union.sql` (thêm vào cả 7 nhánh, `NULL::text` ngoài nhánh DS),
+`mart_report_marketing_ad_cost_pr.sql` (đưa ra output), `mart/schema.yml`.
+
+**Verify trên dữ liệu thật trước khi sửa** (2026-09-24, DB `new_product`,
+`brand_etl = 3`, dữ liệu 27/05–23/09/2026, query read-only):
+- 0 dòng `product_type` NULL; `'cosmetic'` (764 dòng) trùng khớp 100% với
+  `view_stag_products.product_category = 'SAN PHAM'`, `'service'` không
+  có dòng nào thuộc danh mục này.
+- DV 22.495.927.000 + SP 159.070.000 = 22.654.997.000 = đúng tổng DS hiện
+  có trong `report_marketing_ad_cost_pr_v2` (7.003 dòng) → thêm cột không
+  đổi số dòng/tổng.
+- Chuyển tiền (`ti-`/`to-`): 72 cặp service→service, 1 cặp
+  cosmetic→cosmetic, chưa có cặp chuyển chéo DV↔SP; vẫn phải cộng đủ mọi
+  dòng (kể cả âm) vì nếu có chuyển chéo thì DV/SP sẽ lệch dù tổng không đổi.
+
+**Chưa build lại** — cần `dbt run --select func_report_marketing_ad_cost_pr+`
+rồi kiểm: `SUM(dt::numeric) GROUP BY product_type WHERE type_data='DS'` khớp
+số trên; `product_type IS NULL` với mọi `type_data <> 'DS'`.
+
+### Thêm `product_category` — danh mục dịch vụ/sản phẩm — 2026-09-24
+
+Theo yêu cầu người dùng (phục vụ biểu đồ cơ cấu doanh số theo dịch vụ/sản
+phẩm). Lấy `view_stag_products.product_category` từ chính `sp` đã join sẵn
+cho `ten_dv` — không thêm JOIN mới, không đổi số dòng.
+
+- `int_frmacpr_erp_conv.sql`: thêm vào CTE `base` + 5 nhánh Lead/BK/BKHL/DC/TC;
+  nhánh `Deal_cs` để `NULL`.
+- `stg_frmacpr_doanh_so.sql`: thêm cho nhánh DS.
+- `int_frmacpr_union.sql`: lấy thật từ ERP conv và DS, `NULL::text` ở FB/
+  Google/TikTok/Inbox/Targets.
+- `mart_report_marketing_ad_cost_pr.sql`, `mart/schema.yml`: đưa ra output,
+  không COALESCE `'KXĐ'` (giống `product_type`).
+
+**Lý do không dùng `his_service_type`** (cách Kangnam chia Phẫu thuật/Da liễu/
+Nha khoa/...): query read-only 2026-09-24 (`new_product`, brand_etl=3) cho
+thấy 99,30% DS Paris là `Odontology`, 0,70% là sản phẩm — cấp này không phân
+biệt được gì. `product_category` tách được Niềng răng/Implant/Răng sứ/Nha khoa
+khác/Sản phẩm. Lưu ý: `NHA KHOA KHÁC` chứa nhiều dịch vụ duy trì/khí cụ chỉnh
+nha, và `NIỀNG RĂNG MẮC CÀI KHÁC` có lẫn "Niềng Răng Khay Trong Invisalign" —
+nếu cần nhóm chính xác phải phân loại thêm theo `ten_dv`.
+
+**Chưa build lại** — sau `dbt run --select func_report_marketing_ad_cost_pr+`
+kiểm: tổng DS theo `product_category` khớp query trực tiếp trên
+`stag_payment_transfer` (`SAN PHAM` = 159.070.000 cho 27/05–23/09/2026).

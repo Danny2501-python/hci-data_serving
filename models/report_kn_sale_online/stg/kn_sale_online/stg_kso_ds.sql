@@ -19,7 +19,8 @@ select  'page' as page,
         stks.tinh,
         stks.chinhanhphanquyen_old chinhanhphanquyen,
         stks.ten_dv,
-        stks.vao_so ma_phieu
+        stks.vao_so ma_phieu,
+        stks.vk
 from (select * from {{ref('stg_kso_map')}}  stks 
 where loai_ban_ghi= 2
 ---and (trang_thai <>'Hủy'
