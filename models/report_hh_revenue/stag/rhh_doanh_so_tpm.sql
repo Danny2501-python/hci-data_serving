@@ -4,5 +4,5 @@
 -- trên rhh_ehc_payment_service, không cần logic gom theo patientcode.
 
 select *
-from {{ ref('rhh_ehc_payment_service') }}
+from {{ ref('rhh_ehc_payment_service_base') }}
 where dm_hoahongnguoigioithieu_nguoigioithieuname = '[TPM]Thuê phòng mổ'

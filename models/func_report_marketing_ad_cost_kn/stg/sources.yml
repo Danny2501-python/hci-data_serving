@@ -18,7 +18,6 @@ sources:
       # Mapping / config
       - name: ty_gia_techcombank
       - name: location_kangnam_adnet
-      - name: campaign_name_split
       - name: ggs_region_map
       - name: product_category
       - name: crm_lead
@@ -28,8 +27,6 @@ sources:
       - name: res_country_state
       - name: res_country
       - name: m_res_company
-      - name: ucbt_page_config
-      - name: ucbt_country_continent
       - name: fb_country_code_mapping
       # Revenue
       - name: stag_payment_transfer

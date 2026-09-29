@@ -167,7 +167,7 @@ models:
       mart:
         +materialized: table
     master_data:
-      +tags: ["master_data"]
+      +tags: ["report_kn", "master_data"]
     report_vong_doi_kh_kn:
       +tags: ["report_vong_doi_kh_kn"]
       stg:
@@ -297,6 +297,14 @@ models:
         +materialized: table
       stag:
         +materialized: ephemeral
+    report_hh_thv_ds_kh:
+      +tags: ["report_hh_thv_ds_kh"]
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+      stag:
+        +materialized: ephemeral
 
 
 # report_table_definitions/report_column_definitions: business context for
@@ -317,7 +325,20 @@ seeds:
         table_name: varchar(63)
         column_name: varchar(63)
         description: text
+    # Seed dung cho func_report_marketing_ad_cost_kn: gan tag report_kn de
+    # `dbt build --select tag:report_kn` load seed truoc khi build model.
+    campaign_name_split:
+      +tags: ["report_kn"]
+    ucbt_camp_actor:
+      +tags: ["report_kn"]
+    ucbt_country_continent:
+      +tags: ["report_kn"]
+    ucbt_page_config:
+      +tags: ["report_kn"]
     rtr_target:
+      # Gan tag report_thv_revenue de `dbt build --select tag:report_thv_revenue`
+      # (DAG data_serving_thv_revenue_etl) tu load lai seed truoc khi build model.
+      +tags: ["report_thv_revenue"]
       # Target/chi tieu doanh thu THV theo thang - doi ke hoach tu sua file
       # seeds/rtr_target.csv (Excel/CSV) roi chay `dbt seed --select rtr_target`,
       # khong can sua SQL nua (thay cho VALUES hard-code cu trong
