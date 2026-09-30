@@ -43,6 +43,12 @@ vars:
   # xem lịch sử trao đổi 2026-09-08). CHỈ áp dụng cho Kangnam/Paris (report_tableau_doanh_so_tap_doan_HCI
   # int_rtds_kangnam.sql/int_rtds_paris.sql) — Hồng Hà/THV dùng hệ EHC, không có company_id tương ứng.
   closed_company_ids: [1, 5, 9, 23, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 49, 54, 55, 56, 62]
+  # report_tableau_doanh_so_tap_doan_HCI (2026-09-29, user chot): GOP chi nhanh — tu ngay tu_ngay, moi chi so
+  # (doanh so, khach, lead/booking, target) cua company tu_company_id tinh vao den_company_id. Khop field
+  # chinhanhphanquyen cua workbook "KANGNAM - BO CHI SO KINH DOANH" (company 12 -> 4 tu 2026-08-01).
+  # Dung qua macro rtds_company_id_gop (macros/rtds_company_id_gop.sql).
+  rtds_gop_chi_nhanh:
+    - {brand_etl: 1, tu_company_id: 12, den_company_id: 4, tu_ngay: '2026-08-01'}  # BV Tham my Kangnam -> BV Kangnam Sai Gon
   # Bộ điều kiện "is_kpi_branch" — copy từ Tableau workbook KANGNAM (sheet GB_result, calculated
   # field "is_kpi_branch") — các nguồn (source_id/tên nguồn) KHÔNG tính vào doanh số KPI chi nhánh
   # (nhân viên nội bộ mua dịch vụ, quan hệ đối ngoại, thuê phòng mổ, bác sĩ hợp tác nội bộ). Đã đối

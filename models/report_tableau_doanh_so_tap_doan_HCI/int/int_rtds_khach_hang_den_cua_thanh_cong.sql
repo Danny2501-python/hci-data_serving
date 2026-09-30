@@ -67,6 +67,7 @@ dedup as (
         brand_etl,
         brand_id,
         report_company as chi_nhanh,
+        report_company_id,
         report_date,
         arrival_date,
         customer_come,
@@ -89,10 +90,14 @@ select
     -- dựa vào brand_id. Trước đây dùng thẳng brand_id → 3 dòng brand_etl=1 có brand_id NULL (2024-05-02)
     -- ra brand NULL, sinh 1 dòng "brand NULL" trong report_rtds_doanh_so_target_thang_tableau.
     case coalesce(nullif(d.brand_etl, 0), d.brand_id) when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
-    chi_nhanh,
-    extract(year from report_date)::int as nam,
-    extract(month from report_date)::int as thang,
-    (type_customer_arrived in ('deposit', 'outsold_return', 'success', 'success_return')) as da_thanh_cong,
+    -- (2026-09-29) Gộp chi nhánh theo var rtds_gop_chi_nhanh (BV Thẩm mỹ KN 12 → KN Sài Gòn 4 từ 01/08/2026)
+    case
+        when mrc_gop.id is not null and mrc_gop.id is distinct from d.report_company_id then mrc_gop.name
+        else d.chi_nhanh
+    end as chi_nhanh,
+    extract(year from d.report_date)::int as nam,
+    extract(month from d.report_date)::int as thang,
+    (d.type_customer_arrived in ('deposit', 'outsold_return', 'success', 'success_return')) as da_thanh_cong,
     -- (2026-09-26) MD/ML đúng quy tắc workbook "Bộ chỉ số kinh doanh" (cùng cột source_id /
     -- category_source_id / source workbook đọc từ bảng out_sold) — biến thể KHÁCH HÀNG rtds_nhom_md_ml_khach (cờ is_source_md), macros/rtds_nhom_md_ml.sql.
     -- (2026-09-28) booking chỉ sản phẩm → SP (xem đầu CTE booking_chi_san_pham).
@@ -103,10 +108,13 @@ select
     b.chi_san_pham,
     -- (2026-09-27) Mã khách để đếm theo KHÁCH HÀNG (user chốt, khớp workbook: COUNTD(code_customer + '_' +
     -- brand_id)). Thiếu code_customer → partner_id → crm_id (không bỏ mất booking).
-    coalesce(nullif(code_customer, ''), 'p' || partner_id::text, 'crm' || d.crm_id::text)
+    coalesce(nullif(d.code_customer, ''), 'p' || d.partner_id::text, 'crm' || d.crm_id::text)
         || '_' || coalesce(nullif(d.brand_etl, 0), d.brand_id)::text as ma_khach
 from dedup d
+left join {{ ref('stg_rtds_m_res_company') }} mrc_gop
+    on mrc_gop.id = {{ rtds_company_id_gop('d.report_company_id', 'd.report_date', 'coalesce(nullif(d.brand_etl, 0), d.brand_id)') }}
+   and mrc_gop.brand_etl = coalesce(nullif(d.brand_etl, 0), d.brand_id)
 left join booking_chi_san_pham b
     on b.crm_id = d.crm_id and b.brand_etl = d.brand_etl and b.brand_id is not distinct from d.brand_id
-where report_date is not null
-  and (customer_come = 'yes' or (customer_come is null and arrival_date is not null))
+where d.report_date is not null
+  and (d.customer_come = 'yes' or (d.customer_come is null and d.arrival_date is not null))
