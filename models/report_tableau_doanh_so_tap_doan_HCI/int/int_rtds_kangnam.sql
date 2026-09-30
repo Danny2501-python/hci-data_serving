@@ -69,7 +69,7 @@ left join (
 ) cl on cl.id = spt.crm_id
 left join (
     select * from {{ ref('stg_rtds_m_res_company') }} where brand_etl = 1
-) mrc on mrc.id = spt.company_id
+) mrc on mrc.id = {{ rtds_company_id_gop('spt.company_id', 'spt.payment_date', 'spt.brand_etl') }}  -- (2026-09-29) Gộp chi nhánh theo var rtds_gop_chi_nhanh (BV Thẩm mỹ KN 12 → KN Sài Gòn 4 từ 01/08/2026)
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = spt.product_id and sp.brand_etl = spt.brand_etl
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = cl.source_id
 where spt.brand_etl = 1

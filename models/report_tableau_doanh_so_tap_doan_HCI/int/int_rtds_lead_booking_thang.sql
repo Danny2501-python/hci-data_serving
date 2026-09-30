@@ -50,7 +50,8 @@ loc as (
         {{ rtds_nhom_md_ml_khach('lb.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
     from lead_booking lb
     left join {{ ref('stg_rtds_m_res_company') }} mrc
-        on mrc.id = lb.company_id and mrc.brand_etl = lb.brand_etl
+        on mrc.id = {{ rtds_company_id_gop('lb.company_id', 'lb.ngay_tao', 'lb.brand_etl') }}  -- (2026-09-29) Gộp chi nhánh theo var rtds_gop_chi_nhanh (BV Thẩm mỹ KN 12 → KN Sài Gòn 4 từ 01/08/2026)
+       and mrc.brand_etl = lb.brand_etl
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = lb.source_id
     where not (lb.brand_etl = 1 and coalesce(lb.company_id, 0) in ({{ var('closed_company_ids') | join(',') }}))
       and not (lb.brand_etl = 3 and coalesce(ss.category_id, 0) in ({{ var('kpi_exclude_category_source_ids_paris') | join(',') }}))
@@ -93,7 +94,7 @@ loc as (
 os_booking as (
     select distinct on (crm_id, brand_etl)
         crm_id, brand_etl, brand_id, product_id, source_id, category_source_id, source,
-        type_crm_id, amount_paid, stage_id, report_company, report_date, create_on,
+        type_crm_id, amount_paid, stage_id, report_company, report_company_id, report_date, create_on,
         case when nullif(code_customer, '') is not null then code_customer || '_' || brand_id::text end as ma_khach
     from {{ ref('stg_rtds_report_crm_lead_customer_out_sold') }}
     where brand_id in (1, 3)
@@ -103,7 +104,11 @@ os_booking as (
 os_md as (
     select
         case o.brand_id when 1 then 'Kangnam' when 3 then 'Paris' end as brand,
-        o.report_company as chi_nhanh,
+        -- (2026-09-29) Gộp chi nhánh theo var rtds_gop_chi_nhanh (BV Thẩm mỹ KN 12 → KN Sài Gòn 4 từ 01/08/2026)
+        case
+            when mrc_gop.id is not null and mrc_gop.id is distinct from o.report_company_id then mrc_gop.name
+            else o.report_company
+        end as chi_nhanh,
         o.source as nguon,
         ss.newcat_source as nhom_nguon_khach,
         'MD' as nhom_md_ml,
@@ -114,6 +119,9 @@ os_md as (
     left join {{ ref('stg_rtds_view_stag_products') }} sp
         on sp.product_id = o.product_id and sp.brand_etl = o.brand_id
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = o.source_id
+    left join {{ ref('stg_rtds_m_res_company') }} mrc_gop
+        on mrc_gop.id = {{ rtds_company_id_gop('o.report_company_id', 'o.report_date', 'o.brand_id') }}
+       and mrc_gop.brand_etl = o.brand_id
     where {{ rtds_nhom_md_ml_khach('o.source_id', 'o.category_source_id', 'o.source') }} = 'MD'
       and not coalesce(sp.is_no_kpi, false)
       and coalesce(sp.product_category, 'SAN PHAM') <> 'SAN PHAM'

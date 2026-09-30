@@ -67,7 +67,8 @@ target as (
             case when t.id_nhom = 100 then t.target_fixed end as target_sp
         from {{ ref('stg_rtds_ggs_target_company_source') }} t
         left join {{ ref('stg_rtds_m_res_company') }} mrc
-               on mrc.id = t.company_id and mrc.brand_etl = t.brand_id
+               on mrc.id = {{ rtds_company_id_gop('t.company_id', 't.time', 't.brand_id') }}  -- (2026-09-29) Gộp chi nhánh theo var rtds_gop_chi_nhanh (BV Thẩm mỹ KN 12 → KN Sài Gòn 4 từ 01/08/2026)
+              and mrc.brand_etl = t.brand_id
         where t.active
           and extract(year from t.time)::int = 2026
           and ((t.id_nhom in (2, 3) and t.target_type = 'business_indicator') or t.id_nhom = 100)
