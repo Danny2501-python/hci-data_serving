@@ -4,6 +4,16 @@ with ecl as (
 cline as (
     select * from {{ ref('stg_rtqdp_crm_line') }} cl where cl.brand_etl = 3
 ), 
+-- Sản phẩm trên các booking sinh ra từ lead (booking.lead_id = lead.id),
+-- dùng để gán nhóm DV cho lead không có dòng dịch vụ chốt tư vấn
+lead_bk_sp as (
+    select distinct bk.lead_id, bkl.product_id
+    from ecl bk
+    join cline bkl on bkl.crm_id = bk.id
+    where bk.type = 'opportunity'
+      and bk.lead_id is not null
+      and bkl.product_id is not null
+), 
 tdv_sm as (
   select 
     ecl.overseas_vietnamese as "Việt Kiều/Nội Địa", 
@@ -60,6 +70,8 @@ tdv_sm as (
     left join {{ ref('stg_rtqdp_res_brand') }} erb3 on erb3.id = ecl.brand_id and erb3.brand_etl = 3 
     left join {{ ref('stg_rtqdp_m_res_company') }} mrc3 on mrc3.id = ecl.company_id and mrc3.brand_etl = 3 
     left join cline ecl2 on ecl2.crm_id = ecl.id 
+    -- Lead không có dòng dịch vụ -> lấy sản phẩm từ booking mà lead sinh ra
+    left join lead_bk_sp lbs on ecl2.id is null and ecl.type = 'lead' and lbs.lead_id = ecl.id 
     left join {{ ref('stg_rtqdp_utm_campaign') }} uc on uc.id = ecl.campaign_id and uc.brand_etl = 3 
     left join {{ ref('stg_rtqdp_crm_stage') }} ecs on ecs.id = ecl.stage_id and ecs.brand_etl = 3 
     left join {{ ref('stg_rtqdp_hr_department') }} ehd on ecl.department_id = ehd.id and ehd.brand_etl = 3 
@@ -67,7 +79,7 @@ tdv_sm as (
     left join {{ ref('stg_rtqdp_crm_type') }} ect on ect.id = ecl.type_crm_id and ect.brand_etl = 3 
     left join {{ ref('stg_rtqdp_sources') }} eus on eus.old_id = ecl.source_id 
     left join {{ ref('stg_rtqdp_res_users') }} eru on eru.id = ecl.create_by and eru.brand_etl = 3 
-    left join {{ ref('stg_rtqdp_products') }} sp on sp.product_id = ecl2.product_id 
+    left join {{ ref('stg_rtqdp_products') }} sp on sp.product_id = coalesce(ecl2.product_id, lbs.product_id) 
     left join {{ ref('stg_rtqdp_res_partner') }} erp on erp.id = eru.partner_id and erp.brand_etl = 3 
     left join {{ ref('stg_rtqdp_sources') }} ss on ss.old_id = ecl.source_id 
   where mrc3.brand_id = 3
