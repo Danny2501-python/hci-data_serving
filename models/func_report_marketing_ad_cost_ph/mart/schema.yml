@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: mart_report_marketing_ad_cost_ph
+    description: >
+      Báo cáo chi phí & hiệu quả marketing PHILIPPINES (SUNWOO MEDICAL CENTER).
+      Ghi ra sandbox_ph.report_marketing_ad_cost_ph. 26 cột đầu giống hệt
+      report_marketing_ad_cost_kn_v2 (cùng tên, thứ tự) để Tableau chỉ cần đổi nguồn;
+      thêm 4 cột cuối. Chi phí/inbox lấy từ campaign 'sun_' (brand 1), khách/doanh số
+      lấy từ ERP Philippines (schema ph, brand 9). Xem README.md cùng thư mục cha.
+    columns:
+      - name: type_data
+        description: "Cost_fb_cd, inbox, Lead, BKHL, HL, DC, TC, DS (không có Google/DealCS)."
+      - name: Metric
+        description: "Cost_fb_cd: chi phí; inbox: số inbox mới; DS: doanh số VND; Lead/BKHL/HL/DC/TC: SĐT (đếm COUNTD)."
+      - name: trang_thai_du_lieu
+        description: "THAT / TEST / NGHI_TEST. Chi phí & inbox luôn THAT. Lọc = 'THAT' khi làm báo cáo."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THAT', 'TEST', 'NGHI_TEST']
+      - name: ly_do
+        description: "Lý do phân loại trạng thái dữ liệu."
+      - name: lead_id
+        description: "ph.crm_lead.id (brand 9) – NULL với chi phí/inbox."
+      - name: nguon_he_thong
+        description: "'FB brand 1 (campaign sun_)' hoặc 'ERP PH brand 9'."

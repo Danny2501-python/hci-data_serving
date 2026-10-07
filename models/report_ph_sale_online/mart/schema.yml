@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: report_ph_sale_online
+    description: >
+      Báo cáo hiệu suất sale online PHILIPPINES (ERP PH, brand 9). Ghi ra
+      sandbox_ph.report_ph_sale_online. 23 cột đầu giống hệt public.report_kn_sale_online;
+      thêm trang_thai_du_lieu, ly_do, lead_id, loai_tien, so_tien_goc. Xem README.md.
+    columns:
+      - name: bang
+        description: "Lead_total / BK / HL / DC / TC / DS – luôn lọc theo cột này khi đếm."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Lead_total', 'BK', 'HL', 'DC', 'TC', 'DS']
+      - name: sdt
+        description: "SĐT khách; nhánh DS chứa doanh số VND (giống KN)."
+      - name: trang_thai_du_lieu
+        description: "THAT / TEST / NGHI_TEST – lọc = 'THAT' khi làm báo cáo."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THAT', 'TEST', 'NGHI_TEST']
+      - name: loai_tien
+        description: "Loại tiền gốc của phiếu thu (chỉ nhánh DS)."
+      - name: so_tien_goc
+        description: "Số tiền theo loại tiền gốc (chỉ nhánh DS)."
