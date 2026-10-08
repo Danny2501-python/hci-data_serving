@@ -13,6 +13,9 @@
 --   Cost_fb_cd / inbox : campaign 'sun_' (brand 1, hạ tầng FB Kangnam)
 --   Lead/BKHL/HL/DC/TC/DS : ERP Philippines (schema ph, brand 9)
 -- Không có Google / DealCS (PH chưa có dữ liệu tương ứng).
+-- [2026-10-08] Dòng DS dùng stg_frmacph_doanh_so_thu (amount × tỷ giá theo loại tiền) thay cho
+-- stg_frmacph_doanh_so (amount_vnd – SAI với phiếu PHP, đã xoá) → bảng này và bản _thu ra cùng
+-- doanh số; _thu chỉ thêm 4 cột tỷ giá. Không còn bảng nào mang số sai.
 -- =============================================================================
 WITH fb AS (
     SELECT * FROM {{ ref('stg_frmacph_fb_cost') }}
@@ -144,7 +147,7 @@ LEFT JOIN {{ ref('ucbt_country_continent') }} ccm ON ccm.country = r.quoc_gia
 WHERE r.nhom_dv <> 'SAN PHAM'
 
 UNION ALL
--- ── Stream 4: DS – doanh số (phiếu thu đã ghi sổ, VND) ──────────────────────
+-- ── Stream 4: DS – doanh số (phiếu thu đã ghi sổ, quy đổi VND theo tỷ giá) ──
 SELECT
     coalesce(c.vk, 'KXĐ'), coalesce(c.ten_dv, 'DV'), coalesce(c.nguon, 'KXĐ'), coalesce(c.nhom_nguon, 'KXĐ'),
     coalesce(c.kenh, 'Khác'),
@@ -168,7 +171,7 @@ SELECT
     coalesce(tt.ly_do, 'Phiếu thu không gắn lead'),
     d.lead_id,
     'ERP PH brand 9'
-FROM {{ ref('stg_frmacph_doanh_so') }} d
+FROM {{ ref('stg_frmacph_doanh_so_thu') }} d
 LEFT JOIN crm c                                     ON c.lead_id  = d.lead_id
 LEFT JOIN {{ ref('stg_frmacph_trang_thai') }} tt    ON tt.lead_id = d.lead_id
 LEFT JOIN page_map pm                               ON pm.page_id = c.page_id

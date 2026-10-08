@@ -4,11 +4,13 @@ Bảng output (cùng tag **`phi`**):
 
 | Bảng | Model | Doanh số (DS) |
 |---|---|---|
-| **`sandbox_ph.report_marketing_ad_cost_ph_thu`** — **DÙNG BẢNG NÀY** | `mart_report_marketing_ad_cost_ph_thu` | Quy đổi VND bằng **tỷ giá cố định** (mục 1.1) – đúng |
-| `sandbox_ph.report_marketing_ad_cost_ph` (bản đầu) | `mart_report_marketing_ad_cost_ph` | Dùng `amount_vnd` của ERP – **SAI với phiếu PHP**, giữ để đối chiếu |
+| `sandbox_ph.report_marketing_ad_cost_ph_thu` | `mart_report_marketing_ad_cost_ph_thu` | Quy đổi VND theo tỷ giá (mục 1.1) + 4 cột tỷ giá |
+| `sandbox_ph.report_marketing_ad_cost_ph` | `mart_report_marketing_ad_cost_ph` | Quy đổi VND theo tỷ giá (mục 1.1) – **cùng số với `_thu`** |
 
-Bản `_thu` chỉ khác bản đầu ở dòng `DS` và có thêm 4 cột cuối: `loai_tien`, `so_tien_goc`,
-`ngay_ty_gia`, `ty_gia` (chỉ có giá trị ở dòng DS).
+**[2026-10-08]** Trước đây bảng `report_marketing_ad_cost_ph` lấy `amount_vnd` của ERP (SAI với phiếu
+PHP – thấp ~400 lần). Nay cả 2 bảng cùng lấy `stg_frmacph_doanh_so_thu`; model `stg_frmacph_doanh_so`
+(bản `amount_vnd`) đã xoá. Bản `_thu` chỉ thêm 4 cột cuối: `loai_tien`, `so_tien_goc`,
+`ngay_ty_gia`, `ty_gia` (chỉ có giá trị ở dòng DS). Dashboard dùng bảng nào cũng đúng.
 
 26 cột đầu **giống hệt** `report_marketing_ad_cost_kn_v2` (tên, thứ tự) → dashboard Tableau của
 Kangnam chỉ cần đổi nguồn bảng. Thêm 4 cột cuối:
@@ -31,7 +33,7 @@ Kangnam chỉ cần đổi nguồn bảng. Thêm 4 cột cuối:
 | `HL` | type_crm_id = 2, theo ngày hẹn (`booking_date`) | |
 | `DC` | type_crm_id = 2, theo ngày đến (`arrival_date`) | |
 | `TC` | như DC + tổng `crm_line.total_received` > 0 | |
-| `DS` | `ph.account_payment` state = `posted` (outbound trừ). Bản `_thu`: `amount` × tỷ giá cố định (`stg_frmacph_doanh_so_thu`); bản đầu: `amount_vnd` (`stg_frmacph_doanh_so`) | Nhiều loại tiền (PHP/VND/USD/AUD) – xem mục 1.1 |
+| `DS` | `ph.account_payment` state = `posted` (outbound trừ). `amount` × tỷ giá theo loại tiền (`stg_frmacph_doanh_so_thu`, công tắc `ph_nguon_ty_gia`) – cả 2 bảng | Nhiều loại tiền (PHP/VND/USD/AUD) – xem mục 1.1 |
 
 Không có `Google_*` và `DealCS` (PH chưa có dữ liệu tương ứng).
 

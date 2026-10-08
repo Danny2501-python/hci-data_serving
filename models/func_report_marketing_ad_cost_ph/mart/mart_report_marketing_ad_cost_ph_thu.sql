@@ -7,9 +7,9 @@
   )
 }}
 -- =============================================================================
--- mart_report_marketing_ad_cost_ph_thu — BẢN TÍNH THỬ, chỉ khác bản chính ở dòng DS:
--- doanh số quy đổi VND từ amount + loại tiền (stg_frmacph_doanh_so_thu) thay cho
--- amount_vnd. Các type_data khác lấy nguyên từ bảng chính. 30 cột đầu giống bảng chính
+-- mart_report_marketing_ad_cost_ph_thu — bảng chính + 4 cột tỷ giá ở dòng DS.
+-- [2026-10-08] Bảng chính cũng đã dùng stg_frmacph_doanh_so_thu → doanh số 2 bảng như nhau.
+-- Các type_data khác lấy nguyên từ bảng chính. 30 cột đầu giống bảng chính
 -- (Tableau chỉ cần đổi bảng nguồn) + 4 cột tỷ giá ở cuối, chỉ có giá trị với dòng DS:
 -- loai_tien, so_tien_goc, ngay_ty_gia, ty_gia.
 -- Tag riêng 'report_ph_thu' → không chạy kèm khi build tag:report_ph.
