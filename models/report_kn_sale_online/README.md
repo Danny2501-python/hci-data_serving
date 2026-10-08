@@ -24,7 +24,7 @@ Toàn bộ số liệu đo trong tài liệu này được lấy trực tiếp t
  Lead_total  BK    HL      DC      TC      DS
    └──────┴───┬───┴───────┴───────┴───────┘
               │  UNION ALL
-      report_kn_sale_online  →  428.297 dòng × 23 cột
+      report_kn_sale_online  →  428.297 dòng × 25 cột
 ```
 
 ---
@@ -181,7 +181,7 @@ select * from a
 
 Chỉ nhánh `DS` bị lọc thêm `ma_phieu is not null`.
 
-Kết quả: **428.297 dòng × 23 cột** = 55.376 + 94.465×3 + 37.814 + 51.712.
+Kết quả: **428.297 dòng × 25 cột** = 55.376 + 94.465×3 + 37.814 + 51.712.
 
 ### 6.1. Danh sách cột
 
@@ -210,6 +210,8 @@ Kết quả: **428.297 dòng × 23 cột** = 55.376 + 94.465×3 + 37.814 + 51.71
 | 21 | `ten_dv` | `view_stag_products.product` | |
 | 22 | `ma_phieu` | `stag_payment_transfer.ma_phieu` | Đặt tên nội bộ là `vao_so` |
 | 23 | `vk` | `crm_lead.overseas_vietnamese` | Bổ sung 2026-09-17 — xem mục 7 |
+| 24 | `nhom_dv_kh_quan_tam` | `stg_dv_khach_hang_quan_tam.first_product_group` | Bổ sung 2026-10-07 — xem mục 7b |
+| 25 | `nhom_dv_kh_quan_tam_goc` | `stg_dv_khach_hang_quan_tam.first_product_category` | Bổ sung 2026-10-07 — danh mục GỐC, chưa gom nhóm |
 
 ---
 
@@ -270,6 +272,106 @@ Muốn đối chiếu 2 báo cáo trên chiều `vk` thì phải thống nhất 
 không xác định được đáp án đúng. Bản thân model **không dùng `ma_booking` để lấy `vk`**
 (lấy thẳng `cl.vk` trên cùng dòng join theo `crm_lead.id`), nên đường đi của model
 chặt hơn phép kiểm.
+
+---
+
+## 7b. Cột `nhom_dv_kh_quan_tam` — nhóm dịch vụ KH quan tâm (bổ sung 2026-10-07)
+
+Nhãn **nhóm dịch vụ mà khách quan tâm ĐẦU TIÊN** khi vào booking. Dùng **chung
+nguyên model** `models/common/stg_dv_khach_hang_quan_tam.sql` với
+`func_report_marketing_ad_cost_kn` (cột `nhom_dv_KH_quan_tam` của model đó) —
+không copy lại CASE WHEN, nên 2 báo cáo không thể lệch nhãn theo thời gian.
+
+### 7b.1. Logic gán nhãn
+
+```
+crm_line (cln)  ⟕ crm_lead  ⟕ view_stag_products (sp)
+      │
+      │  ROW_NUMBER() OVER (PARTITION BY crm_id
+      │                     ORDER BY cline_created_date, cline_id)   ← tie-break cline_id
+      ▼
+   lấy dòng cus_bk_line_order = 1
+      ├─ first_product_group    = sp.product_group     → nhom_dv_kh_quan_tam
+      └─ first_product_category = sp.product_category  → nhom_dv_kh_quan_tam_goc
+      ▼
+   coalesce(..., 'KXĐ')
+```
+
+Hai cột là **cặp đôi**, khác nhau ở mức gom nhóm:
+
+| Cột | Nguồn | Ví dụ giá trị |
+|---|---|---|
+| `nhom_dv_kh_quan_tam` | `product_group` — ĐÃ gom nhóm | `PTTM MẮT`, `BEAUTY & SPA` |
+| `nhom_dv_kh_quan_tam_goc` | `product_category` — danh mục GỐC, input thô của CASE WHEN gom nhóm | `HÚT MỠ`, `GIẢM BÉO KHÔNG PT` |
+
+Nhiều giá trị `_goc` khác nhau có thể cùng đổ về 1 nhãn ở cột đã gom nhóm.
+
+Nhãn lấy **thẳng** `view_stag_products.product_group` (đã bake sẵn trong view,
+dùng chung toàn hệ thống) — ví dụ `PTTM MẮT`, `BEAUTY & SPA`, `SẢN PHẨM`… —
+**không** phải bộ 9 nhóm có tiền tố số (`1.MẮT`, `8.BEAUTY & SPA`) đã bỏ từ
+2026-08-05.
+
+### 7b.2. Đường đi trong model
+
+```
+common/stg_dv_khach_hang_quan_tam.sql      first_product_group
+  → stg_kso_map.sql     left join dkq on dkq.crm_id = cl.id and dkq.brand_etl = cl.brand_etl
+                        coalesce(dkq.first_product_group,    'KXĐ') as nhom_dv_KH_quan_tam
+                        coalesce(dkq.first_product_category, 'KXĐ') as nhom_dv_KH_quan_tam_goc
+  → stg_kso_{lead,bk,hl,dc,tc,ds}.sql      stks.nhom_dv_KH_quan_tam, stks.nhom_dv_KH_quan_tam_goc
+                                           (cột 24 & 25, cuối cùng)
+  → mart/report_kn_sale_online.sql         union all select *
+```
+
+`stg_dv_khach_hang_quan_tam` là `ephemeral` và đã lọc `cus_bk_line_order = 1`
+→ **1 dòng / `crm_id`**, nên join này **không nhân dòng** (428.297 dòng giữ nguyên).
+Join có `brand_etl` vì model common không lọc brand.
+
+### 7b.3. Phân biệt với `nhom_dv` (cột 12) — ĐỪNG nhầm
+
+| | `nhom_dv` (cột 12) | `nhom_dv_kh_quan_tam` (cột 24) |
+|---|---|---|
+| Grain | Theo **từng dòng dịch vụ** (`crm_line` của dòng đang xét) | Theo **booking** — chỉ dịch vụ của `crm_line` ĐẦU TIÊN |
+| Nguồn | `view_stag_products.product_category` | `product_group` (cột 24) / `product_category` (cột 25) |
+| 1 booking nhiều dịch vụ | Mỗi dòng 1 giá trị khác nhau | Mọi dòng cùng 1 giá trị |
+| Lọc `<> 'SAN PHAM'` | Có (ở `where` của `stg_kso_map`) | **Không** — nhãn `SẢN PHẨM` vẫn xuất hiện được |
+
+### 7b.4. Hiệu suất — build 155s → 354s khi mới thêm, và cách đã xử lý
+
+Lần build đầu sau khi thêm 2 cột: **354,1s** (`target/run_results.json`), so với mốc
+155s trước đó → **+199s**. Đọc SQL compile ra thì thấy `stg_dv_khach_hang_quan_tam`
+quét lại 4 bảng mà model đã quét ở trên, nhưng **không có `WHERE` nào** (mọi brand):
+
+| Bảng | Lần 1 (qua `kso_*`) | Lần 2 (qua `dkq`) |
+|---|---|---|
+| `crm_line` | `brand_etl = 1` | **không lọc** — 1.711.031 dòng |
+| `crm_lead` | `brand_etl = 1 and active` | **không lọc** |
+| `view_stag_products` | `brand_etl = 1` | **không lọc** |
+| `stag_sources` | `brand_etl = 1` | **không lọc** |
+
+Đã xử lý bằng 2 thay đổi trong `models/common/stg_dv_khach_hang_quan_tam.sql`
+(xem mục 8.8 — hoá ra là **bug**, không chỉ là chậm):
+
+1. **Thêm `WHERE cln.brand_etl = 1`** — 1.711.031 → ~138.436 dòng vào window function.
+2. **Bỏ join `stag_sources` + 5 cột chết** (`code_customer`, `source`,
+   `category_source_code`, `booking_report_date`, `stage`) — cả 3 consumer chỉ đọc
+   `crm_id`, `brand_etl`, `first_product_group`, `first_product_category`.
+
+### 7b.5. KHÔNG chuyển `stg_dv_khach_hang_quan_tam` sang `view` + index
+
+**View trong Postgres không đặt được index** — chỉ `table` / `materialized view` mới
+index được. Và view còn chậm hơn `ephemeral`: không lưu dữ liệu, mỗi lần tham chiếu
+là chạy lại toàn bộ logic, mất luôn cơ hội được planner materialize như CTE.
+
+Giữ `ephemeral` **không bị tính lặp**: dbt khai báo mỗi model ephemeral đúng **1 CTE**,
+`stg_dv_khach_hang_quan_tam` chỉ có 1 chỗ tham chiếu (`stg_kso_map`) → 1 lần / 1 lần
+build mart. (`stg_kso_map` mới là CTE bị tham chiếu 6 lần, Postgres 12+ materialize
+nó đúng 1 lần.)
+
+Nếu sau này vẫn chậm thì đòn đúng là `materialized = 'table'` + config `indexes` của
+dbt-postgres, **kèm `tags: ["report_kn", "report_kso"]`** cho cả 2 DAG đang dùng nó —
+thiếu tag là lặp lại đúng lỗi `relation does not exist` của
+`stg_common_tongquan_khachhang_sm_pr` (xem comment trong `dbt_project.yml`).
 
 ---
 
@@ -339,6 +441,135 @@ Cần xoá hoặc sửa, nhưng **chưa xử lý** vì nằm ngoài phạm vi th
 có biến `var('start_date')` (hiện cũng là `'2025-08-01'`). Nếu backfill đổi
 `start_date` thì nhánh doanh số sẽ không đổi theo.
 
+### 8.8. `stg_dv_khach_hang_quan_tam` thiếu `WHERE brand_etl` (đã sửa 2026-10-08)
+
+File `models/common/stg_dv_khach_hang_quan_tam.sql` **không có `WHERE` nào** kể từ khi
+tạo, dù bản song sinh `stg_dv_khach_hang_quan_tam_paris.sql` có `WHERE cln.brand_etl = 3`
+và comment đầu file bản Paris ghi rõ *"bản gốc chỉ tính brand_etl = 1 - Kangnam"*.
+
+Số đo trên DWH ngày **2026-10-08**:
+
+| Phép đo | Kết quả |
+|---|---|
+| `crm_line` tổng số dòng | **1.711.031** |
+| `crm_line` brand_etl = 1 | ~138.436 (8%) |
+| `crm_id` xuất hiện ở **nhiều hơn 1** `brand_etl` | **61.408** |
+| `crm_line` không khớp `crm_lead` (orphan) | 16 |
+
+Vì `crm_lead.id` **không unique toàn cục**, `ROW_NUMBER() OVER (PARTITION BY crm_id ...)`
+gộp các brand khác nhau vào cùng 1 partition → chỉ 1 dòng sống sót cho mỗi `crm_id`.
+Nếu dòng thắng không thuộc brand 1 thì join của consumer
+(`dkq.crm_id = cl.id AND dkq.brand_etl = cl.brand_etl`) bị MISS → nhãn ra `KXĐ` **sai**.
+
+**Phạm vi ảnh hưởng: cả `func_report_marketing_ad_cost_kn`** (2 cột
+`nhom_dv_KH_quan_tam`, `nhom_dv_KH_quan_tam_goc`), không chỉ báo cáo này. Sau khi thêm
+`WHERE cln.brand_etl = 1`, số của 2 cột đó ở `func_report_marketing_ad_cost_kn`
+**sẽ đổi** — phải đối chiếu lại.
+
+`stg_dv_khach_hang_quan_tam_paris.sql` **chưa** được dọn 5 cột chết + join
+`stag_sources` như bản KN (bản Paris có `WHERE` đúng nên không bị bug sai số).
+
+### 8.9. `table_team_sale_trans_field` là VIEW — nút cổ chai thật của model (đã sửa 2026-10-08)
+
+Chẩn đoán bằng `EXPLAIN` của đúng câu SQL đã chạy ra **383,7s** (2026-10-08).
+
+**Nó không phải bảng mà là VIEW** (`relkind = 'v'`, **799 dòng**) — nên `CREATE INDEX`
+trả `SQL Error 42809`. Thân view là `UNION ALL` 2 nhánh + 1 `EXISTS`:
+
+```
+cs_agents_api_trans_field      WHERE EXISTS (table_team_sale_group_trans_field)
+UNION ALL
+table_team_sale_trans_field_backup
+```
+
+6 slice gọi view này trong `join lateral` **tương quan**, nên mỗi vòng lặp Postgres
+chạy lại toàn bộ thân view:
+
+| Node trong lateral | cost |
+|---|---|
+| `Seq Scan on cs_agents_api_trans_field` | 132.55 |
+| `HashAggregate on table_team_sale_group_trans_field` | 17.00 |
+| `Seq Scan on table_team_sale_trans_field_backup` | 4.77 |
+| **tổng / 1 vòng lặp** | **157.15** |
+
+Nhân với số vòng lặp ước lượng (~2,0M/slice × 6 slice) → **~1,31 tỷ** trên tổng cost
+**1,426 tỷ** của cả query. Đây là term chiếm gần hết chi phí — không phải
+`stg_dv_khach_hang_quan_tam` như phỏng đoán ban đầu.
+
+**Cách sửa đã áp dụng:** thêm `int/kn_sale_online/kso_team_sale.sql` vật hoá view thành
+**bảng có index** `(work_email, expiration_date)` do dbt quản lý (`materialized = 'table'`
++ config `indexes`), rồi 6 slice đổi từ gọi view trần sang `{{ ref('kso_team_sale') }}`.
+Mỗi vòng lặp từ 3 seq scan → 1 index scan trên 799 dòng.
+
+Kèm theo: **bỏ `date()` ở phía cột** trong 6 slice
+(`date(sc.expiration_date) >= X` → `sc.expiration_date >= X`) để điều kiện sargable,
+index mới dùng được cho cả phần range. Tương đương tuyệt đối, chứng minh ở mục 8.9.1.
+
+Phụ: 6 slice trước đây gọi bảng **trần**, không qua `{{ source() }}`, dù
+`int/kn_sale_online/source.yml` **đã khai báo sẵn** `kso_crm_base.table_team_sale_trans_field`
+(các báo cáo khác như `ktt_combine`, `hso_combine` đều gọi đúng qua `source()`). Nay đã
+đi qua `ref()` nên dbt quản lý được lineage.
+
+#### 8.9.1. Chứng minh bỏ `date()` không đổi kết quả
+
+`expiration_date` kiểu `timestamp without time zone`. Với mọi `d` kiểu `date`:
+
+```
+date(ts) >= d   ⟺   ts >= d::timestamp        (d::timestamp = 00:00:00 của ngày d)
+  (→) date(ts) >= d      ⟹ ts >= đầu ngày date(ts) >= đầu ngày d
+  (←) ts >= đầu ngày d   ⟹ date(ts) >= d
+```
+
+NULL khớp cả 2 chiều. `date()` ở **phía phải** giữ nguyên: nhánh `DS` dùng
+`date(stks.ngay_tt)` mà `ngay_tt` = `stag_payment_transfer.payment_date` **thô**
+(khác `ngay_tao`/`ngay_den_cua`/`ngay_hl` đã là `date` sẵn từ `kso_crm_lead`) — bỏ
+`date()` bên phải **sẽ** làm nhánh `DS` lệch.
+
+#### 8.9.2. Nondeterminism có sẵn trong lateral
+
+`order by expiration_date limit 1` **không có tie-break**: 2 dòng cùng `work_email`
+trùng `expiration_date` thì dòng nào thắng là không xác định, có thể đổi giữa các lần
+chạy. Đây là hành vi có sẵn từ trước; vật hoá không làm nặng thêm. Muốn tiền định phải
+thêm tie-break → sẽ đổi số, nên chưa làm.
+
+### 8.10. Row estimate của `stg_kso_map` lệch ~2.600× — cần `ANALYZE`
+
+Cũng từ `EXPLAIN` ngày 2026-10-08:
+
+```
+CTE __dbt__cte__stg_kso_map
+  ->  Merge Left Join  (cost=20251482.42..80333455.60 rows=401512766 ...)
+```
+
+Planner ước lượng `stg_kso_map` ra **401.512.766 dòng**, thực tế là **152.383**
+(mục 4.3) — lệch **~2.600 lần**. Hai chỗ phình:
+
+| Nhánh | Ước lượng | Nguyên nhân |
+|---|---|---|
+| `kso_cline ⟕ kso_product` on `product_id` | 382.449 → **39.352.090** (~103×) | planner tưởng `view_stag_products` có `product_id` trùng nhiều |
+| `crm_lead ⟕ kso_employees` on `user_id` | 321.878 → **2.278.339** (~7×) | planner tưởng `stag_employees.user_id` trùng |
+
+Ước lượng sai cỡ này khiến planner chọn plan tệ: `Sort` 39M dòng
+(cost 16.2M), `Materialize` 2,27M dòng, và bật **JIT với 349 functions**
+(`Inlining true, Optimization true`) — JIT compile trên plan lớn là chi phí thuần.
+
+Việc cần làm (DBA, an toàn, không khoá bảng lâu):
+
+```sql
+ANALYZE crm_line, crm_line_product, crm_lead, stag_products, product_template,
+        product_category, stag_employees, stag_payment_transfer;
+```
+
+Nếu sau `ANALYZE` mà estimate vẫn lệch thì cân nhắc nâng `default_statistics_target`
+cho các cột join, hoặc `CREATE STATISTICS` cho cặp cột tương quan.
+
+Nếu JIT vẫn là phần đáng kể (xem dòng `JIT:` trong `EXPLAIN (ANALYZE)`), tắt riêng cho
+model này:
+
+```
+{{ config(pre_hook = "set local jit = off") }}
+```
+
 ---
 
 ## 9. So sánh với `func_report_marketing_ad_cost_kn`
@@ -348,7 +579,7 @@ có biến `var('start_date')` (hiện cũng là `'2025-08-01'`). Nếu backfill
 | Chủ đề | Hiệu suất sale online theo nhân viên / team | Chi phí & hiệu quả marketing |
 | Số nhánh nguồn | **6**, thuần CRM | **9** (thêm FB insight, Google Ads, Inbox, Caresoft deal) |
 | Nghiệp vụ | Gói trong đúng 1 file (`stg_kso_map`) + 6 bộ lọc | 3 tầng xử lý thật (`fb_cost` → `union` → `region`) |
-| Tái sử dụng `models/common/` | Không — tự dựng riêng `kso_*` | Có — dùng `stg_common_tongquan_khachhang` |
+| Tái sử dụng `models/common/` | Có từ 2026-10-07 — `stg_dv_khach_hang_quan_tam` (xem mục 7b); phần còn lại tự dựng `kso_*` | Có — dùng `stg_common_tongquan_khachhang` |
 | Cột ngày tạo từ `crm_lead` | `create_date` | `create_on` (lệch 1.423 bản ghi) |
 | Lọc `crm_lead` | `brand_etl = 1`, `active is true` | `brand_etl = 1`, `active = true`, `create_on >= 2024-01-01` |
 | Parse tên campaign | Không | Có (token 2/3/5/8) |
@@ -374,6 +605,7 @@ Thời gian build thực tế: **~155 giây** (1 model table, 428.297 dòng).
 > | Trước 2026-09-17 | không alias | `report_kn_sale_online` (22 cột) |
 > | 2026-09-17 | `alias = 'report_kn_sale_online_v2'` | `report_kn_sale_online_v2` (23 cột, thêm `vk`) |
 > | 2026-09-18 | **bỏ alias** | `report_kn_sale_online` (23 cột, có `vk`) |
+> | 2026-10-07 | không đổi cấu hình | `report_kn_sale_online` (25 cột, thêm `nhom_dv_kh_quan_tam` + `nhom_dv_kh_quan_tam_goc`) |
 >
 > Sau khi bỏ alias, `dbt run` ghi thẳng vào `report_kn_sale_online` — dashboard giữ
 > nguyên tên cũ, không cần trỏ lại. Bảng `report_kn_sale_online_v2` trở thành bảng
