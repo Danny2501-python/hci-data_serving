@@ -57,7 +57,7 @@ rows AS (
       AND m.tong_tien > 0
 
     UNION ALL
-    -- DS: theo phiếu thu đã ghi sổ, quy đổi VND bằng seed ucbt_ty_gia_ph
+    -- DS: theo phiếu thu đã ghi sổ, quy đổi VND theo công tắc tỷ giá ph_nguon_ty_gia
     -- (stg_frmacph_doanh_so_thu – dùng chung với báo cáo marketing PH).
     -- Giống KN: chi nhánh = chi nhánh thu tiền; không loại booking bảo hành.
     SELECT

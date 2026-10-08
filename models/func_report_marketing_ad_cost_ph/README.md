@@ -49,9 +49,21 @@ Từ 07/10/2026, theo chỉ đạo của sếp, dùng **tỷ giá cố định**
 | USD | 25.806,79 | Trung bình tỷ giá mua chuyển khoản Techcombank (`public.ty_gia_techcombank`) 03/09 → 06/10/2026 |
 | AUD | 18.315,78 | Tỷ giá chéo: USD Techcombank × 0,7097 (USD/AUD thị trường cùng kỳ) |
 
-`public.ty_gia_techcombank` **chỉ có USD** (không có PHP/AUD). Giải pháp lâu dài (đang chờ): đồng
-bộ bảng tỷ giá ERP PH về schema `ph`, rồi thay CTE `ty_gia` trong `stg_frmacph_doanh_so_thu.sql`.
-Trước 07/10/2026 từng dùng seed tỷ giá thị trường theo ngày + script chạy trên máy cá nhân – đã bỏ.
+`public.ty_gia_techcombank` **chỉ có USD** (không có PHP/AUD). Trước 07/10/2026 từng dùng seed tỷ
+giá thị trường theo ngày + script chạy trên máy cá nhân – đã bỏ.
+
+**[2026-10-08] Tỷ giá ACB theo ngày – công tắc `ph_nguon_ty_gia`.** Pipeline `data_ops/dags/acb_fx`
+(DAG `acb_fx_etl`, 06:15 giờ VN) ghi `public.ty_gia_acb`: tỷ giá ACB chốt 23:59 mỗi ngày, có PHP
+(Techcombank / Vietcombank không niêm yết PHP), dữ liệu từ 10/09/2026. `stg_frmacph_doanh_so_thu.sql`
+chọn nguồn theo `var('ph_nguon_ty_gia')`:
+- `co_dinh` (mặc định): bảng tỷ giá cố định ở trên.
+- `acb`: giá **bán chuyển khoản** ACB (`deal_type = 'ASK'`, `instrument_type = 'TRANSFER'`) của ngày thu
+  (thiếu ngày → ngày gần nhất trước đó). PHP khoảng 421–425 (10/09 → 07/10/2026).
+
+Khi sếp duyệt: thêm `ph_nguon_ty_gia: acb` vào `vars` của `dbt_project.yml` rồi build lại – không sửa SQL.
+Cột `nguon_ty_gia` (`report_ph_doanh_thu`) cho biết dòng dùng tỷ giá nào. Đồng thời từ 08/10/2026
+doanh số chỉ lấy phiếu `brand_etl = 9`, phiếu của khách (`partner_type = 'customer'`), thu/hoàn
+(`inbound`/`outbound`), ngày thu ≥ `var('ph_go_live_date')` (mặc định 2026-09-10).
 
 ## 2. `brand_etl = 9`
 
@@ -116,6 +128,6 @@ compile toàn bộ project trước/sau: 522 model cũ giống hệt SQL và nơ
 
 - **Inbox** `sun_`: từ 06/10/2026 đã tách sang `m_inbox_sunwoo` → không còn trong báo cáo Kangnam
   (sau lần build KN kế tiếp).
-- **Chi phí** campaign `sun_` **vẫn nằm trong** `report_marketing_ad_cost_kn_v2` (brand 1). Nếu dùng
-  song song 2 báo cáo, cần loại `campaign ILIKE 'sun\_%'` khỏi báo cáo Kangnam để tránh tính trùng
-  (chưa sửa model KN).
+- **Chi phí** campaign `sun_`: **đã loại khỏi** chi phí Kangnam từ 08/10/2026 (data_serving PR #106,
+  `stg_frmack_fb_insight_v2.sql` và `int_rtds_chi_phi_ads.sql` thêm
+  `coalesce(ad_campaign_name, '') NOT ILIKE 'sun\_%'`) → không còn tính trùng giữa 2 báo cáo.
