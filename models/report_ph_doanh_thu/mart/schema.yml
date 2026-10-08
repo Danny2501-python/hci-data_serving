@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: report_ph_doanh_thu
+    description: >
+      Doanh thu PHILIPPINES (ERP SUN, brand_etl = 9), 1 dòng / phiếu thu đã ghi sổ, quy đổi VND.
+      Ghi ra sandbox_ph.report_ph_doanh_thu. Tỷ giá theo công tắc var ph_nguon_ty_gia
+      ('co_dinh' mặc định / 'acb'). Luôn lọc trang_thai_du_lieu = 'THAT'. Xem README.md.
+    columns:
+      - name: payment_id
+        description: "ph.account_payment.id"
+        tests:
+          - not_null
+          - unique
+      - name: loai_phieu
+        description: "THU (inbound, +) / HOAN_TIEN (outbound, -)"
+        tests:
+          - accepted_values:
+              values: ['THU', 'HOAN_TIEN']
+      - name: so_tien_goc
+        description: "Số tiền theo loại tiền gốc của phiếu, có dấu (hoàn tiền âm)"
+      - name: ty_gia
+        description: "Số VND / 1 đơn vị loại tiền gốc (VND = 1)"
+      - name: ngay_ty_gia
+        description: "Ngày của tỷ giá được dùng (ACB: ngày gần nhất ≤ ngày thu; cố định: = ngày thu)"
+      - name: nguon_ty_gia
+        description: "VND / CO_DINH / ACB / THIEU_TY_GIA"
+        tests:
+          - accepted_values:
+              values: ['VND', 'CO_DINH', 'ACB', 'THIEU_TY_GIA']
+      - name: doanh_thu_vnd
+        description: "so_tien_goc × ty_gia, làm tròn đồng. NULL khi thiếu tỷ giá (test bắt lỗi)"
+      - name: trang_thai_du_lieu
+        description: "THAT / TEST / NGHI_TEST – báo cáo lọc = 'THAT'"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THAT', 'TEST', 'NGHI_TEST']
+
+  - name: report_ph_doanh_thu_chi_phi
+    description: >
+      Doanh thu + chi phí Philippines theo ngày, dạng dòng (1 dòng / khoản tiền).
+      Ghi ra sandbox_ph.report_ph_doanh_thu_chi_phi. SUM(tac_dong_loi_nhuan) = lãi gộp.
+      Doanh thu lọc trang_thai_du_lieu = 'THAT'. Xem README.md.
+    columns:
+      - name: nhom
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DOANH_THU', 'CHI_PHI']
+      - name: khoan_muc
+        description: "THU_TIEN / HOAN_TIEN / QUANG_CAO_FACEBOOK / VAT_TU_TIEU_HAO"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THU_TIEN', 'HOAN_TIEN', 'QUANG_CAO_FACEBOOK', 'VAT_TU_TIEU_HAO']
+      - name: so_tien_vnd
+        description: "Số tiền VND theo bản chất: doanh thu +, hoàn tiền -, chi phí +, trả lại kho -"
+      - name: tac_dong_loi_nhuan
+        description: "Doanh thu giữ dấu, chi phí đổi dấu -> SUM = lãi gộp"
+      - name: nguon_ty_gia
+        tests:
+          - accepted_values:
+              values: ['VND', 'CO_DINH', 'ACB', 'THIEU_TY_GIA']
+      - name: trang_thai_du_lieu
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THAT', 'TEST', 'NGHI_TEST']

@@ -8,6 +8,9 @@
 -- dạng 'BOOK-yymmdd-xxxxx' (xác nhận với user). Không áp cho lead (type 1 – name là tên
 -- khách) và booking bảo hành (type 3 – mã 'BH-').
 -- Cùng quy tắc với view sandbox_ph.v_lead_trang_thai.
+-- [2026-10-08] Từ khoá test chỉ bắt ở ĐẦU TỪ (\m): 'test', 'test1', 'testing', 'khach test' vẫn là
+-- TEST; 'latest', 'greatest', 'contest', 'protest' (ghi chú / địa chỉ của khách thật) không còn bị
+-- bắt nhầm. View sandbox_ph.v_lead_trang_thai cần sửa giống vậy.
 -- =============================================================================
 SELECT
     l.id AS lead_id,
@@ -15,7 +18,7 @@ SELECT
         WHEN m.lead_id IS NOT NULL                       THEN m.trang_thai
         WHEN t.user_id IS NOT NULL                       THEN 'TEST'
         WHEN lower(concat_ws(' ', l.name, l.contact_name, l.description, l.street))
-             ~ '(test|aaaa|demo|asdf|thử nghiệm|thu nghiem)' THEN 'TEST'
+             ~ '(\mtest|\mdemo|\masdf|aaaa|thử nghiệm|thu nghiem)' THEN 'TEST'
         WHEN l.type_crm_id = 2
          AND coalesce(l.name, '') NOT ILIKE 'BOOK-%'     THEN 'TEST'
         WHEN l.company_id = 54                           THEN 'NGHI_TEST'
@@ -26,7 +29,7 @@ SELECT
         WHEN m.lead_id IS NOT NULL                       THEN 'Ghi đè thủ công: ' || coalesce(m.ghi_chu, '')
         WHEN t.user_id IS NOT NULL                       THEN 'Tạo bởi TK test: ' || t.login
         WHEN lower(concat_ws(' ', l.name, l.contact_name, l.description, l.street))
-             ~ '(test|aaaa|demo|asdf|thử nghiệm|thu nghiem)' THEN 'Có từ khoá test'
+             ~ '(\mtest|\mdemo|\masdf|aaaa|thử nghiệm|thu nghiem)' THEN 'Có từ khoá test'
         WHEN l.type_crm_id = 2
          AND coalesce(l.name, '') NOT ILIKE 'BOOK-%'     THEN 'Booking không có mã BOOK-'
         WHEN l.company_id = 54                          THEN 'Công ty = Văn phòng thương hiệu'

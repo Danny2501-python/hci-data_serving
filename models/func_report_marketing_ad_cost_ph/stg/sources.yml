@@ -22,6 +22,11 @@ sources:
       - name: product_template
       - name: product_category
       - name: res_users          # dùng cho report_ph_sale_online (login = email nhân viên)
+      # Chi phí vật tư (report_ph_doanh_thu_chi_phi). ERP SUN nhân bản từ Kangnam -> các bảng kho
+      # mang theo lịch sử Kangnam: BẮT BUỘC lọc từ ngày go-live (stg_frmacph_vat_tu).
+      - name: stock_valuation_layer
+      - name: stock_move
+      - name: stock_location
 
   # Inbox riêng của Sunwoo/Philippines (từ 2026-10-06 thay cho các dòng 'sun_' trước đây
   # nằm trong m_inbox_kangnam – các dòng đó đã bị chuyển hết sang bảng này).
@@ -38,7 +43,29 @@ sources:
     tables:
       - name: tk_test
         description: "Danh sách user_id tài khoản test của ERP PH"
+        columns:
+          - name: user_id
+            tests:
+              # trùng user_id -> nhân dòng mọi báo cáo PH (kể cả doanh số) -> dừng build
+              - unique:
+                  config:
+                    tags: ['phi']
       - name: danh_dau_thu_cong
         description: "Ghi đè trạng thái TEST/THAT theo lead_id – ưu tiên cao nhất"
+        columns:
+          - name: lead_id
+            tests:
+              # trùng lead_id -> nhân dòng mọi báo cáo PH (kể cả doanh số) -> dừng build
+              - unique:
+                  config:
+                    tags: ['phi']
       - name: team_sale_ph
         description: "Team sale bổ sung cho NV PH chưa có trong table_team_sale_trans_field (report_ph_sale_online)"
+
+  # Tỷ giá ACB theo ngày (quy ra VND), pipeline data_ops dags/acb_fx, có từ 2026-09-10.
+  # Chỉ dùng khi var ph_nguon_ty_gia = 'acb' (xem stg_frmacph_doanh_so_thu.sql).
+  - name: acb_fx
+    schema: public
+    tables:
+      - name: ty_gia_acb
+        description: "1 dòng / ngày / loại tiền / mua-bán / CK-tiền mặt / mệnh giá. PHP chỉ có ASK + TRANSFER."
