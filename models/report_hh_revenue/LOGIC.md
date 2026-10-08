@@ -102,7 +102,10 @@ của người dùng): PTTM/LGBT gom theo khách, Sản/Ung bướu lọc thẳn
 ### Nhà thuốc — `rhh_doanh_so_nha_thuoc`
 Port báo cáo HIS "Thu tiền nhà thuốc theo thời gian thu tiền": `ehc_tb_invoicemedicine`
 (`huyphieu_status = 0`), left join medicinebill / patientrecord / người giới thiệu
-(đều 1-1). Toàn bộ phiếu là `dm_invoice_typeid = 1` → không đảo dấu. Nhà thuốc
+(đều 1-1). Toàn bộ phiếu là `dm_invoice_typeid = 1` → không đảo dấu.
+Hồ sơ không ra người giới thiệu (chủ yếu khách lẻ `patientrecordid = 0`) →
+khớp **cả tên lẫn SĐT** khách mua thuốc với `ehc_tb_patientrecord`, lấy người
+giới thiệu của **lần dùng dịch vụ đầu tiên** (giống THV); không khớp theo tên thuần. Nhà thuốc
 **tách riêng** khỏi viện phí (không nằm trong `rhh_ehc_payment_service_base`).
 
 ### Nhóm ERP (`stag_payment_transfer`)

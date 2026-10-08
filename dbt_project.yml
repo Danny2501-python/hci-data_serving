@@ -361,6 +361,16 @@ models:
     report_tableau_doanh_so_tap_doan_HCI:
       +tags: ["rtds"]
 
+    # Thay the function public.func_stag_discount_review_new_new()
+    stag_discount_review:
+      +tags: ["stag_discount_review"]
+      int:
+        +materialized: ephemeral
+      stag:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
+
 
 # report_table_definitions/report_column_definitions: business context for
 # dwh_chat_app's LLM (chat over report data), maintained by the data team as

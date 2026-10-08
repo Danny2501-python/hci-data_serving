@@ -19,7 +19,7 @@
 -- cùng 1 rule của rtr_nhom_nguoigioithieu (rule cũ "nhà thuốc có nguồn thì
 -- gom hết vào MD" đã bỏ). KHÔNG có nguồn nào cả -> giữ NULL, không đoán (đã
 -- thử mặc định VL/MD cho trường hợp này nhưng đối chiếu danh sách MD thật
--- của người dùng thì sai). Riêng nhom_md_ml_baocao: từ T9/2026 VL -> ML (xem
+-- của người dùng thì sai). Riêng nhom_md_ml_baocao: từ T10/2026 VL -> ML (xem
 -- select cuối).
 --
 -- Với dich_vu, nguon_sau_mapping so khớp text erp_old_source_name với
@@ -153,13 +153,19 @@ select
     -- Hoàn toàn không có nguồn (nguon_ehc/nguoigioithieu NULL) -> giữ NULL,
     -- không đoán/mặc định nhóm nào cả (áp dụng cho cả dich_vu và nha_thuoc).
     grouped.nhom_nguon_baocao_raw as nhom_nguon_baocao,
-    -- TỪ T9/2026: nhóm VL ("N - Vãng lai") xếp sang ML thay vì MD (yêu cầu
-    -- người dùng). Điều kiện theo invoicedate nên phải đặt ở đây, không đặt ở
+    -- TỪ T10/2026 (ban đầu T9, người dùng dời sang T10 ngày 2026-10-05): nhóm
+    -- VL ("N - Vãng lai") xếp sang ML thay vì MD (yêu cầu người dùng). Điều kiện theo invoicedate nên phải đặt ở đây, không đặt ở
     -- rtr_nhom_nguoigioithieu (dimension người giới thiệu, không có ngày).
-    -- Tháng <= T8/2026 giữ nguyên VL -> MD như trước.
+    -- Tháng <= T9/2026 giữ nguyên VL -> MD như trước.
+    -- TỪ T9/2026: nhà thuốc không có nhóm người giới thiệu ("Thuốc bán lẻ")
+    -- xếp vào ML — đồng bộ với dòng 2.2.5.3 Thuốc bán lẻ (Nguồn cơ sở) của
+    -- report_thv_revenue_target. Tháng <= T8/2026 vẫn NULL.
     case
-        when grouped.invoicedate >= date '2026-09-01'
+        when grouped.invoicedate >= date '2026-10-01'
              and grouped.nhom_nguon_baocao_raw = 'VL' then 'ML'
+        when grouped.invoicedate >= date '2026-09-01'
+             and grouped.nguon_doanh_thu = 'nha_thuoc'
+             and grouped.dm_hoahongnguoigioithieu_nguoigioithieuname is null then 'ML'
         else grouped.nhom_md_ml_baocao_raw
     end as nhom_md_ml_baocao
 from grouped

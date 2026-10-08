@@ -139,3 +139,43 @@ seeds:
         pr_user_id: integer
         hh_id: integer
         hh_user_id: integer
+
+  - name: seed_hh_target_md_ml
+    description: >
+      Mục tiêu doanh số MD / ML của Hồng Hà (brand_etl = 4) theo tháng 2026, người
+      dùng cung cấp (bảng "Nguồn MD / Nguồn Offline", đơn vị nghìn đồng -> đã nhân
+      1.000 ra đồng). chi_tieu: md = Nguồn MD, ml = Nguồn Offline. Dùng ở
+      report_hh_thv_ds_kh/int/rhtdk_target_md_ml.
+    config:
+      column_types:
+        ngay_dau_thang: date
+        chi_tieu: varchar
+        target: numeric
+
+  - name: seed_ggs_target_sm_thv
+    description: >
+      TẠM THỜI: chép từ Google Sheet "Báo cáo Kinh doanh tự chủ 2025" (bản sao),
+      tab ggs_target_sm_thv — mục tiêu các chỉ số marketing THV (brand_etl = 8)
+      theo tháng: chi phí ads, inbox, SĐT thô/verify, booking, đến cửa, thành
+      công, doanh số MKT không thuốc, tỷ lệ, CPI/CPL/CPB/CPO/CAC, ROI. Khi admin
+      đồng bộ tab lên DB (public.ggs_target_sm_thv) thì rhtdk_target_sm tự đọc
+      bảng DB (không cần sửa code) -> có thể xoá seed này.
+    config:
+      column_types:
+        brand_etl: integer
+        thang: date
+        ma_chi_tieu: varchar
+        ten_chi_tieu: varchar
+        muc_tieu: numeric
+
+  - name: seed_ggs_inbox_thv_hh
+    description: >
+      TẠM THỜI: cột inbox (số inbox mới theo ngày x brand_etl 4 HH / 8 THV) chép
+      từ Google Sheet tab ggs_target_ads_thv_hh — job đồng bộ lên DB
+      (public.ggs_target_ads_thv_hh) chưa lấy cột inbox. rhtdk_chi_phi_ads tự
+      đọc cột inbox trên DB khi có (không cần sửa code) -> lúc đó xoá seed này.
+    config:
+      column_types:
+        date: date
+        brand_etl: integer
+        inbox: numeric
