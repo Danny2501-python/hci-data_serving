@@ -64,11 +64,11 @@ THV **không có nhánh cọc** (`invoicerequest`) như Hồng Hà.
 Không đảo dấu (chỉ có loại phiếu 1).
 
 **Fallback người giới thiệu** khi phiếu không có `patientrecordid` hợp lệ
-(hồ sơ không ra `nguoigioithieuid`), chỉ nhận khi **duy nhất 1 ứng viên**:
-1. Khớp tên + SĐT (`khachlename`/`khachle_phone` = `patientname`/`patientphone`).
-2. Khớp tên thuần, chỉ khi mọi hồ sơ trùng tên cùng 1 người giới thiệu.
-
-Mơ hồ → để NULL, không đoán. Bộ cột được đặt **cùng tên, cùng thứ tự (17 cột)**
+(hồ sơ không ra `nguoigioithieuid`): khớp **cả tên lẫn SĐT**
+(`khachlename`/`khachle_phone` = `patientname`/`patientphone`), lấy người giới
+thiệu của **lần dùng dịch vụ đầu tiên** (phiếu `ehc_tb_invoice_thv` sớm nhất,
+không huỷ). **Không khớp theo tên thuần** (trùng tên chưa chắc cùng 1 người).
+Không khớp → NULL (từ T9/2026 tính ML — Thuốc bán lẻ). Bộ cột được đặt **cùng tên, cùng thứ tự (17 cột)**
 với `rtr_ehc_payment_service` để union trực tiếp.
 
 ### `rtr_lead` — booking ERP
@@ -104,8 +104,11 @@ nào ref** — đã thay bằng rule tên ở `rtr_nhom_nguoigioithieu`. Giữ �
    `nhom_nguon_baocao = nhom_nguon_baocao_ehc`. Không có nguồn → NULL, không mặc định.
    CTE `erp_map` (18 nguồn ERP → nhóm) vẫn còn trong code nhưng **đang tắt**
    (không được dùng); muốn bật lại override ERP cho dịch vụ thì xem lịch sử git.
-5. **`nhom_md_ml_baocao` theo thời gian**: từ `invoicedate >= 2026-09-01`, nhóm
-   `VL` (Vãng lai) xếp sang **ML**; trước đó VL → MD.
+5. **`nhom_md_ml_baocao` theo thời gian**: từ `invoicedate >= 2026-10-01`, nhóm
+   `VL` (Vãng lai) xếp sang **ML**; trước đó (kể cả T9) VL → MD. Báo cáo
+   `report_thv_revenue_target` cũng dời mốc Vãng lai sang T10 (thuốc bán lẻ, gộp PK38 vẫn từ T9). Từ T9/2026, nhà
+   thuốc không có nhóm người giới thiệu (Thuốc bán lẻ) → **ML** (khớp dòng
+   2.2.5.3 của `report_thv_revenue_target`); trước đó vẫn NULL.
 6. Cột đặt tên rõ nghĩa: `nguoigioithieu` (= `source_ehc`, tên cá nhân),
    `nhom_nguoigioithieu` (= nhóm hoa hồng native).
 

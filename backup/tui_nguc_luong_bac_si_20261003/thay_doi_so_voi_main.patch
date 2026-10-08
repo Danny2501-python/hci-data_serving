@@ -1,0 +1,128 @@
+diff --git a/models/report_hh_revenue/LOGIC.md b/models/report_hh_revenue/LOGIC.md
+index 28a6647..397371e 100644
+--- a/models/report_hh_revenue/LOGIC.md
++++ b/models/report_hh_revenue/LOGIC.md
+@@ -102,7 +102,10 @@ của người dùng): PTTM/LGBT gom theo khách, Sản/Ung bướu lọc thẳn
+ ### Nhà thuốc — `rhh_doanh_so_nha_thuoc`
+ Port báo cáo HIS "Thu tiền nhà thuốc theo thời gian thu tiền": `ehc_tb_invoicemedicine`
+ (`huyphieu_status = 0`), left join medicinebill / patientrecord / người giới thiệu
+-(đều 1-1). Toàn bộ phiếu là `dm_invoice_typeid = 1` → không đảo dấu. Nhà thuốc
++(đều 1-1). Toàn bộ phiếu là `dm_invoice_typeid = 1` → không đảo dấu.
++Hồ sơ không ra người giới thiệu (chủ yếu khách lẻ `patientrecordid = 0`) →
++khớp **cả tên lẫn SĐT** khách mua thuốc với `ehc_tb_patientrecord`, lấy người
++giới thiệu của **lần dùng dịch vụ đầu tiên** (giống THV); không khớp theo tên thuần. Nhà thuốc
+ **tách riêng** khỏi viện phí (không nằm trong `rhh_ehc_payment_service_base`).
+ 
+ ### Nhóm ERP (`stag_payment_transfer`)
+@@ -126,13 +129,15 @@ Quy tắc chung nhánh ERP:
+ 
+ ## Tầng MART — `rhh_ehc_payment_service`
+ 
+-`union all` 3 khối, phân biệt bằng cột `nguon_du_lieu`:
++`union all` 5 khối, phân biệt bằng cột `nguon_du_lieu`:
+ 
+ | `nguon_du_lieu` | Nguồn | Ghi chú |
+ |---|---|---|
+ | `'Dịch vụ'` | `rhh_ehc_payment_service_base` | viện phí + cọc |
+ | `'Nhà thuốc'` | `rhh_doanh_so_nha_thuoc` | `roomid` NULL, `roomid_kb` lấy lại từ patientrecord, `pl = 'DT trừ cọc trong tháng'` |
+ | `'Target'` | `ggs_target_company` (`brand_id = 4`, `active`) | `sotienphieu` = target, `invoicedate` = tháng, `patientname` = company |
++| `'Túi ngực/mông'` | `stag/rhh_doanh_so_tui_nguc_mong` | khoản **trừ** (âm): vật tư túi ngực/mông (`VT%`, tiền tố `(X)`) của khách từng thuê phòng mổ, ngày = `servicedatadate` |
++| `'Lương bác sĩ'` | `stag/rhh_doanh_so_luong_bac_si` | khoản **trừ** (âm), chỉ 2026: đại phẫu DVHH0700 −2tr/ca, tiểu phẫu DVHH0701/0702 −500k/ca, ngày = ngày ra viện; chỉ dòng dịch vụ đã thực hiện (`dm_servicedatastatusid = 3`, khác bản Tableau). Cột `bac_si` = phẫu thuật viên chính (`ehc_tb_servicedata_pttt.userid_phauthuatvien_1` → `ehc_tb_nhanvien`), `loai_phau_thuat` = Đại phẫu / Tiểu phẫu; các khối khác NULL |
+ 
+ Sau union join thêm:
+ - **Nguồn ERP** theo `id_booking = crm_lead.name` (brand 4):
+@@ -145,6 +150,10 @@ Sau union join thêm:
+ 
+ Cách dùng:
+ - Doanh số thực tế: `nguon_du_lieu in ('Dịch vụ','Nhà thuốc')`, cộng thẳng `sotienphieu`.
++- Doanh số sau trừ túi ngực + lương bác sĩ: thêm `'Túi ngực/mông'`, `'Lương bác sĩ'`.
++  Hai khoản trừ port từ `report_tableau_doanh_so_tap_doan_HCI/int/int_rtds_hongha` (model đó chỉ lấy
++  `'Dịch vụ','Nhà thuốc'` từ mart này rồi tự trừ → không trừ đôi). Phải union, không join được vào
++  dòng phiếu: vật tư có `invoiceid = 0`, lương tính theo ca/hồ sơ ra viện.
+ - Target: `nguon_du_lieu = 'Target'`.
+ - Model này là nguồn Hồng Hà của `report_hh_thv_ds_kh`.
+ 
+diff --git a/models/report_hh_revenue/int/source.yml b/models/report_hh_revenue/int/source.yml
+index 80fe5ba..0670cf4 100644
+--- a/models/report_hh_revenue/int/source.yml
++++ b/models/report_hh_revenue/int/source.yml
+@@ -7,6 +7,7 @@ sources:
+       - name: cs_ticket_api
+       - name: crm_lead
+       - name: ggs_target_company
++      - name: ggs_target_ads_thv_hh
+       - name: dim_page_ad
+       - name: cs_agents_api
+       - name: cs_contact_api
+@@ -51,6 +52,7 @@ sources:
+       - name: ehc_tb_ptttchi_invoice
+       - name: ehc_tb_nhanvien
+       - name: ehc_tb_servicedata
++      - name: ehc_tb_servicedata_pttt
+       - name: ehc_tb_service
+       - name: ehc_tb_dm_servicegroup
+       - name: ehc_tb_dm_servicesubgroup
+diff --git a/models/report_hh_revenue/mart/rhh_ehc_payment_service.sql b/models/report_hh_revenue/mart/rhh_ehc_payment_service.sql
+index e0ea0bb..e58d051 100644
+--- a/models/report_hh_revenue/mart/rhh_ehc_payment_service.sql
++++ b/models/report_hh_revenue/mart/rhh_ehc_payment_service.sql
+@@ -79,7 +79,7 @@ phong as (
+ ),
+ 
+ vien_phi as (
+-    select 'Dịch vụ'::text as nguon_du_lieu, e.*
++    select 'Dịch vụ'::text as nguon_du_lieu, e.*, null::text as bac_si, null::text as loai_phau_thuat
+     from {{ ref('rhh_ehc_payment_service_base') }} e
+ ),
+ 
+@@ -101,7 +101,9 @@ nha_thuoc as (
+         nt.dm_hoahongnguoigioithieu_nguoigioithieuname,
+         null::integer               as roomid,
+         etp.roomid_kb,
+-        'DT trừ cọc trong tháng'::text as pl
++        'DT trừ cọc trong tháng'::text as pl,
++        null::text                  as bac_si,
++        null::text                  as loai_phau_thuat
+     from {{ ref('rhh_doanh_so_nha_thuoc') }} nt
+     left join {{ source('rhh_base', 'ehc_tb_patientrecord') }} etp
+            on etp.patientrecordid = nt.patientrecordid
+@@ -125,18 +127,38 @@ target as (
+         null::text                  as dm_hoahongnguoigioithieu_nguoigioithieuname,
+         null::integer               as roomid,
+         null::integer               as roomid_kb,
+-        null::text                  as pl
++        null::text                  as pl,
++        null::text                  as bac_si,
++        null::text                  as loai_phau_thuat
+     from {{ source('rhh_base', 'ggs_target_company') }} t
+     where t.brand_id = 4
+       and t.active
+ ),
+ 
++-- Khoản TRỪ (sotienphieu âm), logic port từ report_tableau_doanh_so_tap_doan_HCI
++-- int_rtds_hongha — xem comment đầu 2 model stag. bac_si chỉ có ở dòng
++-- 'Lương bác sĩ' (phẫu thuật viên chính), các khối khác NULL. loai_phau_thuat
++-- (Đại phẫu / Tiểu phẫu) cũng chỉ có ở dòng 'Lương bác sĩ'.
++tui_nguc_mong as (
++    select 'Túi ngực/mông'::text as nguon_du_lieu, t.*, null::text as bac_si, null::text as loai_phau_thuat
++    from {{ ref('rhh_doanh_so_tui_nguc_mong') }} t
++),
++
++luong_bac_si as (
++    select 'Lương bác sĩ'::text as nguon_du_lieu, l.*
++    from {{ ref('rhh_doanh_so_luong_bac_si') }} l
++),
++
+ gop as (
+     select * from vien_phi
+     union all
+     select * from nha_thuoc
+     union all
+     select * from target
++    union all
++    select * from tui_nguc_mong
++    union all
++    select * from luong_bac_si
+ )
+ 
+ select

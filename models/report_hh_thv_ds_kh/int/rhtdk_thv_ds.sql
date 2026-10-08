@@ -18,7 +18,7 @@ select
     null::text                          as pl,
     r.id_booking,
     r.patientrecordid,
-    null::text                          as patientcode,
+    p.patientcode::text                 as patientcode,
     r.patientname,
     r.patientphone,
     null::integer                       as invoiceid,
@@ -34,3 +34,7 @@ select
     null::text                          as roomname,
     null::text                          as roomname_kb
 from {{ ref('report_thv_revenue') }} r
+-- Lấy mã KH (patientcode) từ hồ sơ EHC THV; patientrecordid unique ở bảng
+-- này nên không nhân dòng.
+left join {{ source('rtr_base', 'ehc_tb_patientrecord_thv') }} p
+    on p.patientrecordid = r.patientrecordid

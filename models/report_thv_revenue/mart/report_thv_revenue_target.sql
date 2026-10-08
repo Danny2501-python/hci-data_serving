@@ -153,19 +153,21 @@ mbc as (
         -- Vãng lai: trước T9 nằm dưới MD, từ T9 nằm dưới Nguồn cơ sở và tách
         -- đôi — vãng lai DỊCH VỤ đứng riêng, vãng lai NHÀ THUỐC nằm trong khối
         -- nhà thuốc (cộng vào dòng tổng nhà thuốc).
+        -- [2026-10-05] Người dùng dời mốc VÃNG LAI sang T10/2026 (T9 vẫn tính
+        -- MD); thuốc bán lẻ + gộp PK38 vẫn giữ mốc T9.
         case
-            when m.ngay_dau_thang < date '2026-09-01' then m.vang_lai
+            when m.ngay_dau_thang < date '2026-10-01' then m.vang_lai
         end as vang_lai_md,
         case
-            when m.ngay_dau_thang >= date '2026-09-01' then coalesce(m.vang_lai, 0)
+            when m.ngay_dau_thang >= date '2026-10-01' then coalesce(m.vang_lai, 0)
         end as vang_lai_ml,
         case
-            when m.ngay_dau_thang >= date '2026-09-01' then coalesce(m.vang_lai_nt, 0)
+            when m.ngay_dau_thang >= date '2026-10-01' then coalesce(m.vang_lai_nt, 0)
         end as vang_lai_nt_bc,
         -- md_khong_nt (CTE m) cố ý vẫn gồm VL để giữ số các tháng cũ
         -- -> từ T9 phải trừ vãng lai ra.
         case
-            when m.ngay_dau_thang >= date '2026-09-01'
+            when m.ngay_dau_thang >= date '2026-10-01'
             then coalesce(m.md_khong_nt, 0) - coalesce(m.vang_lai, 0)
             else coalesce(m.md_khong_nt, 0)
         end as md_khong_nt_bc,
@@ -213,7 +215,7 @@ rows as (
     union all select m2.ngay_dau_thang, 7,  '2.1.1.1', 4, 'MKT Digital',                                     null,            m2.mkt_digital,   null from m2
     union all select m2.ngay_dau_thang, 8,  '2.1.1.2', 4, 'Seeding',                                         null,            m2.seeding,       null from m2
     -- Vãng lai chỉ còn nằm dưới MD với tháng <= T8/2026 (từ T9 xem dòng 2.2.6).
-    union all select m2.ngay_dau_thang, 9,  '2.1.1.3', 4, 'Vãng lai',                                        null,            m2.vang_lai_md,   null from m2 where m2.ngay_dau_thang < date '2026-09-01'
+    union all select m2.ngay_dau_thang, 9,  '2.1.1.3', 4, 'Vãng lai',                                        null,            m2.vang_lai_md,   null from m2 where m2.ngay_dau_thang < date '2026-10-01'
     union all select m2.ngay_dau_thang, 10, '2.1.2',   3, 'Nhà thuốc (MD)',                                  null,            m2.nha_thuoc_md,  null from m2
     union all select m2.ngay_dau_thang, 11, '2.2',     2, 'Nguồn cơ sở',                                     t.t_nguon_co_so, m2.nguon_co_so,   null from m2 join target_by_month t using (ngay_dau_thang)
     union all select m2.ngay_dau_thang, 12, '2.2.1',   3, 'ĐTKD - MGM',                                      t.t_dtkd_mgm,    m2.dtkd_mgm_bc,   null from m2 join target_by_month t using (ngay_dau_thang)
@@ -225,11 +227,13 @@ rows as (
     -- TỔNG nhà thuốc ML + thuốc bán lẻ (2.2.6) với 2 dòng con 2.2.6.1/2.2.6.2
     -- -> tổng 2.2 = 2.2.1..2.2.5 + 2.2.6, không cộng trùng. Các tháng <= T8
     -- giữ nguyên "Nhà thuốc (ML)" ở 2.2.5 cấp 3, không có dòng tổng/bán lẻ.
-    union all select m2.ngay_dau_thang, 16, '2.2.4',   3, 'Vãng lai (dịch vụ)',                              null,            m2.vang_lai_ml,   null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
-    union all select m2.ngay_dau_thang, 17, '2.2.5',   3, 'Nhà thuốc (ML) + Thuốc bán lẻ',                   null,            nha_thuoc_ml_bc + coalesce(m2.vang_lai_nt_bc, 0) + coalesce(m2.thuoc_ban_le_bc, 0), null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
-    union all select m2.ngay_dau_thang, 18, case when m2.ngay_dau_thang >= date '2026-09-01' then '2.2.5.1' else '2.2.5' end, case when m2.ngay_dau_thang >= date '2026-09-01' then 4 else 3 end, 'Nhà thuốc (ML)', null, m2.nha_thuoc_ml_bc, null from m2
-    union all select m2.ngay_dau_thang, 19, '2.2.5.2', 4, 'Vãng lai (nhà thuốc)',                            null,            m2.vang_lai_nt_bc, null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
-    union all select m2.ngay_dau_thang, 20, '2.2.5.3', 4, 'Thuốc bán lẻ',                                    null,            m2.thuoc_ban_le_bc, null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
+    union all select m2.ngay_dau_thang, 16, '2.2.4',   3, 'Vãng lai (dịch vụ)',                              null,            m2.vang_lai_ml,   null from m2 where m2.ngay_dau_thang >= date '2026-10-01'
+    -- T9/2026 (Vãng lai còn ở MD, 38PM đã gộp) không có dòng 2.2.4 -> khối nhà
+    -- thuốc ML đánh số lùi lên 2.2.4 / 2.2.4.1 / 2.2.4.2 cho liền mạch.
+    union all select m2.ngay_dau_thang, 17, case when m2.ngay_dau_thang < date '2026-10-01' then '2.2.4' else '2.2.5' end, 3, 'Nhà thuốc (ML) + Thuốc bán lẻ',                   null,            nha_thuoc_ml_bc + coalesce(m2.vang_lai_nt_bc, 0) + coalesce(m2.thuoc_ban_le_bc, 0), null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
+    union all select m2.ngay_dau_thang, 18, case when m2.ngay_dau_thang >= date '2026-10-01' then '2.2.5.1' when m2.ngay_dau_thang >= date '2026-09-01' then '2.2.4.1' else '2.2.5' end, case when m2.ngay_dau_thang >= date '2026-09-01' then 4 else 3 end, 'Nhà thuốc (ML)', null, m2.nha_thuoc_ml_bc, null from m2
+    union all select m2.ngay_dau_thang, 19, '2.2.5.2', 4, 'Vãng lai (nhà thuốc)',                            null,            m2.vang_lai_nt_bc, null from m2 where m2.ngay_dau_thang >= date '2026-10-01'
+    union all select m2.ngay_dau_thang, 20, case when m2.ngay_dau_thang < date '2026-10-01' then '2.2.4.2' else '2.2.5.3' end, 4, 'Thuốc bán lẻ',                                    null,            m2.thuoc_ban_le_bc, null from m2 where m2.ngay_dau_thang >= date '2026-09-01'
     union all select ngay_dau_thang,     21, '3',      1, 'Doanh số nguồn đối ngoại, CBNV',                  null,            cbnv,             null from cbnv_total
 ),
 

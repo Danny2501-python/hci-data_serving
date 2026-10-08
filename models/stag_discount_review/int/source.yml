@@ -1,0 +1,41 @@
+version: 2
+
+# Nguồn ERP cho stag_discount_review (port từ function
+# public.func_stag_discount_review_new_new()). stag_products /
+# stag_payment_transfer KHÔNG khai báo ở đây — đã là model dbt
+# (erp_staging), dùng ref().
+sources:
+  - name: sdr_base
+    schema: public
+    tables:
+      - name: crm_discount_program
+      - name: crm_discount_program_res_company_rel
+      - name: crm_discount_program_utm_source_rel
+      - name: crm_discount_program_list
+      - name: crm_line_discount_history
+      - name: crm_voucher_program
+      - name: crm_voucher_program_res_company_rel
+      - name: crm_voucher_program_utm_source_rel
+      - name: crm_voucher_program_list
+      - name: crm_voucher_program_discount_invoice
+      - name: crm_line_product_crm_voucher_program_rel
+      - name: line_voucher_ref
+      - name: crm_discount_review
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_line_product
+      - name: crm_stage
+      - name: m_res_company
+      - name: utm_source
+      - name: utm_campaign
+      - name: product_ids
+      - name: product_product
+      - name: sh_medical_health_center_service_category
+      - name: sh_medical_appointment_register_walkin
+      - name: sale_order
+      - name: sale_order_line
+      - name: res_users
+      - name: res_partner
+      - name: res_brand
+      - name: res_company_trans_field
+      - name: stag_sources

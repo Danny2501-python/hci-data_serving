@@ -16,18 +16,15 @@
 -- code CASE ở đây nữa). Hậu tố "_ehc" vì đây là nhóm tính riêng theo dữ liệu
 -- EHC — bản cuối cùng (có đối chiếu ERP) nằm ở rtr_combine, cột không có hậu tố.
 --
--- FALLBACK người giới thiệu khi ehc_tb_invoicemedicine_thv.patientrecordid = 0
--- (lỗi liên kết ở nguồn — xác nhận qua vd BÙI THỊ HẰNG NGA/BÙI TUẤN MẠNH...:
--- có hồ sơ bệnh nhân + người giới thiệu hợp lệ ở chỗ khác, nhưng riêng phiếu
--- này không được gán patientrecordid). Áp dụng 2 tầng, chỉ nhận khi KHÔNG mơ
--- hồ (unique candidate) — thà để NULL còn hơn gán nhầm referrer:
---   1. Khớp tên (khachlename) + số điện thoại (khachle_phone = patientphone)
---      với ehc_tb_patientrecord_thv, ra đúng 1 nguoigioithieuid.
---   2. Không có số điện thoại (hoặc không khớp) -> khớp theo tên, CHỈ nhận
---      nếu mọi hồ sơ trùng tên đều cùng 1 nguoigioithieuid (nhiều người
---      trùng tên — vd "NGUYỄN THỊ HUYỀN" có tới 9 người giới thiệu khác nhau
---      — sẽ bị bỏ qua, không đoán).
--- Verify: giải quyết được 30/50 dòng "không nguồn" của tháng 8 theo cách này.
+-- FALLBACK người giới thiệu khi hồ sơ của phiếu không ra nguoigioithieuid
+-- (patientrecordid = 0 / hồ sơ không gán người giới thiệu — lỗi liên kết ở
+-- nguồn, vd BÙI THỊ HẰNG NGA/BÙI TUẤN MẠNH...): lấy tên (khachlename) + SĐT
+-- (khachle_phone) của khách mua thuốc, tìm các hồ sơ trùng CẢ tên LẪN SĐT
+-- (ehc_tb_patientrecord_thv), lấy người giới thiệu của lần dùng DỊCH VỤ ĐẦU
+-- TIÊN (phiếu ehc_tb_invoice_thv sớm nhất, không huỷ, hồ sơ có người giới
+-- thiệu) = nguồn đầu tiên đưa khách tới. KHÔNG khớp theo tên thuần (trùng tên
+-- chưa chắc cùng 1 người — theo yêu cầu người dùng). Không có SĐT / không
+-- khớp / khách chưa từng dùng dịch vụ -> NULL (Thuốc bán lẻ).
 
 with base as (
     select
@@ -64,47 +61,40 @@ need_fallback as (
     from base
     join pr_direct on pr_direct.invoicemedicineid = base.invoicemedicineid
     where pr_direct.nguoigioithieuid is null
+      and base.khachle_phone is not null
 ),
 
-phone_match_dedup as (
-    select invoicemedicineid, min(nguoigioithieuid) as nguoigioithieuid, count(distinct nguoigioithieuid) as n_candidate
-    from (
-        select nf.invoicemedicineid, pr.nguoigioithieuid
-        from need_fallback nf
-        join {{ source('rtr_base', 'ehc_tb_patientrecord_thv') }} pr
-               on pr.patientname = nf.khachlename
-              and pr.patientphone = nf.khachle_phone
-        where nf.khachle_phone is not null
-        group by nf.invoicemedicineid, pr.nguoigioithieuid
-    ) t
-    group by invoicemedicineid
+-- Nguồn của lần dùng dịch vụ đầu tiên theo (tên, SĐT): 1 dòng / cặp tên-SĐT.
+first_service_ngt as (
+    select distinct on (pr.patientname, pr.patientphone)
+        pr.patientname,
+        pr.patientphone,
+        pr.nguoigioithieuid
+    from {{ source('rtr_base', 'ehc_tb_invoice_thv') }} iv
+    join {{ source('rtr_base', 'ehc_tb_patientrecord_thv') }} pr
+      on pr.patientrecordid = iv.patientrecordid
+    where iv.huyphieu_status = 0
+      and pr.nguoigioithieuid is not null
+      and nullif(pr.patientphone, '') is not null
+    order by pr.patientname, pr.patientphone, iv.invoicedate, iv.invoiceid
 ),
 
-name_match_dedup as (
-    select invoicemedicineid, min(nguoigioithieuid) as nguoigioithieuid, count(distinct nguoigioithieuid) as n_candidate
-    from (
-        select nf.invoicemedicineid, pr.nguoigioithieuid
-        from need_fallback nf
-        join {{ source('rtr_base', 'ehc_tb_patientrecord_thv') }} pr
-               on pr.patientname = nf.khachlename
-        group by nf.invoicemedicineid, pr.nguoigioithieuid
-    ) t
-    group by invoicemedicineid
+fallback as (
+    select nf.invoicemedicineid, fs.nguoigioithieuid
+    from need_fallback nf
+    join first_service_ngt fs
+      on fs.patientname = nf.khachlename
+     and fs.patientphone = nf.khachle_phone
 ),
 
 resolved as (
     select
         pr_direct.invoicemedicineid,
-        coalesce(
-            pr_direct.nguoigioithieuid,
-            case when pmd.n_candidate = 1 then pmd.nguoigioithieuid end,
-            case when nmd.n_candidate = 1 then nmd.nguoigioithieuid end
-        ) as nguoigioithieuid,
+        coalesce(pr_direct.nguoigioithieuid, fb.nguoigioithieuid) as nguoigioithieuid,
         pr_direct.id_booking,
         pr_direct.patientphone
     from pr_direct
-    left join phone_match_dedup pmd on pmd.invoicemedicineid = pr_direct.invoicemedicineid
-    left join name_match_dedup nmd on nmd.invoicemedicineid = pr_direct.invoicemedicineid
+    left join fallback fb on fb.invoicemedicineid = pr_direct.invoicemedicineid
 ),
 
 a as (

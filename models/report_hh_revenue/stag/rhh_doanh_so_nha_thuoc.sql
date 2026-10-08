@@ -37,6 +37,31 @@
 -- nghìn). Toàn lịch sử: 41.144 hoá đơn / 23.108.745.175, từ 21/09/2018.
 -- Phần lớn hoá đơn không truy được nguồn (T8/2026: 314/352 dòng, 186.351.302
 -- có nhóm nguồn NULL) vì hồ sơ bệnh nhân không gán người giới thiệu.
+--
+-- FALLBACK người giới thiệu khi hồ sơ của phiếu không ra nguoigioithieuid
+-- (chủ yếu patientrecordid = 0 — khách lẻ), giống rtr_ehc_payment_medicine bên
+-- THV: lấy tên (khachlename) + SĐT (khachle_phone) của khách mua thuốc, tìm
+-- các hồ sơ trùng CẢ tên LẪN SĐT (ehc_tb_patientrecord), lấy người giới thiệu
+-- của lần dùng DỊCH VỤ ĐẦU TIÊN (phiếu ehc_tb_invoice sớm nhất, không huỷ, hồ
+-- sơ có người giới thiệu). KHÔNG khớp theo tên thuần (trùng tên chưa chắc cùng
+-- 1 người — theo yêu cầu người dùng). Không khớp -> NULL (Thuốc bán lẻ).
+-- Chỉ bổ sung người giới thiệu (source_ehc + nhóm hoa hồng); patientcode/
+-- patientname/patientphone vẫn theo hồ sơ gốc của phiếu.
+
+-- Nguồn của lần dùng dịch vụ đầu tiên theo (tên, SĐT): 1 dòng / cặp tên-SĐT.
+with first_service_ngt as (
+    select distinct on (pr.patientname, pr.patientphone)
+        pr.patientname,
+        pr.patientphone,
+        pr.nguoigioithieuid
+    from {{ source('rhh_base', 'ehc_tb_invoice') }} iv
+    join {{ source('rhh_base', 'ehc_tb_patientrecord') }} pr
+      on pr.patientrecordid = iv.patientrecordid
+    where iv.huyphieu_status = 0
+      and pr.nguoigioithieuid is not null
+      and nullif(pr.patientphone, '') is not null
+    order by pr.patientname, pr.patientphone, iv.invoicedate, iv.invoiceid
+)
 
 select
     date_trunc('month', i.invoicemedicinedate)::date as thang,
@@ -59,8 +84,12 @@ left join {{ source('rhh_base', 'ehc_tb_medicinebill') }} mb
        on mb.medicinebillid = i.medicinebillid
 left join {{ source('rhh_base', 'ehc_tb_patientrecord') }} etp
        on etp.patientrecordid = i.patientrecordid
+left join first_service_ngt fb_sdt
+       on etp.nguoigioithieuid is null
+      and fb_sdt.patientname = mb.khachlename
+      and fb_sdt.patientphone = nullif(mb.khachle_phone, '')
 left join {{ source('rhh_base', 'ehc_tb_nguoigioithieu') }} etn
-       on etn.nguoigioithieuid = etp.nguoigioithieuid
+       on etn.nguoigioithieuid = coalesce(etp.nguoigioithieuid, fb_sdt.nguoigioithieuid)
 left join {{ source('rhh_base', 'ehc_tb_dm_hoahongnguoigioithieu_nguoigioithieu') }} dgt
        on dgt.dm_hoahongnguoigioithieu_nguoigioithieuid
         = etn.dm_hoahongnguoigioithieu_nguoigioithieuid
