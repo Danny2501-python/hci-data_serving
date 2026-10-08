@@ -3,7 +3,15 @@
 Báo cáo hiệu suất sale online Kangnam. Output cuối cùng là bảng
 `report_kn_sale_online`.
 
-Toàn bộ số liệu đo trong tài liệu này được lấy trực tiếp từ DWH ngày **2026-09-17**.
+Số liệu đo trong tài liệu này có **hai mốc**, và chúng lệch nhau rất lớn:
+
+| Mốc | Trạng thái dữ liệu nguồn |
+|---|---|
+| **2026-09-17** | `crm_line` brand 1 có 138.436 dòng — **thiếu ~234k dòng** lịch sử |
+| **2026-10-08** | `crm_line` brand 1 có 372.296 dòng — sau backfill, **đầy đủ** |
+
+Mọi con số dưới đây đều ghi rõ thuộc mốc nào. Nguyên nhân lệch: **backfill ở tầng
+nguồn**, không phải thay đổi logic model — xem mục 8.11.
 
 ---
 
@@ -17,14 +25,14 @@ Toàn bộ số liệu đo trong tài liệu này được lấy trực tiếp t
     └─────────┬──────────────────────────────────┘
               │
     ┌─────────┴──────────────────────────────────┐
-    │  stg_kso_map  ←  TRÁI TIM của model        │  join 11 nguồn → 152.383 dòng
+    │  stg_kso_map  ←  TRÁI TIM của model        │  join 11 nguồn → ~406.180 dòng
     └─────────┬──────────────────────────────────┘
               │  cùng 1 tập dữ liệu, cắt 6 lát theo loại bản ghi + mốc thời gian
    ┌──────┬───┴───┬───────┬───────┬───────┐
  Lead_total  BK    HL      DC      TC      DS
    └──────┴───┬───┴───────┴───────┴───────┘
               │  UNION ALL
-      report_kn_sale_online  →  428.297 dòng × 25 cột
+      report_kn_sale_online  →  1.129.859 dòng × 25 cột   (2026-10-08)
 ```
 
 ---
@@ -104,13 +112,16 @@ Vì vậy tồn tại song song 2 cặp cột. Nhánh `DS` cố ý dùng cặp `
 
 ### 4.3. Số liệu đo thực tế
 
-| Chỉ số | Giá trị |
-|---|---|
-| Số dòng `stg_kso_map` | **152.383** |
-| Số booking (`crm_lead`) phân biệt | 87.594 |
-| Số dòng dịch vụ (`line_id`) phân biệt | 138.230 |
+| Chỉ số | 2026-09-17 | 2026-10-08 |
+|---|---|---|
+| Số dòng `stg_kso_map` | 152.383 | **~406.180** |
+| `crm_lead` brand 1 + `active` | 283.325 | **295.854** (+4,4%) |
+| `crm_line` brand 1 | 138.436 | **372.296** (+169%) |
+| `crm_line_product` brand 1 | 13.645 | **15.705** |
 
-Chênh lệch **152.383 − 138.230 ≈ 14.153 dòng bị nhân thêm** — xem mục 8.1.
+Ở **cả hai** mốc, `stg_kso_map` ≈ `kso_cline` (= `crm_line` + `crm_line_product`) cộng
+một ít fan-out — tức model **không nhân dòng** ở mốc nào. Toàn bộ chênh lệch đến từ
+`crm_line` ở tầng nguồn (mục 8.11).
 
 ---
 
@@ -181,7 +192,20 @@ select * from a
 
 Chỉ nhánh `DS` bị lọc thêm `ma_phieu is not null`.
 
-Kết quả: **428.297 dòng × 25 cột** = 55.376 + 94.465×3 + 37.814 + 51.712.
+Kết quả **2026-10-08: 1.129.859 dòng × 25 cột**.
+
+| `bang` | 2026-09-17 | 2026-10-08 | Tỉ lệ |
+|---|---|---|---|
+| `Lead_total` | 55.376 | **143.684** | 2,59× |
+| `BK` | 94.465 | **253.430** | 2,68× |
+| `DC` | 94.465 | **253.430** | 2,68× |
+| `HL` | 94.465 | **253.430** | 2,68× |
+| `TC` | 37.814 | **104.359** | 2,76× |
+| `DS` | 51.712 | **121.526** | 2,35× |
+| **Tổng** | 428.297 | **1.129.859** | **2,64×** |
+
+Mọi lát phình gần như đồng đều → nguồn phình ở `stg_kso_map` dùng chung, không ở lát
+nào riêng. Xem mục 8.11.
 
 ### 6.1. Danh sách cột
 
@@ -353,9 +377,16 @@ quét lại 4 bảng mà model đã quét ở trên, nhưng **không có `WHERE`
 (xem mục 8.8 — hoá ra là **bug**, không chỉ là chậm):
 
 1. **Thêm `WHERE cln.brand_etl = 1`** — 1.711.031 → ~138.436 dòng vào window function.
-2. **Bỏ join `stag_sources` + 5 cột chết** (`code_customer`, `source`,
-   `category_source_code`, `booking_report_date`, `stage`) — cả 3 consumer chỉ đọc
-   `crm_id`, `brand_etl`, `first_product_group`, `first_product_category`.
+2. ~~Bỏ join `stag_sources` + 5 cột chưa dùng~~ — **đã hoàn nguyên 2026-10-08.**
+   5 cột `code_customer` / `source` / `category_source_code` / `booking_report_date` /
+   `stage` được **giữ lại** theo quyết định của chủ sở hữu báo cáo: đó là thông tin của
+   booking, để dùng khi cần. Hiện chưa consumer nào đọc (cả 3 chỉ dùng `crm_id`,
+   `brand_etl`, `first_product_group`, `first_product_category`) nhưng **không được xoá
+   vì lý do "không ai dùng"**.
+
+   ⚠️ Con số **36,12s** đo được khi 5 cột + join `stag_sources` **đã bị bỏ**. Join này
+   giờ quay lại nên thời gian build có thể nhúc nhích lên — cần đo lại. Phần cắt chính
+   (vật hoá `kso_team_sale`, mục 8.9) không bị ảnh hưởng.
 
 ### 7b.5. KHÔNG chuyển `stg_dv_khach_hang_quan_tam` sang `view` + index
 
@@ -466,8 +497,9 @@ Nếu dòng thắng không thuộc brand 1 thì join của consumer
 `WHERE cln.brand_etl = 1`, số của 2 cột đó ở `func_report_marketing_ad_cost_kn`
 **sẽ đổi** — phải đối chiếu lại.
 
-`stg_dv_khach_hang_quan_tam_paris.sql` **chưa** được dọn 5 cột chết + join
-`stag_sources` như bản KN (bản Paris có `WHERE` đúng nên không bị bug sai số).
+`stg_dv_khach_hang_quan_tam_paris.sql` **không** bị bug sai nhãn vì đã có
+`WHERE cln.brand_etl = 3` đúng. Nó cũng giữ 5 cột thông tin booking như bản KN
+(xem mục 7b.4 điểm 2) — nhất quán, không cần dọn.
 
 ### 8.9. `table_team_sale_trans_field` là VIEW — nút cổ chai thật của model (đã sửa 2026-10-08)
 
@@ -570,6 +602,75 @@ model này:
 {{ config(pre_hook = "set local jit = off") }}
 ```
 
+### 8.11. `crm_line` to ra 2,69× do backfill ở TẦNG NGUỒN (phát hiện 2026-10-08)
+
+Sau lần build 2026-10-08, mart ra **1.129.859 dòng** thay vì **428.297**. Đã truy đến gốc
+và kết luận: **`1.129.859` là số ĐÚNG, `428.297` là số THIẾU dữ liệu.** Model không có
+lỗi nhân dòng ở mốc nào.
+
+#### 8.11.1. Bằng chứng loại trừ
+
+| Phép kiểm | Kết quả | Loại trừ được gì |
+|---|---|---|
+| `crm_line` brand 1: `count(*)` vs `count(distinct id)` | 372.296 / 372.296, **trùng = 0** | không nạp trùng thô |
+| `count(*)` / `count(distinct (crm_id, product_id))` | **1,023×** | không phải ETL nạp lại cấp `id` mới (nếu vậy sẽ ≈ 2,0). 2,3% trùng khoá là hành vi nghiệp vụ bình thường |
+| dòng `crm_line` lọt filter product | 372.261 / 372.296 = **99,99%** | filter `product_category <> 'SAN PHAM'` chỉ loại 35 dòng → không phải nguyên nhân |
+| `view_stag_products` brand 1 | 20.782 dòng, **0 dòng `product_category` NULL** | không phải do backfill `product_category` |
+| `stag_payment_transfer` fan-out | 165.921 dòng / 129.717 khoá = **1,28×**, T3 372.039 → T4 406.180 (**+1,09×**) | `kso_spt` (mục 8.1) **không** phải nguyên nhân chính |
+| `stg_kso_map` vs `kso_cline` | ≈ nhau ở **cả 2** mốc | model không nhân dòng |
+| `dkq` (2 cột mới, mục 7b) | 230.737 dòng / 230.736 `crm_id` + 1 dòng NULL | join này đúng 1 dòng/`crm_id`, **không thể** fan-out |
+
+#### 8.11.2. Bằng chứng xác định — phân bố `create_date`
+
+`crm_line` brand 1 theo tháng `create_date` (2026-10-08):
+
+```
+2021-10 → 2025-06 :   ~300–1.700 / tháng    (cửa sổ ETL cũ, thưa)
+2025-07           :    4.679
+2025-08           :   30.323   ← bậc nhảy, trùng var start_date = '2025-08-01'
+2025-09 → 2026-09 :  20.000–28.000 / tháng
+2026-10 (dở dang) :    5.250
+                     ─────────
+                      372.296
+```
+
+Từ 2025-08 đến 2026-09 là 14 tháng × ~24k ≈ **336k dòng**. Nhưng ngày 2026-09-17 bảng
+chỉ có **138.436** dòng — để tổng chỉ 138k thì mỗi tháng lúc đó phải ~10k, hôm nay là
+~24k. **Mọi tháng trong quá khứ đều xấp xỉ gấp đôi.** Dữ liệu phát sinh mới không thể
+làm tháng 2025-08 dày lên ⇒ chữ ký của **một lần backfill rải khắp lịch sử, xảy ra giữa
+2026-09-17 và 2026-10-08**.
+
+(Bậc nhảy ở 2025-08 là cửa sổ ETL có sẵn, trùng đúng `var start_date` trong
+`dbt_project.yml` và mốc "Từ 01/08/2025" của báo cáo Tableau — không phải chuyện mới.)
+
+#### 8.11.3. Hệ quả
+
+**Báo cáo trước 2026-10-08 đang báo THIẾU.** Lead / Booking / Đến cửa / Hẹn lịch /
+Thành công / Doanh số giai đoạn 08/2025–09/2026 tăng **2,35–2,76×** sau build này. Đây
+không phải lỗi mới mà là dữ liệu được hoàn thiện — nhưng **phải thông báo trước** cho
+người đọc dashboard.
+
+`crm_line` nằm ở **tầng nguồn**, nên **mọi** model đọc nó đều đổi số, không riêng báo
+cáo này: `func_report_marketing_ad_cost_kn`, `report_hh_sale_online`,
+`report_thv_sale_online`, `report_convert_kangnam`, `report_kn_tele_transfer`…
+
+#### 8.11.4. Việc còn mở
+
+Chưa xác định **ngày** và **chủ sở hữu** của lần backfill. Query để truy (cần biết tên
+cột dấu vết thời điểm nạp của `crm_line`, thường là `write_date`):
+
+```sql
+select column_name, data_type from information_schema.columns
+where table_name = 'crm_line' order by ordinal_position;
+
+select date_trunc('day', write_date)::date as ngay_ghi, count(*)
+from crm_line where brand_etl = 1 and write_date >= '2026-09-01'
+group by 1 order by 1;
+```
+
+Việc này thuộc đội vận hành pipeline nạp `crm_line`, không thuộc model này. Ghi lại ở
+đây để không ai phải điều tra lại từ đầu.
+
 ---
 
 ## 9. So sánh với `func_report_marketing_ad_cost_kn`
@@ -596,7 +697,16 @@ cùng chỗ.
 dbt run --select tag:report_kso
 ```
 
-Thời gian build thực tế: **~155 giây** (1 model table, 428.297 dòng).
+Thời gian build thực tế:
+
+| Mốc | Thời gian | Dòng | Ghi chú |
+|---|---|---|---|
+| 2026-09-17 | ~155s | 428.297 | 23 cột, dữ liệu nguồn còn thiếu |
+| 2026-10-07 | 354,1s | — | vừa thêm 2 cột `nhom_dv_kh_quan_tam*` |
+| 2026-10-07 | 383,7s | — | sau khi sửa `WHERE brand_etl = 1` (sửa bug, không phải tối ưu) |
+| **2026-10-08** | **36,12s** | **1.129.859** | sau khi vật hoá `kso_team_sale` (mục 8.9) — **10,6×** |
+
+DAG giờ có 2 model: `kso_team_sale` (0,22s, 799 dòng) → `report_kn_sale_online` (36,12s).
 
 > **Lịch sử tên bảng đích:**
 >
