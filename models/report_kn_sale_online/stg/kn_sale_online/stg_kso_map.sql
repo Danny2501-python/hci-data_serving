@@ -46,6 +46,14 @@ select
         cl.ticket_id::text,
         sp.his_service_type,
         sp.surgery_type,
+        -- Nhom dich vu KH quan tam: nhan cua product_group cua crm_line DAU TIEN cua booking
+        -- (tie-break cline_id). Dung CHUNG model common/stg_dv_khach_hang_quan_tam voi
+        -- func_report_marketing_ad_cost_kn de 2 bao cao khong bao gio lech nhan (xem
+        -- func_report_marketing_ad_cost_kn/mart/schema.yml, cot nhom_dv_KH_quan_tam).
+        coalesce(dkq.first_product_group, 'KXĐ') as nhom_dv_KH_quan_tam,
+        -- Danh muc GOC, chua gom nhom (input tho cua product_group) -- doi ung voi
+        -- nhom_dv_KH_quan_tam_goc ben func_report_marketing_ad_cost_kn.
+        coalesce(dkq.first_product_category, 'KXĐ') as nhom_dv_KH_quan_tam_goc,
         cl.reason_cancel_booking,
         cl.active--,
        --- m."tên" page
@@ -60,6 +68,8 @@ left join {{ref('kso_employees')}} se on se.user_id = cl.create_uid
 left join {{ref('kso_crm_stage')}} cs on cs.id = cl.stage_id
 left join {{ref('kso_country_state')}} rcs on rcs.id = cl.state_id
 left join {{ref('kso_source')}} ss on ss.old_id = cl.nguon_bk_id
+left join {{ref('stg_dv_khach_hang_quan_tam')}} dkq
+       on dkq.crm_id = cl.id and dkq.brand_etl = cl.brand_etl
 ---left join (select * from {{source('kso_crm_base','cs_chat_api')}} where brand_id=1) cca on text(cca.ticket_id) = text(cl.ticket_id)
 ---left join {{source('kso_crm_base','m_facebook_page_kangnam')}} m on m.id = cca.facebook_page_id
 where sp.nhom_dv <> 'SAN PHAM' and sp.nhom_dv IS NOT NULL

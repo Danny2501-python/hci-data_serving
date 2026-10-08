@@ -20,7 +20,9 @@ select  'page' as page,
         stks.chinhanhphanquyen_old chinhanhphanquyen,
         stks.ten_dv,
         stks.vao_so ma_phieu,
-        stks.vk
+        stks.vk,
+        stks.nhom_dv_KH_quan_tam,
+        stks.nhom_dv_KH_quan_tam_goc
 from (select * from {{ref('stg_kso_map')}}  stks 
 where loai_ban_ghi= 2
 ---and (trang_thai <>'Hủy'
@@ -28,8 +30,8 @@ where loai_ban_ghi= 2
 ) stks 
 	left join lateral(
 		select sc."name",sc."group_name" ,sc.group, sc.work_email 
-		from table_team_sale_trans_field sc 
+		from {{ref('kso_team_sale')}} sc 
 		where sc.work_email = stks.work_email 
-		and date(sc.expiration_date) >= date(stks.ngay_tt) 
+		and sc.expiration_date >= date(stks.ngay_tt) 
 		order by expiration_date limit 1) tts on true
         
