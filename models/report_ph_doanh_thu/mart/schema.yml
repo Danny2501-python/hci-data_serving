@@ -4,8 +4,8 @@ models:
   - name: report_ph_doanh_thu
     description: >
       Doanh thu PHILIPPINES (ERP SUN, brand_etl = 9), 1 dòng / phiếu thu đã ghi sổ, quy đổi VND.
-      Ghi ra sandbox_ph.report_ph_doanh_thu. Tỷ giá theo công tắc var ph_nguon_ty_gia
-      ('co_dinh' mặc định / 'acb'). Luôn lọc trang_thai_du_lieu = 'THAT'. Xem README.md.
+      Ghi ra sandbox_ph.report_ph_doanh_thu. Tỷ giá: chỉ dùng ACB theo ngày
+      (public.ty_gia_acb, bán chuyển khoản). Luôn lọc trang_thai_du_lieu = 'THAT'. Xem README.md.
     columns:
       - name: payment_id
         description: "ph.account_payment.id"
@@ -24,10 +24,10 @@ models:
       - name: ngay_ty_gia
         description: "Ngày của tỷ giá được dùng (ACB: ngày gần nhất ≤ ngày thu; cố định: = ngày thu)"
       - name: nguon_ty_gia
-        description: "VND / CO_DINH / ACB / THIEU_TY_GIA"
+        description: "VND / ACB / THIEU_TY_GIA"
         tests:
           - accepted_values:
-              values: ['VND', 'CO_DINH', 'ACB', 'THIEU_TY_GIA']
+              values: ['VND', 'ACB', 'THIEU_TY_GIA']
       - name: doanh_thu_vnd
         description: "so_tien_goc × ty_gia, làm tròn đồng. NULL khi thiếu tỷ giá (test bắt lỗi)"
       - name: trang_thai_du_lieu
@@ -61,7 +61,7 @@ models:
       - name: nguon_ty_gia
         tests:
           - accepted_values:
-              values: ['VND', 'CO_DINH', 'ACB', 'THIEU_TY_GIA']
+              values: ['VND', 'ACB', 'THIEU_TY_GIA']
       - name: trang_thai_du_lieu
         tests:
           - not_null

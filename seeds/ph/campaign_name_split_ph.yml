@@ -1,0 +1,15 @@
+version: 2
+
+seeds:
+  - name: campaign_name_split_ph
+    description: >
+      Dự án Philippines (nhánh phi). Map mã nhóm dịch vụ trong tên campaign Sunwoo
+      (token thứ 5 của tên campaign 'sun_...') → nhóm dịch vụ. Model PH tra bảng này
+      TRƯỚC, không có mới tra bảng chung campaign_name_split (bảng chung không bị sửa).
+      Thêm mã mới của Sunwoo vào file này rồi chạy: dbt seed --select campaign_name_split_ph
+    config:
+      schema: sandbox_ph
+      tags: ['phi']
+      column_types:
+        campain_name_split: varchar
+        nhom_dv: varchar

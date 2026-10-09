@@ -6,7 +6,7 @@
 -- là PHP; vài phiếu có tỷ giá rác, vd 10.000 PHP → 1). Quy đổi lại từ
 -- amount + currency_id theo tỷ giá của ngày thu (lấy ngày gần nhất ≤ ngày thu).
 --
--- Tỷ giá: stg_frmacph_ty_gia (dùng chung, công tắc var ph_nguon_ty_gia 'co_dinh' / 'acb').
+-- Tỷ giá: stg_frmacph_ty_gia (dùng chung) – chỉ ACB theo ngày (bán chuyển khoản), từ 2026-10-09.
 -- [2026-10-08] Thêm chốt chặn: brand_etl = 9, phiếu của khách (partner_type = 'customer'),
 -- chỉ phiếu thu / hoàn (inbound / outbound), ngày thu ≥ var('ph_go_live_date').
 -- Loại tiền không có tỷ giá → doanh_so NULL, nguon_ty_gia 'THIEU_TY_GIA'

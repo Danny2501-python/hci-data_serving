@@ -57,7 +57,7 @@ rows AS (
       AND m.tong_tien > 0
 
     UNION ALL
-    -- DS: theo phiếu thu đã ghi sổ, quy đổi VND theo công tắc tỷ giá ph_nguon_ty_gia
+    -- DS: theo phiếu thu đã ghi sổ, quy đổi VND theo tỷ giá ACB theo ngày thu
     -- (stg_frmacph_doanh_so_thu – dùng chung với báo cáo marketing PH).
     -- Giống KN: chi nhánh = chi nhánh thu tiền; không loại booking bảo hành.
     SELECT
@@ -72,8 +72,9 @@ rows AS (
     LEFT JOIN lead_attr la ON la.lead_id = d.lead_id
 )
 SELECT
-    'page'::text                              AS page,
-    'ad'::text                                AS ad_id,
+    -- [2026-10-08] page / ad_id: từ hội thoại Pancake của lead (KN để placeholder 'page'/'ad')
+    coalesce(pc.page_name, 'KXĐ')::text       AS page,
+    coalesce(pc.first_ad_id, 'KXĐ')::text     AS ad_id,
     r.bang::text                              AS bang,
     r.ticket_id::text                         AS ticket_id,
     r.gia_tri::varchar                        AS sdt,            -- DS: doanh số VND (giống KN)
@@ -102,6 +103,8 @@ SELECT
     r.loai_tien::text                         AS loai_tien,
     r.so_tien_goc::numeric                    AS so_tien_goc
 FROM rows r
+LEFT JOIN {{ source('ph', 'crm_lead') }} lc          ON lc.id = r.lead_id
+LEFT JOIN {{ ref('stg_frmacph_pancake') }} pc        ON pc.conversation_id = nullif(lc.pancake_conversation_id, '')
 LEFT JOIN LATERAL (
     -- team có hiệu lực tại ngày của nhánh (giống KN); ưu tiên bảng team chung
     SELECT t.name, t.group_name, t.team_id

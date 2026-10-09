@@ -49,7 +49,8 @@ SELECT
          ELSE 'Khác'
     END                                                    AS kenh,
     nullif(l.pancake_page_id, '')                          AS page_id,
-    l.reason_cancel_booking
+    l.reason_cancel_booking,
+    nullif(l.pancake_conversation_id, '')                  AS conversation_id   -- nối Pancake (2026-10-08)
 FROM {{ source('ph', 'crm_lead') }} l
 LEFT JOIN line                                              ON line.crm_id = l.id
 LEFT JOIN {{ source('ph', 'm_res_company') }}       co  ON co.id  = l.company_id

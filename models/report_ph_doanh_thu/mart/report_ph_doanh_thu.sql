@@ -16,7 +16,7 @@
 --   * CHỈ ghi sandbox_ph (macro generate_schema_name).
 -- Doanh số & tỷ giá lấy từ stg_frmacph_doanh_so_thu (dùng chung với báo cáo marketing _thu
 -- và sale online -> 3 báo cáo luôn khớp nhau): posted, brand_etl = 9, phiếu của khách,
--- thu (+) / hoàn tiền (-), từ ngày go-live; công tắc tỷ giá var ph_nguon_ty_gia.
+-- thu (+) / hoàn tiền (-), từ ngày go-live; tỷ giá ACB theo ngày (stg_frmacph_ty_gia).
 -- Thuộc tính khách: stg_frmacph_crm_base (cùng định nghĩa nguồn / kênh / nhóm DV với báo cáo
 -- marketing) + ph.crm_lead. Trạng thái dữ liệu: stg_frmacph_trang_thai.
 -- Báo cáo LUÔN lọc trang_thai_du_lieu = 'THAT'.

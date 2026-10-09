@@ -28,12 +28,11 @@ ph.account_payment (posted, brand_etl = 9, customer, inbound/outbound, ngày thu
 - **Doanh thu VND**: `doanh_thu_vnd = round(so_tien_goc × ty_gia)`.
   - `so_tien_goc` là `amount` theo loại tiền của phiếu; phiếu hoàn tiền (outbound) mang dấu âm.
   - Không dùng `amount_vnd` của ERP, vì với phiếu PHP cột này vẫn là số peso.
-- **Tỷ giá**: chọn bằng công tắc `var('ph_nguon_ty_gia')`.
-  - `co_dinh` (mặc định, sếp chốt 07/10/2026): PHP 405, USD 25.806,79, AUD 18.315,78.
-  - `acb`: lấy từ `public.ty_gia_acb`, giá **bán chuyển khoản** (`ASK` / `TRANSFER`) của ngày thu. Nếu ngày đó không có số thì lấy ngày gần nhất trước đó.
-  - Bật bằng cách thêm vào `dbt_project.yml` (vars): `ph_nguon_ty_gia: acb`.
+- **Tỷ giá**: **chỉ dùng tỷ giá ACB theo ngày** (`stg_frmacph_ty_gia`, từ 09/10/2026).
+  - Lấy từ `public.ty_gia_acb`, giá **bán chuyển khoản** (`ASK` / `TRANSFER`) của ngày thu. Nếu ngày đó không có số thì lấy ngày gần nhất trước đó.
   - VND luôn bằng 1.
-  - Cột `nguon_ty_gia` ghi rõ tỷ giá lấy từ đâu: `VND` / `CO_DINH` / `ACB` / `THIEU_TY_GIA`.
+  - Cột `nguon_ty_gia` ghi rõ tỷ giá lấy từ đâu: `VND` / `ACB` / `THIEU_TY_GIA`.
+  - Lịch sử: 07–08/10/2026 từng dùng tạm tỷ giá cố định (PHP 405, USD 25.806,79, AUD 18.315,78) qua công tắc `ph_nguon_ty_gia` – đã bỏ.
 - **Ngày go-live**: `var('ph_go_live_date')`, mặc định `2026-09-10`.
 - **Phiếu draft không được tính.** Ngày 07/10/2026 có 49 phiếu draft so với 94 phiếu posted, cần xác nhận với kế toán Philippines.
 - **Thuộc tính khách**:
