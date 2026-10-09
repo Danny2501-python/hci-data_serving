@@ -18,7 +18,7 @@ tự, kiểu) → dashboard Tableau chỉ cần đổi nguồn. Thêm 5 cột cu
 ph.crm_lead × ph.crm_line (+ sản phẩm, stage, nguồn, công ty, tỉnh, res_users)
    + stg_frmacph_trang_thai (TEST/THAT)              → stg_phso_map (lead × dòng DV)
                                                           │ cắt 5 nhánh
-stg_frmacph_doanh_so_thu (phiếu thu × tỷ giá cố định) → nhánh DS
+stg_frmacph_doanh_so_thu (phiếu thu × tỷ giá ACB)    → nhánh DS
                                                           │ UNION ALL (liệt kê cột rõ ràng)
 team theo email: table_team_sale_trans_field (ưu tiên) + sandbox_ph.team_sale_ph
                                                           ▼
@@ -34,7 +34,7 @@ team theo email: table_team_sale_trans_field (ưu tiên) + sandbox_ph.team_sale_
 | `HL` | như BK | ngày hẹn (`booking_date`) |
 | `DC` | như BK | ngày đến (`arrival_date`) – có thể NULL như KN |
 | `TC` | như BK + `crm_line.total_received > 0` | ngày đến |
-| `DS` | phiếu thu `posted`, quy đổi VND theo **tỷ giá cố định** (dùng chung `stg_frmacph_doanh_so_thu`); `sdt` chứa doanh số | ngày thu |
+| `DS` | phiếu thu `posted`, quy đổi VND theo **tỷ giá ACB theo ngày thu** (dùng chung `stg_frmacph_doanh_so_thu`); `sdt` chứa doanh số | ngày thu |
 
 `BK`/`HL`/`DC` là **cùng tập booking** lặp theo 3 mốc ngày (giống KN) → mọi phép đếm phải lọc `bang`.
 
@@ -47,8 +47,9 @@ team theo email: table_team_sale_trans_field (ưu tiên) + sandbox_ph.team_sale_
 - **Doanh số không join vào map** (tránh nhân dòng như KN mục 8.1) — 1 dòng / phiếu thu, gắn thuộc
   tính lead theo dòng dịch vụ đầu tiên.
 - **Quy đổi tiền**: `amount_vnd` của ERP PH sai với phiếu PHP → dùng `stg_frmacph_doanh_so_thu`
-  (amount × **tỷ giá cố định tạm thời**: PHP = 405 theo sếp chốt, USD = 25.806,79 Techcombank,
-  AUD = 18.315,78 – chi tiết ở README `func_report_marketing_ad_cost_ph` mục 1.1). Doanh số khớp
+  (amount × **tỷ giá ACB bán chuyển khoản theo ngày thu** – chỉ dùng ACB, đã bỏ tỷ giá cố định;
+  `public.ty_gia_acb`; chi tiết ở README
+  `func_report_marketing_ad_cost_ph` mục 1.1). Doanh số khớp
   tuyệt đối với `report_marketing_ad_cost_ph_thu`.
 - **Chi nhánh**: không có `stag_crm_booking_arrival_company` cho brand 9 → dùng `company_id`.
 - **Team**: nối theo email (`ph.res_users.login`) với `table_team_sale_trans_field` (đội sale quốc tế
@@ -57,7 +58,7 @@ team theo email: table_team_sale_trans_field (ưu tiên) + sandbox_ph.team_sale_
 - **`ma_booking` của `Lead_total`** = mã booking (`BOOK-...`) mà lead đã chuyển thành
   (`booking.lead_id = lead.id`, booking tạo đầu tiên); lead chưa chuyển → NULL. KN để tên khách
   (vì `crm_lead.name` của lead là tên) — bản PH sửa theo yêu cầu 2026-10-07. Tên ở `ten_khach`.
-- `page`, `ad_id` giữ placeholder `'page'`, `'ad'` như KN; `surgery_type` = NULL (ERP PH chưa có).
+- **`page`, `ad_id`** (từ 2026-10-08): lấy từ **hội thoại Pancake** của lead (`crm_lead.pancake_conversation_id` → `stg_frmacph_pancake`): tên page và quảng cáo khách bấm vào (`first_ad_id`); không khớp → `'KXĐ'`. KN để placeholder `'page'`/`'ad'`. `surgery_type` = NULL (ERP PH chưa có).
 
 ## 4. Build
 
@@ -68,5 +69,5 @@ set PYTHONUTF8=1
 dbt run  --select tag:phi --profiles-dir .
 dbt test --select tag:phi --profiles-dir .
 ```
-Sửa `sandbox_ph.team_sale_ph`, `tk_test`, `danh_dau_thu_cong` hoặc tỷ giá cố định → build lại.
+Sửa `sandbox_ph.team_sale_ph`, `tk_test`, `danh_dau_thu_cong` → build lại (tỷ giá ACB tự cập nhật theo bảng `ty_gia_acb`).
 Các bảng cấu hình `sandbox_ph.*` tạo tay trên DB (không do dbt quản lý) – phải tồn tại khi chạy.

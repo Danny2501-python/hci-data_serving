@@ -80,7 +80,7 @@ FROM fb f
 LEFT JOIN {{ source('kangnam', 'fb_country_code_mapping') }} fc ON fc.country_code = f.country
 LEFT JOIN {{ ref('ucbt_country_continent') }} ccm ON ccm.country = fc.country_name_vn
 LEFT JOIN LATERAL (
-    SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
+    SELECT nhom_dv FROM {{ ref('stg_frmacph_nhom_dv_map') }}   -- seed PH ưu tiên, rồi seed chung
     WHERE upper(campain_name_split) = upper(f.nhom_dv_code) LIMIT 1
 ) cns ON TRUE
 
@@ -113,7 +113,7 @@ FROM {{ ref('stg_frmacph_inbox') }} i
 LEFT JOIN {{ ref('ucbt_page_config') }} upc ON upc.page_code = i.page_code
 LEFT JOIN camp_acc ca ON ca.campaign_id = i.campaign_id
 LEFT JOIN LATERAL (
-    SELECT nhom_dv FROM {{ ref('campaign_name_split') }}
+    SELECT nhom_dv FROM {{ ref('stg_frmacph_nhom_dv_map') }}   -- seed PH ưu tiên, rồi seed chung
     WHERE upper(campain_name_split) = upper(i.nhom_dv_code) LIMIT 1
 ) cns ON TRUE
 
@@ -129,11 +129,14 @@ SELECT
     ccm.continent,
     r.sdt,
     r.type_data,
-    coalesce(pm.page_name, 'KXĐ'),
+    coalesce(pc.page_name, pm.page_name, 'KXĐ'),
     coalesce(r.page_id, 'KXĐ'),
     coalesce(upper(ccm.continent), 'KXĐ'),
     r.local_k,
-    'KXĐ', 'KXĐ', 'KXĐ', 'KXĐ',                   -- campaign/account/actor/nhóm DV mục tiêu: ERP PH không lưu campaign FB
+    coalesce(pc.campaign_name, 'KXĐ'),            -- campaign/account/actor/nhóm DV mục tiêu: từ quảng cáo
+    coalesce(pc.account_fb, 'KXĐ'),               -- khách bấm vào (Pancake first_ad_id, 2026-10-08);
+    coalesce(nullif(pc.actor_code, ''), 'KXĐ'),   -- không khớp Pancake → 'KXĐ' như trước
+    coalesce(cnsp.nhom_dv, 'KXĐ'),
     'KXĐ', 'KXĐ', 'KXĐ',
     coalesce(r.nguon_moi_v2, 'KXĐ'),
     coalesce(r.nhom_nguon_moi_v2, 'KXĐ'),
@@ -143,6 +146,11 @@ SELECT
     'ERP PH brand 9'
 FROM crm_rows r
 LEFT JOIN page_map pm ON pm.page_id = r.page_id
+LEFT JOIN {{ ref('stg_frmacph_pancake') }} pc          ON pc.conversation_id = r.conversation_id
+LEFT JOIN LATERAL (     -- nhóm DV mục tiêu theo campaign khách bấm vào (giống Stream 1)
+    SELECT nhom_dv FROM {{ ref('stg_frmacph_nhom_dv_map') }}   -- seed PH ưu tiên, rồi seed chung
+    WHERE upper(campain_name_split) = upper(pc.nhom_dv_code) LIMIT 1
+) cnsp ON TRUE
 LEFT JOIN {{ ref('ucbt_country_continent') }} ccm ON ccm.country = r.quoc_gia
 WHERE r.nhom_dv <> 'SAN PHAM'
 
@@ -159,11 +167,14 @@ SELECT
     ccm.continent,
     d.doanh_so::text,
     'DS',
-    coalesce(pm.page_name, 'KXĐ'),
+    coalesce(pc.page_name, pm.page_name, 'KXĐ'),
     coalesce(c.page_id, 'KXĐ'),
     coalesce(upper(ccm.continent), 'KXĐ'),
     coalesce(c.local_k, 'KXĐ'),
-    'KXĐ', 'KXĐ', 'KXĐ', 'KXĐ',
+    coalesce(pc.campaign_name, 'KXĐ'),            -- campaign/account/actor/nhóm DV mục tiêu: từ quảng cáo
+    coalesce(pc.account_fb, 'KXĐ'),               -- khách bấm vào (Pancake first_ad_id, 2026-10-08);
+    coalesce(nullif(pc.actor_code, ''), 'KXĐ'),   -- không khớp Pancake → 'KXĐ' như trước
+    coalesce(cnsp.nhom_dv, 'KXĐ'),
     'KXĐ', 'KXĐ', 'KXĐ',
     coalesce(c.nguon_moi_v2, 'KXĐ'),
     coalesce(c.nhom_nguon_moi_v2, 'KXĐ'),
@@ -175,4 +186,9 @@ FROM {{ ref('stg_frmacph_doanh_so_thu') }} d
 LEFT JOIN crm c                                     ON c.lead_id  = d.lead_id
 LEFT JOIN {{ ref('stg_frmacph_trang_thai') }} tt    ON tt.lead_id = d.lead_id
 LEFT JOIN page_map pm                               ON pm.page_id = c.page_id
+LEFT JOIN {{ ref('stg_frmacph_pancake') }} pc          ON pc.conversation_id = c.conversation_id
+LEFT JOIN LATERAL (     -- nhóm DV mục tiêu theo campaign khách bấm vào (giống Stream 1)
+    SELECT nhom_dv FROM {{ ref('stg_frmacph_nhom_dv_map') }}   -- seed PH ưu tiên, rồi seed chung
+    WHERE upper(campain_name_split) = upper(pc.nhom_dv_code) LIMIT 1
+) cnsp ON TRUE
 LEFT JOIN {{ ref('ucbt_country_continent') }} ccm   ON ccm.country = c.quoc_gia

@@ -30,12 +30,22 @@ sources:
 
   # Inbox riêng của Sunwoo/Philippines (từ 2026-10-06 thay cho các dòng 'sun_' trước đây
   # nằm trong m_inbox_kangnam – các dòng đó đã bị chuyển hết sang bảng này).
-  # Cột: "ngày", "tên chiến dịch", "id chiến dịch", "vùng",
-  #      "người liên hệ qua nhắn tin mới", "chi phí facebook" (chi phí theo vùng có inbox).
+  # Cột dùng: "ngày", "tên chiến dịch", "id chiến dịch", "người liên hệ qua nhắn tin mới".
+  # KHÔNG dùng "vùng" (trống từ 08/10/2026, kiểu dữ liệu không ổn định) và "chi phí facebook".
   - name: sunwoo
     schema: public
     tables:
       - name: m_inbox_sunwoo
+
+  # Pancake (công cụ chat đa kênh) – đổ về DB từ 2026-10-07. Lọc brand_id = 9 (Sunwoo):
+  # page FB/Instagram của Sunwoo. Các page Zalo brand_id = 3 (Nha Khoa Paris) không dùng.
+  # pancake_conversation.conversation_id = ph.crm_lead.pancake_conversation_id (khoá duy nhất);
+  # first_ad_id = quảng cáo FB khách bấm vào để nhắn tin.
+  - name: pancake
+    schema: public
+    tables:
+      - name: core_pancake_page
+      - name: pancake_conversation
 
   # Bảng cấu hình phân loại dữ liệu test/thật (tạo tay trong sandbox_ph, user tự sửa)
   - name: sandbox_ph
@@ -63,7 +73,7 @@ sources:
         description: "Team sale bổ sung cho NV PH chưa có trong table_team_sale_trans_field (report_ph_sale_online)"
 
   # Tỷ giá ACB theo ngày (quy ra VND), pipeline data_ops dags/acb_fx, có từ 2026-09-10.
-  # Chỉ dùng khi var ph_nguon_ty_gia = 'acb' (xem stg_frmacph_doanh_so_thu.sql).
+  # Nguồn tỷ giá DUY NHẤT của báo cáo PH (xem stg_frmacph_ty_gia.sql).
   - name: acb_fx
     schema: public
     tables:

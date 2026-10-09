@@ -27,42 +27,33 @@ Kangnam chỉ cần đổi nguồn bảng. Thêm 4 cột cuối:
 | type_data | Nguồn | Ghi chú |
 |---|---|---|
 | `Cost_fb_cd` | `cs_facebook_insight` (brand_etl = 1), campaign `ILIKE 'sun\_%'` | Toàn bộ campaign `sun_` thuộc TK "Kangnam Surgery - Quốc tế 06 - Phil" (act_27957337653894035), bắt đầu 19/09/2026 |
-| `inbox` | `m_inbox_sunwoo` (từ 06/10/2026; trước đó là các dòng `sun_` trong `m_inbox_kangnam`, nay đã chuyển hết sang bảng mới) | Chỉ có vùng, không có quốc gia → `quoc_gia = 'QUỐC TẾ'` (giống KN). Cột `chi phí facebook` của bảng này không dùng – chi phí lấy từ `cs_facebook_insight` |
+| `inbox` | `m_inbox_sunwoo` (từ 06/10/2026; trước đó là các dòng `sun_` trong `m_inbox_kangnam`, nay đã chuyển hết sang bảng mới) | Không có quốc gia → `quoc_gia = 'QUỐC TẾ'` (giống KN). **Không dùng cột "vùng"** (từ 08/10/2026 sheet tổng hợp theo campaign, cột vùng trống, kiểu dữ liệu không ổn định) → `local_k`, `tinh_noi` của inbox = `KXĐ`. **Chống nạp trùng** (từ 09/10/2026): mỗi ngày × chiến dịch chỉ lấy lần nạp mới nhất (`ingestion_timestamp`). Cột `chi phí facebook` không dùng – chi phí lấy từ `cs_facebook_insight` |
 | `Lead` | `ph.crm_lead` type_crm_id = 1, theo ngày tạo (`create_on`) | Metric = SĐT |
 | `BKHL` | type_crm_id = 2, theo ngày tạo | |
 | `HL` | type_crm_id = 2, theo ngày hẹn (`booking_date`) | |
 | `DC` | type_crm_id = 2, theo ngày đến (`arrival_date`) | |
 | `TC` | như DC + tổng `crm_line.total_received` > 0 | |
-| `DS` | `ph.account_payment` state = `posted` (outbound trừ). `amount` × tỷ giá theo loại tiền (`stg_frmacph_doanh_so_thu`, công tắc `ph_nguon_ty_gia`) – cả 2 bảng | Nhiều loại tiền (PHP/VND/USD/AUD) – xem mục 1.1 |
+| `DS` | `ph.account_payment` state = `posted` (outbound trừ). `amount` × tỷ giá theo loại tiền (`stg_frmacph_doanh_so_thu`, tỷ giá ACB theo ngày) – cả 2 bảng | Nhiều loại tiền (PHP/VND/USD/AUD) – xem mục 1.1 |
 
 Không có `Google_*` và `DealCS` (PH chưa có dữ liệu tương ứng).
 
-### 1.1. Tỷ giá (DS) — TẠM THỜI
+### 1.1. Tỷ giá (DS) — chỉ dùng tỷ giá ACB theo ngày
 
 ERP PH **không quy đổi** phiếu thu PHP: `amount_vnd` = nguyên số peso (doanh thu peso bị ghi thấp
 ~400 lần). Kho dữ liệu chưa có bảng tỷ giá của ERP PH (`res_currency_rate`).
 
-Từ 07/10/2026, theo chỉ đạo của sếp, dùng **tỷ giá cố định** khai báo ngay trong
-`stg_frmacph_doanh_so_thu.sql` (dùng chung cho `report_ph_sale_online`):
+`stg_frmacph_doanh_so_thu.sql` quy đổi `amount × tỷ giá`, tỷ giá lấy từ `stg_frmacph_ty_gia` = **tỷ giá
+ACB theo ngày** (`public.ty_gia_acb`, pipeline `data_ops/dags/acb_fx`, DAG `acb_fx_etl` 06:15 giờ VN,
+chốt 23:59, có từ 10/09/2026 – Techcombank / Vietcombank không niêm yết PHP):
+- giá **bán chuyển khoản** (`deal_type = 'ASK'`, `instrument_type = 'TRANSFER'`) của ngày thu; thiếu
+  ngày → ngày gần nhất trước đó. PHP khoảng 421–425 (10/09 → 07/10/2026). VND = 1.
+- ngày / loại tiền chưa có trong `ty_gia_acb` → `nguon_ty_gia = 'THIEU_TY_GIA'`, doanh số NULL, test
+  `assert_ph_doanh_thu_co_ty_gia` báo lỗi (không âm thầm cộng sai).
 
-| Loại tiền | VND / 1 đơn vị | Nguồn |
-|---|---:|---|
-| PHP | **405** | Con số sếp chốt (tham khảo tỷ giá chéo qua USD Techcombank = 411,93) |
-| USD | 25.806,79 | Trung bình tỷ giá mua chuyển khoản Techcombank (`public.ty_gia_techcombank`) 03/09 → 06/10/2026 |
-| AUD | 18.315,78 | Tỷ giá chéo: USD Techcombank × 0,7097 (USD/AUD thị trường cùng kỳ) |
+Lịch sử: seed tỷ giá thị trường + script máy cá nhân (đến 06/10) → tỷ giá **cố định** tạm theo chỉ đạo
+sếp (07–08/10: PHP 405, USD 25.806,79 Techcombank, AUD 18.315,78) qua công tắc `ph_nguon_ty_gia` →
+sếp duyệt ACB (08/10) → **từ 09/10/2026 bỏ hẳn tỷ giá cố định và công tắc, chỉ dùng ACB**.
 
-`public.ty_gia_techcombank` **chỉ có USD** (không có PHP/AUD). Trước 07/10/2026 từng dùng seed tỷ
-giá thị trường theo ngày + script chạy trên máy cá nhân – đã bỏ.
-
-**[2026-10-08] Tỷ giá ACB theo ngày – công tắc `ph_nguon_ty_gia`.** Pipeline `data_ops/dags/acb_fx`
-(DAG `acb_fx_etl`, 06:15 giờ VN) ghi `public.ty_gia_acb`: tỷ giá ACB chốt 23:59 mỗi ngày, có PHP
-(Techcombank / Vietcombank không niêm yết PHP), dữ liệu từ 10/09/2026. `stg_frmacph_doanh_so_thu.sql`
-chọn nguồn theo `var('ph_nguon_ty_gia')`:
-- `co_dinh` (mặc định): bảng tỷ giá cố định ở trên.
-- `acb`: giá **bán chuyển khoản** ACB (`deal_type = 'ASK'`, `instrument_type = 'TRANSFER'`) của ngày thu
-  (thiếu ngày → ngày gần nhất trước đó). PHP khoảng 421–425 (10/09 → 07/10/2026).
-
-Khi sếp duyệt: thêm `ph_nguon_ty_gia: acb` vào `vars` của `dbt_project.yml` rồi build lại – không sửa SQL.
 Cột `nguon_ty_gia` (`report_ph_doanh_thu`) cho biết dòng dùng tỷ giá nào. Đồng thời từ 08/10/2026
 doanh số chỉ lấy phiếu `brand_etl = 9`, phiếu của khách (`partner_type = 'customer'`), thu/hoàn
 (`inbound`/`outbound`), ngày thu ≥ `var('ph_go_live_date')` (mặc định 2026-09-10).
@@ -83,9 +74,22 @@ brand 1** (vd `m_res_company.id = 4` là BV Kangnam Sài Gòn ở brand 1 nhưng
 - **KHÔNG lọc `active = true`** (khác KN): ở ERP PH, booking đã đến cửa / Won / đã thanh toán và lead
   đã chuyển thành booking đều có `active = false`. Lọc như KN làm mất gần hết DC/TC thật
   (DC còn 2, TC = 0). Dữ liệu test được loại bằng `trang_thai_du_lieu` (đã thống nhất 2026-10-05).
-- **Campaign / actor / account_fb cho CRM = `KXĐ`**: ERP PH không lưu campaign FB (`ad_id` trống,
-  ticket Caresoft `ad_id_value = '[]'`). Chỉ nối được ở cấp **page** qua `pancake_page_id`.
-- **`nhom_dv` CRM**: danh mục sản phẩm ERP PH hiện chỉ có `Service`.
+- **Campaign / actor / account_fb / nhom_dv_muc_tieu / page cho dòng khách** (Lead/BKHL/HL/DC/TC/DS):
+  lấy qua **Pancake** (từ 08/10/2026) — ERP PH không lưu campaign FB (`ad_id` trống) và ticket
+  Caresoft của PH tạo qua API (`ad_id_value = '[]'`), nên KN dùng Caresoft còn PH dùng Pancake:
+  `ph.crm_lead.pancake_conversation_id = pancake_conversation.conversation_id` (duy nhất) →
+  `first_ad_id` (quảng cáo khách bấm vào) → campaign `sun_` (`stg_frmacph_pancake`). Không khớp →
+  `KXĐ`. Lý do KXĐ thường gặp: lead nhập tay không có mã hội thoại, hội thoại chưa được ETL Pancake
+  kéo về, khách tự nhắn tin (không từ QC), QC của page chưa có trong `cs_facebook_insight`
+  (vd page Hair Growth / Skin Rejuvenation – thiếu tài khoản quảng cáo trong ETL).
+- **`nhom_dv` (nhóm DV hệ thống) của dòng khách**: **giữ nguyên theo ERP** (danh mục sản phẩm ERP PH
+  hiện chỉ có `Service`; lead chưa có dịch vụ → `KXĐ`) — user chốt 08/10/2026 không map thêm.
+  Nhóm DV theo quảng cáo xem cột `nhom_dv_muc_tieu`.
+- **`nhom_dv` / `nhom_dv_muc_tieu` của chi phí, inbox** (và `nhom_dv_muc_tieu` của dòng khách có
+  campaign): tra token 5 tên campaign qua `stg_frmacph_nhom_dv_map` = seed riêng PH
+  **`seeds/ph/campaign_name_split_ph.csv`** (`sandbox_ph`, ưu tiên: `mesohair`, `cayhacollagen`,
+  `cchi`) rồi mới tới seed chung `campaign_name_split` (**không sửa bảng chung**). Mã mới của
+  Sunwoo → thêm vào seed PH rồi `dbt seed --select campaign_name_split_ph`.
 - **`chi_nhanh`** của chi phí/inbox gán cứng `SUNWOO MEDICAL CENTER`.
 
 ## 4. Trạng thái dữ liệu test/thật
@@ -113,6 +117,7 @@ Toàn bộ dự án Philippines (2 bảng marketing + `report_ph_sale_online`) m
 **Chỉ chạy theo tag, không chạy cả project:**
 
 ```bash
+dbt seed --select tag:phi --profiles-dir .   # seed riêng PH (campaign_name_split_ph → sandbox_ph)
 dbt run  --select tag:phi --profiles-dir .
 dbt test --select tag:phi --profiles-dir .
 ```
