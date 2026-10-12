@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: report_ph_tqdskh_khach
+    description: >
+      Thay "Custom SQL Query" của workbook Tổng quan DS & KH (bản Sunwoo PH). Cùng cột với SQL Kangnam.
+      bang = 'data' (lead × dòng DV) / 'payment' (phiếu thu, doanh_so VND). Chỉ dữ liệu THAT.
+    columns:
+      - name: bang
+        tests:
+          - accepted_values:
+              values: ['data', 'payment']
+              config:
+                tags: ['phi']
+  - name: report_ph_tqdskh_ds
+    description: >
+      Thay "Custom SQL Query1": bang = 'Ao' (chỉ tiêu) / 'DV' (phiếu thu, Thanh_toan = VND / 1000).
+  - name: report_ph_tqdskh_chi_tieu
+    description: >
+      Thay "Custom SQL Query2": chỉ tiêu Sunwoo (seed target_sunwoo_chitieu), lần ban hành mới nhất.
