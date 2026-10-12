@@ -22,6 +22,8 @@ sources:
       - name: product_template
       - name: product_category
       - name: res_users          # dùng cho report_ph_sale_online (login = email nhân viên)
+      - name: res_partner        # tên nhân viên tạo lead (report_ph_tq_ds_kh)
+      - name: utm_campaign       # tên chiến dịch ERP (report_ph_tq_ds_kh)
       # Chi phí vật tư (report_ph_doanh_thu_chi_phi). ERP SUN nhân bản từ Kangnam -> các bảng kho
       # mang theo lịch sử Kangnam: BẮT BUỘC lọc từ ngày go-live (stg_frmacph_vat_tu).
       - name: stock_valuation_layer

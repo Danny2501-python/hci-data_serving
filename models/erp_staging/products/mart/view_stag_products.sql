@@ -204,7 +204,8 @@ select
             OR (dm_sp.his_service_type = 'Surgery' and dm_sp.product_category ~* 'HÚT MỠ')
             OR (dm_sp.product_category = 'GIẢM BÉO KHÔNG PT') then 'BÉO ĐA CHUYÊN KHOA'
         when dm_sp.his_service_type in ('Spa', 'Laser', 'Card') then 'BEAUTY & SPA'
-        when dm_sp.his_service_type = 'Odontology' or dm_sp.product_category ~* 'HÀM MẶT' then 'PTTM HÀM MẶT'
+        when dm_sp.his_service_type = 'Odontology' then 'DỊCH VỤ KHÁC'
+        when  dm_sp.product_category ~* 'HÀM MẶT' then 'PTTM HÀM MẶT'
         when dm_sp.his_service_type = 'wellness' then 'WELLNESS'
         when dm_sp.product_category ~* 'MẮT' then 'PTTM MẮT'
         when dm_sp.product_category ~* 'MŨI' then 'PTTM MŨI'

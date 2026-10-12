@@ -1,0 +1,27 @@
+version: 2
+
+seeds:
+  - name: target_sunwoo_chitieu
+    description: >
+      Dự án Philippines (nhánh phi). Chỉ tiêu doanh số Sunwoo – cùng cấu trúc với
+      target_kangnam_chitieu (tên cột không dấu). Hiện để trống (chưa có chỉ tiêu).
+      Điền chỉ tiêu (company_id theo ph.m_res_company, vd 4 = SUNWOO MEDICAL CENTER) rồi chạy:
+      dbt seed --select target_sunwoo_chitieu --profiles-dir . && dbt run --select report_ph_tqdskh_chi_tieu report_ph_tqdskh_ds --profiles-dir .
+    config:
+      schema: sandbox_ph
+      tags: ['phi']
+      column_types:
+        time: date
+        brand_id: integer
+        thuong_hieu: varchar
+        company_id: integer
+        chi_nhanh: varchar
+        chi_tieu: numeric
+        loai_chi_tieu: integer
+        ngay_ban_hanh: date
+        id_nguon: varchar
+        nguon: varchar
+        id_kenh: varchar
+        kenh: varchar
+        ti_trong_nguon: varchar
+        ti_trong_kenh: varchar
