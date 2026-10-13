@@ -23,6 +23,13 @@
 --   * 'Tổng brand' (1 dòng/brand × tháng) từ 2 int khách → so_khach_den_cua_brand, so_khach_thanh_cong_brand = khách
 --     DUY NHẤT cả brand (cộng chi nhánh có thể trùng ~0,2%). Đếm theo mã khách (code_customer + brand) như workbook.
 --   ⚠ Không SUM qua nhiều tháng (trùng khách quay lại) — lũy kế xem report_rtds_doanh_so_target_thang_tableau.
+-- (2026-10-13, user chốt) KHÁCH THEO NGUỒN — 2 nhóm DÒNG RIÊNG cuối file, CỘT MỚI (không đụng so_khach_den_cua*
+-- cũ nên sheet đang SUM không bị cộng trùng):
+--   * chi nhánh × nguon × nhom_nguon_khach × MD/ML/SP → so_khach_den_cua_nguon, so_khach_thanh_cong_nguon;
+--   * 'Tổng brand' × nguồn (khách DUY NHẤT cả brand) → so_khach_den_cua_nguon_brand, so_khach_thanh_cong_nguon_brand.
+--   Khách có nhiều booking khác nguồn trong tháng được đếm ở MỌI nguồn → cộng các nguồn ≥ tổng khách (cố ý).
+--   Tên nguồn GỐC theo stag_sources (crm source), không ánh xạ chéo brand. ⚠ THV: doanh số lấy nguồn EHC (người
+--   giới thiệu) còn khách lấy nguồn CRM → tên nguồn 2 phía khác nhau.
 {{ config(materialized='table', alias='report_doanh_so_thang_HCI') }}
 
 select
@@ -48,7 +55,11 @@ select
     null::bigint as so_khach_den_cua,
     null::bigint as so_khach_thanh_cong,
     null::bigint as so_khach_den_cua_brand,
-    null::bigint as so_khach_thanh_cong_brand
+    null::bigint as so_khach_thanh_cong_brand,
+    null::bigint as so_khach_den_cua_nguon,
+    null::bigint as so_khach_thanh_cong_nguon,
+    null::bigint as so_khach_den_cua_nguon_brand,
+    null::bigint as so_khach_thanh_cong_nguon_brand
 from {{ ref('report_rtds_doanh_so') }}
 group by 1, 2, 3, 4, 5, 6, 7, 8, 9
 
@@ -70,7 +81,11 @@ select
     null::bigint as so_khach_den_cua,
     null::bigint as so_khach_thanh_cong,
     null::bigint as so_khach_den_cua_brand,
-    null::bigint as so_khach_thanh_cong_brand
+    null::bigint as so_khach_thanh_cong_brand,
+    null::bigint as so_khach_den_cua_nguon,
+    null::bigint as so_khach_thanh_cong_nguon,
+    null::bigint as so_khach_den_cua_nguon_brand,
+    null::bigint as so_khach_thanh_cong_nguon_brand
 from {{ ref('int_rtds_lead_booking_thang') }}
 
 union all
@@ -97,7 +112,11 @@ select
     so_khach_den_cua::bigint,
     so_khach_thanh_cong::bigint,
     null::bigint as so_khach_den_cua_brand,
-    null::bigint as so_khach_thanh_cong_brand
+    null::bigint as so_khach_thanh_cong_brand,
+    null::bigint as so_khach_den_cua_nguon,
+    null::bigint as so_khach_thanh_cong_nguon,
+    null::bigint as so_khach_den_cua_nguon_brand,
+    null::bigint as so_khach_thanh_cong_nguon_brand
 from {{ ref('report_rtds_khach_hang_den_cua_thanh_cong') }}
 where coalesce(so_khach_den_cua, 0) + coalesce(so_khach_thanh_cong, 0) > 0
 
@@ -125,10 +144,90 @@ select
     null::bigint as so_khach_den_cua,
     null::bigint as so_khach_thanh_cong,
     count(distinct ma_khach) as so_khach_den_cua_brand,
-    count(distinct ma_khach) filter (where da_thanh_cong) as so_khach_thanh_cong_brand
+    count(distinct ma_khach) filter (where da_thanh_cong) as so_khach_thanh_cong_brand,
+    null::bigint as so_khach_den_cua_nguon,
+    null::bigint as so_khach_thanh_cong_nguon,
+    null::bigint as so_khach_den_cua_nguon_brand,
+    null::bigint as so_khach_thanh_cong_nguon_brand
 from (
     select brand, nam, thang, ma_khach, da_thanh_cong from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong') }}
     union all
     select brand, nam, thang, ma_khach, da_thanh_cong from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
 ) k
 group by 1, 2, 3
+
+union all
+
+-- (2026-10-13) Khách đến cửa / thành công theo NGUỒN × chi nhánh × MD/ML/SP
+select
+    brand, nam, thang,
+    'CRM' as nguon_he_thong,
+    chi_nhanh,
+    cast(null as varchar) as nhom_dich_vu,
+    nguon,
+    nhom_nguon_khach,
+    nhom_md_ml,
+    null::numeric as tong_so_tien,
+    null::bigint as so_giao_dich,
+    null::bigint as so_khach_hang,
+    null::bigint as so_booking,
+    null::bigint as so_sdt_verify,
+    null::bigint as so_booking_tao,
+    null::bigint as so_lich_hen_kh,
+    null::bigint as so_sdt_verify_brand,
+    null::bigint as so_booking_tao_brand,
+    null::bigint as so_lich_hen_kh_brand,
+    null::bigint as so_khach_den_cua,
+    null::bigint as so_khach_thanh_cong,
+    null::bigint as so_khach_den_cua_brand,
+    null::bigint as so_khach_thanh_cong_brand,
+    count(distinct ma_khach) as so_khach_den_cua_nguon,
+    count(distinct ma_khach) filter (where da_thanh_cong) as so_khach_thanh_cong_nguon,
+    null::bigint as so_khach_den_cua_nguon_brand,
+    null::bigint as so_khach_thanh_cong_nguon_brand
+from (
+    select brand, nam, thang, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ma_khach, da_thanh_cong
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong') }}
+    union all
+    select brand, nam, thang, chi_nhanh, nguon, nhom_nguon_khach, nhom_md_ml, ma_khach, da_thanh_cong
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
+) k
+group by 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+union all
+
+-- (2026-10-13) Khách DUY NHẤT cả brand × tháng × NGUỒN — dòng 'Tổng brand'
+select
+    brand, nam, thang,
+    'CRM' as nguon_he_thong,
+    'Tổng brand' as chi_nhanh,
+    cast(null as varchar) as nhom_dich_vu,
+    nguon,
+    nhom_nguon_khach,
+    cast(null as text) as nhom_md_ml,
+    null::numeric as tong_so_tien,
+    null::bigint as so_giao_dich,
+    null::bigint as so_khach_hang,
+    null::bigint as so_booking,
+    null::bigint as so_sdt_verify,
+    null::bigint as so_booking_tao,
+    null::bigint as so_lich_hen_kh,
+    null::bigint as so_sdt_verify_brand,
+    null::bigint as so_booking_tao_brand,
+    null::bigint as so_lich_hen_kh_brand,
+    null::bigint as so_khach_den_cua,
+    null::bigint as so_khach_thanh_cong,
+    null::bigint as so_khach_den_cua_brand,
+    null::bigint as so_khach_thanh_cong_brand,
+    null::bigint as so_khach_den_cua_nguon,
+    null::bigint as so_khach_thanh_cong_nguon,
+    count(distinct ma_khach) as so_khach_den_cua_nguon_brand,
+    count(distinct ma_khach) filter (where da_thanh_cong) as so_khach_thanh_cong_nguon_brand
+from (
+    select brand, nam, thang, nguon, nhom_nguon_khach, ma_khach, da_thanh_cong
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong') }}
+    union all
+    select brand, nam, thang, nguon, nhom_nguon_khach, ma_khach, da_thanh_cong
+    from {{ ref('int_rtds_khach_hang_den_cua_thanh_cong_hh_thv') }}
+) k
+group by 1, 2, 3, 4, 5, 6, 7, 8, 9

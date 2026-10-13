@@ -244,7 +244,7 @@ models:
       stag:
         +materialized: ephemeral
     erp_staging:
-      +tags: ["erp_staging"]
+      +tags: ["erp_staging","rtds"]
       products:
         stg:
           +materialized: ephemeral

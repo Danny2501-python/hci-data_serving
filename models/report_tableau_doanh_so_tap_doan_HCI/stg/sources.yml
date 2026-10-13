@@ -7,6 +7,10 @@ sources:
       - name: crm_lead
       - name: m_res_company
       - name: stag_sources
+      # utm_source / crm_category_source: bù nguồn "DG - …" (id 593–611, dòng Dr Giang/THV) KHÔNG có trong
+      # stag_sources — xem stg_rtds_nguon_bo_sung.sql (2026-10-13).
+      - name: utm_source
+      - name: crm_category_source
       # view_stag_products: KHÔNG khai báo ở đây — là VIEW do dbt quản lý
       # (models/erp_staging/products/mart/view_stag_products.sql), dùng ref() thẳng trong
       # stg_rtds_view_stag_products.sql (xem chú thích ở đó lý do không dùng source()).
