@@ -31,6 +31,8 @@
                                               650, 652, 651, 653, 655, 654, 656, 657, 659, 660, 661)
           or coalesce({{ category_source_id }}, 0) in (117, 118) then 'ML'
         when coalesce({{ category_source_id }}, 0) in (105, 119) then 'MD'
+        -- (2026-10-13, user chốt) nguồn "DG - MD - …" (Dr Giang/THV, category 113) tính MD
+        when coalesce({{ source_name }} ilike 'DG - MD -%', false) then 'MD'
         else 'ML'
     end
 {% endmacro %}
@@ -47,6 +49,8 @@
 #}
 {% macro rtds_nhom_md_ml_khach(source_id, category_source_id, source_name) %}
     case
+        -- (2026-10-13, user chốt) nguồn "DG - MD - …" (Dr Giang/THV, category 113 — không có trong workbook Kangnam) tính MD
+        when coalesce({{ source_name }} ilike 'DG - MD -%', false) then 'MD'
         when coalesce({{ category_source_id }}, 0) in (105, 119)
          and not (
                 coalesce({{ source_id }}, 0) in (91, 94, 95, 96, 123, 127, 209, 283, 290, 291, 531, 565, 695)

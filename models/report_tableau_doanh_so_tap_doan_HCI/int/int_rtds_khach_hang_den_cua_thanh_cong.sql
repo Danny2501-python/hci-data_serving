@@ -144,8 +144,15 @@ select
     -- (2026-09-27) Mã khách để đếm theo KHÁCH HÀNG (user chốt, khớp workbook: COUNTD(code_customer + '_' +
     -- brand_id)). Thiếu code_customer → partner_id → crm_id (không bỏ mất booking).
     coalesce(nullif(d.code_customer, ''), 'p' || d.partner_id::text, 'crm' || d.crm_id::text)
-        || '_' || ({{ brand_key }})::text as ma_khach
+        || '_' || ({{ brand_key }})::text as ma_khach,
+    -- (2026-10-13, user chốt) Nguồn của booking — tên GỐC theo stag_sources (giống int_rtds_kangnam/paris:
+    -- nguon = source, nhom_nguon_khach = newcat_source), không ánh xạ chéo brand. Dùng cho khách theo nguồn ở
+    -- report_rtds_doanh_so_thang (khách nhiều booking khác nguồn trong tháng được đếm ở MỌI nguồn).
+    d.source_id::int as source_id,
+    ss.source as nguon,
+    ss.newcat_source as nhom_nguon_khach
 from dedup d
+left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = d.source_id
 left join {{ ref('stg_rtds_m_res_company') }} mrc_gop
     on mrc_gop.id = {{ rtds_company_id_gop('d.report_company_id', 'd.report_date', brand_key) }}
    and mrc_gop.brand_etl = {{ brand_key }}
