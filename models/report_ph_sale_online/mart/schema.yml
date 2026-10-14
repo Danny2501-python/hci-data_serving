@@ -5,7 +5,7 @@ models:
     description: >
       Báo cáo hiệu suất sale online PHILIPPINES (ERP PH, brand 9). Ghi ra
       sandbox_ph.report_ph_sale_online. 23 cột đầu giống hệt public.report_kn_sale_online;
-      thêm trang_thai_du_lieu, ly_do, lead_id, loai_tien, so_tien_goc. Xem README.md.
+      thêm trang_thai_du_lieu, ly_do, lead_id, loai_tien, so_tien_goc, doanh_so_php, ty_gia_php. Xem README.md.
     columns:
       - name: bang
         description: "Lead_total / BK / HL / DC / TC / DS – luôn lọc theo cột này khi đếm."
@@ -25,3 +25,18 @@ models:
         description: "Loại tiền gốc của phiếu thu (chỉ nhánh DS)."
       - name: so_tien_goc
         description: "Số tiền theo loại tiền gốc (chỉ nhánh DS)."
+      # [2026-10-13] doanh số quy đổi PHP – chỉ nhánh DS (các nhánh khác luôn trống)
+      - name: doanh_so_php
+        description: "Doanh số quy đổi PHP, peso đầy đủ (chỉ nhánh DS). Phiếu PHP = đúng số tiền gốc."
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'DS'"
+                tags: ['phi']
+      - name: ty_gia_php
+        description: "Tỷ giá PHP ACB ngày gần nhất ≤ ngày thu (chỉ nhánh DS)."
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'DS'"
+                tags: ['phi']

@@ -11,6 +11,8 @@
 --   bang = 'Ao' : dòng chỉ tiêu (report_ph_tqdskh_chi_tieu) để map chỉ tiêu
 --   bang = 'DV' : 1 dòng / phiếu thu, Thanh_toan = doanh số VND / 1000 (giống KN)
 -- Phiếu thu ERP PH gắn theo lead → dịch vụ = dòng dịch vụ đầu tiên của lead.
+-- [2026-10-13] Thêm 4 cột cuối loai_tien, so_tien_goc, Thanh_toan_php, ty_gia_php (chỉ dòng 'DV').
+-- Thanh_toan_php = doanh số quy đổi PHP, peso đầy đủ (KHÔNG chia 1000 như Thanh_toan).
 -- =============================================================================
 WITH lead AS (
     SELECT * FROM {{ ref('stg_phtq_lead') }}
@@ -49,7 +51,12 @@ ao AS (
         gts.id_kenh::float                                  AS ma_kenh,
         CASE WHEN gts.nguon = 'Nguồn khác' THEN 'Khác' ELSE gts.nguon END AS nguon_moi,
         gts.id_nguon::integer                               AS ma_nguon_moi,
-        NULL::text                                          AS loai_phau_thuat
+        NULL::text                                          AS loai_phau_thuat,
+        -- [2026-10-13] 4 cột tiền gốc / PHP (cuối bảng) – chỉ có giá trị ở dòng 'DV'
+        NULL::text                                          AS loai_tien,
+        NULL::numeric                                       AS so_tien_goc,
+        NULL::float                                         AS "Thanh_toan_php",
+        NULL::numeric                                       AS ty_gia_php
     FROM {{ ref('report_ph_tqdskh_chi_tieu') }} gts
 ),
 dv AS (
@@ -82,7 +89,11 @@ dv AS (
         CASE l.nhom_kenh WHEN 'Marketing Digital'  THEN 1 WHEN 'Marketing Offline' THEN 2
                          WHEN 'Marketing Location' THEN 3 WHEN 'Nguồn khác'        THEN 4
         END,
-        NULL::text
+        NULL::text,
+        d.loai_tien,                                        -- loại tiền của phiếu (PHP / VND / USD…)
+        d.so_tien_goc,                                      -- số tiền gốc trên phiếu (hoàn tiền: âm), KHÔNG chia 1000
+        d.doanh_so_php::float,                              -- Thanh_toan_php: peso đầy đủ, KHÔNG chia 1000
+        d.ty_gia_php                                        -- tỷ giá PHP ACB dùng để quy đổi
     FROM ds d
     JOIN lead l                                         ON l.lead_id = d.lead_id
     LEFT JOIN line ln                                   ON ln.lead_id = d.lead_id

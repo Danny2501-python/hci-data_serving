@@ -16,6 +16,18 @@ Workbook Sunwoo chỉ cần `select *` từ 3 bảng này.
 
 - **Doanh số** lấy từ `stg_frmacph_doanh_so_thu`, tức `amount` × tỷ giá ACB theo ngày, ra VND.
   Không dùng `amount_vnd`. Số khớp với `report_ph_doanh_thu` và báo cáo marketing PH.
+- **Xem VND hoặc PHP (thêm 2026-10-13)**: 4 cột cuối, chỉ có giá trị ở dòng phiếu thu
+  (`report_ph_tqdskh_khach` dòng `payment`, `report_ph_tqdskh_ds` dòng `DV`):
+
+  | Cột | Ý nghĩa |
+  |---|---|
+  | `loai_tien`, `so_tien_goc` | Loại tiền & số tiền trên phiếu ERP (hoàn tiền: âm) – để đối chiếu |
+  | `doanh_so_php` (_khach) / `Thanh_toan_php` (_ds) | Doanh số quy đổi PHP, **peso đầy đủ** (không chia 1000). Phiếu PHP = đúng `so_tien_goc`; loại tiền khác = doanh số VND ÷ `ty_gia_php` |
+  | `ty_gia_php` | Tỷ giá PHP ACB (bán CK) của ngày gần nhất ≤ ngày thu (T7/CN/lễ → ngày trước đó) |
+
+  Tính ở `stg_frmacph_doanh_so_thu` (dùng chung) – các bảng khác dùng model này chọn cột đích danh nên không đổi.
+  Tableau: tham số chọn tiền, `IF [Currency]='PHP' THEN [Thanh_toan_php] ELSE [Thanh_toan] END`
+  (lưu ý `Thanh_toan` là nghìn đồng, `Thanh_toan_php` là peso). Test `not_null` cho 2 cột PHP ở dòng phiếu thu.
 - **Phiếu thu ERP PH gắn theo lead**, không theo dòng dịch vụ. Dịch vụ của phiếu thu lấy theo dòng
   dịch vụ đầu tiên của lead (`stg_phtq_line.rn_lead = 1`).
 - **Ngày** cộng 8 giờ (giờ Manila).

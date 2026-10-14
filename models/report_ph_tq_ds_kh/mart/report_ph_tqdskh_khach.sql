@@ -13,6 +13,8 @@
 --   bang = 'data'    : lead × dòng dịch vụ (Lead / Booking / Đến cửa / Thành công)
 --   bang = 'payment' : 1 dòng / phiếu thu, doanh số VND (stg_frmacph_doanh_so_thu, tỷ giá ACB)
 -- Chỉ dữ liệu THAT. Xem README.md cùng thư mục.
+-- [2026-10-13] Thêm 4 cột cuối loai_tien, so_tien_goc, doanh_so_php, ty_gia_php (chỉ dòng 'payment')
+-- để Tableau chọn xem VND (doanh_so) hoặc PHP (doanh_so_php). Xem stg_frmacph_doanh_so_thu.
 -- =============================================================================
 WITH lead AS (
     SELECT * FROM {{ ref('stg_phtq_lead') }}
@@ -80,7 +82,12 @@ khach AS (
         'data'::text                                        AS bang,
         NULL::float                                         AS quantity,
         NULL::integer                                       AS number_used,
-        0                                                   AS "?column?"
+        0                                                   AS "?column?",
+        -- [2026-10-13] 4 cột tiền gốc / PHP (cuối bảng) – chỉ có giá trị ở dòng 'payment'
+        NULL::text                                          AS loai_tien,
+        NULL::numeric                                       AS so_tien_goc,
+        NULL::numeric                                       AS doanh_so_php,
+        NULL::numeric                                       AS ty_gia_php
     FROM lead l
     LEFT JOIN line ln ON ln.lead_id = l.lead_id
 ),
@@ -135,7 +142,11 @@ thanh_toan AS (
         'payment'::text,
         ln.quantity::float,
         ln.number_used::integer,
-        99
+        99,
+        d.loai_tien,                                        -- loại tiền của phiếu (PHP / VND / USD…)
+        d.so_tien_goc,                                      -- số tiền gốc trên phiếu (hoàn tiền: âm)
+        d.doanh_so_php,                                     -- doanh số quy đổi PHP (peso đầy đủ)
+        d.ty_gia_php                                        -- tỷ giá PHP ACB dùng để quy đổi
     FROM ds d
     JOIN lead l                                         ON l.lead_id = d.lead_id
     LEFT JOIN line ln                                   ON ln.lead_id = d.lead_id AND ln.rn_lead = 1
