@@ -11,6 +11,7 @@ tự, kiểu) → dashboard Tableau chỉ cần đổi nguồn. Thêm 5 cột cu
 | `ly_do` | Lý do phân loại |
 | `lead_id` | `ph.crm_lead.id` |
 | `loai_tien`, `so_tien_goc` | Chỉ nhánh DS: loại tiền & số tiền gốc của phiếu thu |
+| `doanh_so_php`, `ty_gia_php` | (2026-10-13) Chỉ nhánh DS: doanh số quy đổi PHP (peso đầy đủ; phiếu PHP = đúng số tiền gốc, loại tiền khác = VND ÷ tỷ giá PHP ACB ngày gần nhất ≤ ngày thu) & tỷ giá đã dùng. Tableau chọn tiền: `IF [Currency]='PHP' THEN [doanh_so_php] ELSE FLOAT([sdt]) END` |
 
 ## 1. Luồng dữ liệu
 

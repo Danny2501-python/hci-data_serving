@@ -11,6 +11,9 @@
 -- chỉ phiếu thu / hoàn (inbound / outbound), ngày thu ≥ var('ph_go_live_date').
 -- Loại tiền không có tỷ giá → doanh_so NULL, nguon_ty_gia 'THIEU_TY_GIA'
 -- (không âm thầm cộng sai; test tests/ph/assert_ph_doanh_thu_co_ty_gia bắt lỗi).
+-- [2026-10-13] Thêm doanh_so_php + ty_gia_php (tỷ giá PHP ACB ngày gần nhất ≤ ngày thu).
+-- Phiếu PHP: doanh_so_php = số tiền gốc (khớp ERP); loại tiền khác: doanh_so ÷ ty_gia_php.
+-- Các model dùng bảng này đều chọn cột đích danh → chỉ bảng nào chọn thêm mới có 2 cột này.
 -- =============================================================================
 SELECT
     p.id                                                    AS payment_id,
@@ -27,7 +30,16 @@ SELECT
     tg.ty_gia,
     CASE WHEN cur.name = 'VND' THEN p.payment_date
          ELSE coalesce(tg.ngay, p.payment_date) END         AS ngay_ty_gia,
-    coalesce(tg.nguon, 'THIEU_TY_GIA')                      AS nguon_ty_gia
+    coalesce(tg.nguon, 'THIEU_TY_GIA')                      AS nguon_ty_gia,
+    -- [2026-10-13] Doanh số quy đổi PHP (để Tableau chọn xem VND / PHP):
+    --   phiếu PHP → đúng số tiền gốc trên ERP; loại tiền khác → doanh số VND ÷ tỷ giá PHP ACB.
+    tgp.ty_gia                                              AS ty_gia_php,
+    CASE WHEN cur.name = 'PHP'
+         THEN CASE WHEN p.payment_type = 'outbound' THEN -1 ELSE 1 END * p.amount
+         ELSE round(
+                CASE WHEN p.payment_type = 'outbound' THEN -1 ELSE 1 END
+              * p.amount * tg.ty_gia / nullif(tgp.ty_gia, 0), 2)
+    END                                                     AS doanh_so_php
 FROM {{ source('ph', 'account_payment') }} p
 LEFT JOIN {{ source('ph', 'res_currency') }} cur ON cur.id = p.currency_id
 LEFT JOIN {{ source('ph', 'm_res_company') }} co ON co.id = p.company_id
@@ -37,6 +49,12 @@ LEFT JOIN LATERAL (     -- tỷ giá ngày gần nhất ≤ ngày thu (ngay NULL
     ORDER BY t.ngay DESC NULLS LAST
     LIMIT 1
 ) tg ON TRUE
+LEFT JOIN LATERAL (     -- tỷ giá PHP ngày gần nhất ≤ ngày thu (T7/CN/lễ → ngày làm việc trước đó)
+    SELECT t.ty_gia FROM {{ ref('stg_frmacph_ty_gia') }} t
+    WHERE t.loai_tien = 'PHP' AND t.ngay <= p.payment_date
+    ORDER BY t.ngay DESC
+    LIMIT 1
+) tgp ON TRUE
 WHERE p.state = 'posted'
   AND p.brand_etl = 9
   AND p.partner_type = 'customer'
