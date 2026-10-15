@@ -55,3 +55,5 @@ LEFT JOIN LATERAL (
 WHERE f.brand_etl = 1
   AND f.date::date > '{{ var("start_date", "2025-08-01") }}'::date
   AND f.facebook_page_id not in ('805410602664141','839493609256431','948044848396128')
+  -- [2026-10-07] Loại campaign Philippines 'sun_' (đã tính ở sandbox_ph.report_marketing_ad_cost_ph_thu)
+  AND coalesce(f.ad_campaign_name, '') NOT ILIKE 'sun\_%'

@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: rkbc_source
+    schema: public
+    tables:
+      # stag_payment_transfer: KHÔNG khai báo source ở đây — đã cutover sang dbt
+      # (models/erp_staging/payment_transfer/mart/stag_payment_transfer.sql), dùng
+      # ref('stag_payment_transfer') thẳng trong int_rkbc_base_payment.sql thay vì source().
+      - name: stag_crm_information_consultant
+      - name: crm_lead
+      - name: res_users
+      - name: crm_line
+      - name: crm_line_product
+      - name: product_pricelist_item
+      - name: view_stag_products
+      - name: m_res_company
+      - name: stag_sources
+      - name: product_pricelist
+      - name: view_stag_employees_user
+      - name: stag_employees
+      - name: hr_department_res_company_rel
+      - name: hr_department

@@ -14,12 +14,13 @@
 -- ERP CHỈ áp dụng cho nguon_doanh_thu = 'dich_vu' — nhà thuốc (nha_thuoc)
 -- không map sang crm_lead/m_utm_source_old_new_map.
 --
--- Nhà thuốc dùng rule riêng cho nhom_nguon_baocao/nhom_md_ml_baocao (khác
--- dich_vu): CÓ nguồn (nguon_ehc/dm_hoahongnguoigioithieu_nguoigioithieuname
--- khác NULL, bất kể là PK38/ĐTKD-MGM/Loyalty/CBNV/VL/MD gì) -> gom hết vào
--- MD. KHÔNG có nguồn nào cả -> giữ NULL, không đoán (đã thử mặc định VL/MD
--- cho trường hợp này nhưng đối chiếu danh sách MD thật của người dùng thì
--- sai — xem lịch sử sửa bên dưới).
+-- nhom_nguon_baocao/nhom_md_ml_baocao HIỆN HÀNH: dùng thẳng tầng EHC
+-- (nhom_nguon_baocao_ehc/nhom_md_ml_baocao_ehc) cho CẢ dich_vu lẫn nha_thuoc,
+-- cùng 1 rule của rtr_nhom_nguoigioithieu (rule cũ "nhà thuốc có nguồn thì
+-- gom hết vào MD" đã bỏ). KHÔNG có nguồn nào cả -> giữ NULL, không đoán (đã
+-- thử mặc định VL/MD cho trường hợp này nhưng đối chiếu danh sách MD thật
+-- của người dùng thì sai). Riêng nhom_md_ml_baocao: từ T10/2026 VL -> ML (xem
+-- select cuối).
 --
 -- Với dich_vu, nguon_sau_mapping so khớp text erp_old_source_name với
 -- dm_hoahongnguoigioithieu_nguoigioithieuname (nhóm người giới thiệu native
@@ -35,7 +36,9 @@
 --     booking này tính vào nhóm MD).
 --   - Không có gì để so (không có booking bên ERP) -> rơi về source_ehc.
 --
--- nhom_nguon_baocao/nhom_md_ml_baocao (bản chốt): nguon_sau_mapping đổi nguồn
+-- [ĐANG TẮT — tham khảo khi bật lại] Override nhóm theo ERP cho dich_vu. CTE
+-- erp_map vẫn được join nhưng KẾT QUẢ KHÔNG DÙNG (xem CTE grouped).
+-- nhom_nguon_baocao/nhom_md_ml_baocao (thiết kế override): nguon_sau_mapping đổi nguồn
 -- thì nhóm tính theo tên người giới thiệu EHC (nhom_nguon_baocao_ehc/
 -- nhom_md_ml_baocao_ehc — vẫn giữ trong bảng, hậu tố "_ehc") không còn đúng
 -- nữa cho các dòng lệch — phải map lại theo đúng vocab ERP.
@@ -150,5 +153,19 @@ select
     -- Hoàn toàn không có nguồn (nguon_ehc/nguoigioithieu NULL) -> giữ NULL,
     -- không đoán/mặc định nhóm nào cả (áp dụng cho cả dich_vu và nha_thuoc).
     grouped.nhom_nguon_baocao_raw as nhom_nguon_baocao,
-    grouped.nhom_md_ml_baocao_raw as nhom_md_ml_baocao
+    -- TỪ T10/2026 (ban đầu T9, người dùng dời sang T10 ngày 2026-10-05): nhóm
+    -- VL ("N - Vãng lai") xếp sang ML thay vì MD (yêu cầu người dùng). Điều kiện theo invoicedate nên phải đặt ở đây, không đặt ở
+    -- rtr_nhom_nguoigioithieu (dimension người giới thiệu, không có ngày).
+    -- Tháng <= T9/2026 giữ nguyên VL -> MD như trước.
+    -- TỪ T9/2026: nhà thuốc không có nhóm người giới thiệu ("Thuốc bán lẻ")
+    -- xếp vào ML — đồng bộ với dòng 2.2.5.3 Thuốc bán lẻ (Nguồn cơ sở) của
+    -- report_thv_revenue_target. Tháng <= T8/2026 vẫn NULL.
+    case
+        when grouped.invoicedate >= date '2026-10-01'
+             and grouped.nhom_nguon_baocao_raw = 'VL' then 'ML'
+        when grouped.invoicedate >= date '2026-09-01'
+             and grouped.nguon_doanh_thu = 'nha_thuoc'
+             and grouped.dm_hoahongnguoigioithieu_nguoigioithieuname is null then 'ML'
+        else grouped.nhom_md_ml_baocao_raw
+    end as nhom_md_ml_baocao
 from grouped

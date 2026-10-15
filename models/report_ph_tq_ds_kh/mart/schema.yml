@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: report_ph_tqdskh_khach
+    description: >
+      Thay "Custom SQL Query" của workbook Tổng quan DS & KH (bản Sunwoo PH). Cùng cột với SQL Kangnam.
+      bang = 'data' (lead × dòng DV) / 'payment' (phiếu thu, doanh_so VND). Chỉ dữ liệu THAT.
+      4 cột cuối loai_tien, so_tien_goc, doanh_so_php, ty_gia_php: tiền gốc & doanh số quy đổi PHP
+      (chỉ dòng 'payment'; Tableau chọn VND = doanh_so / PHP = doanh_so_php).
+    columns:
+      - name: bang
+        tests:
+          - accepted_values:
+              values: ['data', 'payment']
+              config:
+                tags: ['phi']
+      # Cột PHP chỉ có ở dòng phiếu thu (dòng khách 'data' luôn trống) -> test chỉ dòng 'payment'
+      - name: doanh_so_php
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'payment'"
+                tags: ['phi']
+      - name: ty_gia_php
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'payment'"
+                tags: ['phi']
+  - name: report_ph_tqdskh_ds
+    description: >
+      Thay "Custom SQL Query1": bang = 'Ao' (chỉ tiêu) / 'DV' (phiếu thu, Thanh_toan = VND / 1000).
+      4 cột cuối loai_tien, so_tien_goc, Thanh_toan_php (peso đầy đủ, KHÔNG chia 1000), ty_gia_php: chỉ dòng 'DV'.
+    columns:
+      # Cột PHP chỉ có ở dòng phiếu thu 'DV' (dòng chỉ tiêu 'Ao' luôn trống)
+      - name: Thanh_toan_php
+        quote: true
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'DV'"
+                tags: ['phi']
+      - name: ty_gia_php
+        tests:
+          - not_null:
+              config:
+                where: "bang = 'DV'"
+                tags: ['phi']
+  - name: report_ph_tqdskh_chi_tieu
+    description: >
+      Thay "Custom SQL Query2": chỉ tiêu Sunwoo (seed target_sunwoo_chitieu), lần ban hành mới nhất.

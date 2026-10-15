@@ -57,6 +57,16 @@ SELECT
     r.chi_nhanh,
     r.metric  AS "dt",
     r.type_data,
+    -- product_type: thêm 2026-09-24 — chỉ có giá trị khi type_data = 'DS':
+    -- 'service' = Doanh số Dịch vụ, 'cosmetic' = Doanh số Sản phẩm (xem
+    -- stg_frmacpr_doanh_so.sql). NULL cho mọi type_data khác — không
+    -- COALESCE 'KXĐ' để tránh nhầm là 1 loại doanh số.
+    r.product_type,
+    -- product_category: thêm 2026-09-24 — view_stag_products.product_category
+    -- (vd NIỀNG RĂNG MẮC CÀI KHÁC, CẤY GHÉP IMPLANT, RĂNG SỨ, SAN PHAM...).
+    -- Có giá trị ở Lead/BK/BKHL/DC/TC/DS (cùng phạm vi ten_dv); để NULL ở các
+    -- type_data khác, không COALESCE 'KXĐ' — cùng cách với product_type.
+    r.product_category,
     r.nguon_moi_v2,
     r.nhom_nguon_moi_v2,
     r.campaign,

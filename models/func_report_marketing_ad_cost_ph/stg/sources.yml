@@ -1,0 +1,83 @@
+version: 2
+
+sources:
+  # ERP riêng của Philippines (brand_etl = 9, công ty vận hành SUNWOO MEDICAL CENTER).
+  # Toàn bộ bảng trong schema `ph` đều là brand 9 → join giữa các bảng `ph` không cần
+  # thêm điều kiện brand_etl. KHÔNG join id của schema này với id brand 1 (trùng id).
+  - name: ph
+    schema: ph
+    tables:
+      - name: crm_lead
+      - name: crm_line
+      - name: crm_type
+      - name: crm_stage
+      - name: crm_category_source
+      - name: utm_source
+      - name: account_payment
+      - name: res_currency
+      - name: m_res_company
+      - name: res_country
+      - name: res_country_state
+      - name: product_product
+      - name: product_template
+      - name: product_category
+      - name: res_users          # dùng cho report_ph_sale_online (login = email nhân viên)
+      - name: res_partner        # tên nhân viên tạo lead (report_ph_tq_ds_kh)
+      - name: utm_campaign       # tên chiến dịch ERP (report_ph_tq_ds_kh)
+      # Chi phí vật tư (report_ph_doanh_thu_chi_phi). ERP SUN nhân bản từ Kangnam -> các bảng kho
+      # mang theo lịch sử Kangnam: BẮT BUỘC lọc từ ngày go-live (stg_frmacph_vat_tu).
+      - name: stock_valuation_layer
+      - name: stock_move
+      - name: stock_location
+
+  # Inbox riêng của Sunwoo/Philippines (từ 2026-10-06 thay cho các dòng 'sun_' trước đây
+  # nằm trong m_inbox_kangnam – các dòng đó đã bị chuyển hết sang bảng này).
+  # Cột dùng: "ngày", "tên chiến dịch", "id chiến dịch", "người liên hệ qua nhắn tin mới".
+  # KHÔNG dùng "vùng" (trống từ 08/10/2026, kiểu dữ liệu không ổn định) và "chi phí facebook".
+  - name: sunwoo
+    schema: public
+    tables:
+      - name: m_inbox_sunwoo
+
+  # Pancake (công cụ chat đa kênh) – đổ về DB từ 2026-10-07. Lọc brand_id = 9 (Sunwoo):
+  # page FB/Instagram của Sunwoo. Các page Zalo brand_id = 3 (Nha Khoa Paris) không dùng.
+  # pancake_conversation.conversation_id = ph.crm_lead.pancake_conversation_id (khoá duy nhất);
+  # first_ad_id = quảng cáo FB khách bấm vào để nhắn tin.
+  - name: pancake
+    schema: public
+    tables:
+      - name: core_pancake_page
+      - name: pancake_conversation
+
+  # Bảng cấu hình phân loại dữ liệu test/thật (tạo tay trong sandbox_ph, user tự sửa)
+  - name: sandbox_ph
+    schema: sandbox_ph
+    tables:
+      - name: tk_test
+        description: "Danh sách user_id tài khoản test của ERP PH"
+        columns:
+          - name: user_id
+            tests:
+              # trùng user_id -> nhân dòng mọi báo cáo PH (kể cả doanh số) -> dừng build
+              - unique:
+                  config:
+                    tags: ['phi']
+      - name: danh_dau_thu_cong
+        description: "Ghi đè trạng thái TEST/THAT theo lead_id – ưu tiên cao nhất"
+        columns:
+          - name: lead_id
+            tests:
+              # trùng lead_id -> nhân dòng mọi báo cáo PH (kể cả doanh số) -> dừng build
+              - unique:
+                  config:
+                    tags: ['phi']
+      - name: team_sale_ph
+        description: "Team sale bổ sung cho NV PH chưa có trong table_team_sale_trans_field (report_ph_sale_online)"
+
+  # Tỷ giá ACB theo ngày (quy ra VND), pipeline data_ops dags/acb_fx, có từ 2026-09-10.
+  # Nguồn tỷ giá DUY NHẤT của báo cáo PH (xem stg_frmacph_ty_gia.sql).
+  - name: acb_fx
+    schema: public
+    tables:
+      - name: ty_gia_acb
+        description: "1 dòng / ngày / loại tiền / mua-bán / CK-tiền mặt / mệnh giá. PHP chỉ có ASK + TRANSFER."

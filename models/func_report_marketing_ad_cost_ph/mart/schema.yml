@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: mart_report_marketing_ad_cost_ph
+    description: >
+      Báo cáo chi phí & hiệu quả marketing PHILIPPINES (SUNWOO MEDICAL CENTER).
+      Ghi ra sandbox_ph.report_marketing_ad_cost_ph. 26 cột đầu giống hệt
+      report_marketing_ad_cost_kn_v2 (cùng tên, thứ tự) để Tableau chỉ cần đổi nguồn;
+      thêm 4 cột cuối. Chi phí/inbox lấy từ campaign 'sun_' (brand 1), khách/doanh số
+      lấy từ ERP Philippines (schema ph, brand 9). Xem README.md cùng thư mục cha.
+    columns:
+      - name: type_data
+        description: "Cost_fb_cd, inbox, Lead, BKHL, HL, DC, TC, DS (không có Google/DealCS)."
+      - name: Metric
+        description: "Cost_fb_cd: chi phí; inbox: số inbox mới; DS: doanh số VND; Lead/BKHL/HL/DC/TC: SĐT (đếm COUNTD)."
+      - name: trang_thai_du_lieu
+        description: "THAT / TEST / NGHI_TEST. Chi phí & inbox luôn THAT. Lọc = 'THAT' khi làm báo cáo."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['THAT', 'TEST', 'NGHI_TEST']
+      - name: ly_do
+        description: "Lý do phân loại trạng thái dữ liệu."
+      - name: lead_id
+        description: "ph.crm_lead.id (brand 9) – NULL với chi phí/inbox."
+      - name: nguon_he_thong
+        description: "'FB brand 1 (campaign sun_)' hoặc 'ERP PH brand 9'."
+
+  # [2026-10-14] Bản _thu: 4 cột tỷ giá ở dòng DS + 2 cột PHP (chi phí FB & doanh số quy đổi PHP)
+  - name: mart_report_marketing_ad_cost_ph_thu
+    description: >
+      Bản chính + loai_tien, so_tien_goc, ngay_ty_gia, ty_gia (dòng DS) + metric_php, ty_gia_php
+      (dòng Cost_fb_cd và DS) để Tableau chọn xem VND / PHP. Xem README.md cùng thư mục cha.
+    columns:
+      - name: metric_php
+        description: "Cost_fb_cd: chi phí FB VND ÷ tỷ giá PHP ACB; DS: doanh số quy đổi PHP; dòng khác NULL."
+        tests:
+          - not_null:
+              config:
+                where: "type_data in ('Cost_fb_cd', 'DS')"
+                tags: ['phi']
+      - name: ty_gia_php
+        description: "Tỷ giá PHP ACB ngày gần nhất ≤ ngày (chỉ dòng Cost_fb_cd, DS)."
+        tests:
+          - not_null:
+              config:
+                where: "type_data in ('Cost_fb_cd', 'DS')"
+                tags: ['phi']

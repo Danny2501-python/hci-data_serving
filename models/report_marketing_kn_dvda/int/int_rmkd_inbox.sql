@@ -4,7 +4,7 @@ select
     'IB'                                                                        as "Nguon",
     'IB'                                                                        as "Nhom_nguon",
     'FB'                                                                        as kenh,
-    date(mik."ngày")                                                            as date,
+    date(nullif(trim(mik."ngày"), ''))                                        as date,
     cns.nhom_dv,
     case when upper(coalesce(i."chi nhánh", 'VK')) = 'HÀ NỘI'
               then 'BỆNH VIỆN KANGNAM HÀ NỘI'
@@ -46,7 +46,7 @@ from (select distinct * from {{ source('rmkd', 'm_inbox_kangnam') }}) mik
 left join lateral (
     select lka."chi nhánh"
     from {{ source('rmkd', 'location_kangnam_adnet') }} lka
-    where lka.tinh = mik."vùng" and mik."ngày"::timestamp >= lka.ngay_hh
+    where lka.tinh = mik."vùng" and nullif(trim(mik."ngày"), '')::timestamp >= lka.ngay_hh
     order by lka.ngay_hh desc limit 1
 ) i on true
 left join {{ source('rmkd', 'campaign_name_split') }} cns

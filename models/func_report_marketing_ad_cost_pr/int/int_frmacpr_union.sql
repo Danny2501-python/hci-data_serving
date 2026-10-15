@@ -7,13 +7,19 @@
 -- các nhánh có liên kết CRM (ERP conv: Lead/BK/BKHL/DC/TC, và Doanh số);
 -- NULL cho các nhánh cost/target không có customer linkage (FB/Google/
 -- TikTok/Inbox/Targets) — cùng cách xử lý như func_report_marketing_ad_cost_kn.
+-- product_type: CHỈ có ở nhánh Doanh số ('service' = DS Dịch vụ, 'cosmetic' =
+-- DS Sản phẩm, xem stg_frmacpr_doanh_so.sql); NULL cho mọi nhánh khác.
+-- product_category: view_stag_products.product_category — có ở ERP conv
+-- (Lead/BK/BKHL/DC/TC) và Doanh số (cùng phạm vi với ten_dv); NULL nhánh khác.
 -- =============================================================================
 
 -- ERP conversions (Lead, BK, BKHL, DC, TC)
 SELECT nguon, nhom_nguon, kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    product_category
 FROM {{ ref('int_frmacpr_erp_conv') }}
 
 UNION ALL
@@ -22,7 +28,9 @@ UNION ALL
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_fb_insight_v3') }}
 
 UNION ALL
@@ -31,7 +39,9 @@ UNION ALL
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_google') }}
 
 UNION ALL
@@ -40,7 +50,9 @@ UNION ALL
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_tiktok') }}
 
 UNION ALL
@@ -49,7 +61,9 @@ UNION ALL
 SELECT nguon, nhom_nguon, channel AS kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_inbox') }}
 
 UNION ALL
@@ -58,7 +72,9 @@ UNION ALL
 SELECT nguon, nhom_nguon, kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    product_type,
+    product_category
 FROM {{ ref('stg_frmacpr_doanh_so') }}
 
 UNION ALL
@@ -67,5 +83,7 @@ UNION ALL
 SELECT nguon, nhom_nguon, kenh, ngay, nhom_dv, chi_nhanh, metric, type_data,
     nguon_moi_v2, nhom_nguon_moi_v2, campaign, actor_code, nhom_dv_muc_tieu_code,
     vk, ten_dv, local_k_raw, quoc_gia, page_id_raw, page_code_raw, account_id_raw,
-    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking
+    nhom_dv_kh_quan_tam, nhom_dv_chinh_booking,
+    NULL::text AS product_type,
+    NULL::text AS product_category
 FROM {{ ref('stg_frmacpr_targets') }}

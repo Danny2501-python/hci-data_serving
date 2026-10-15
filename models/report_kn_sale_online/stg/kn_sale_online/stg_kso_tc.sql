@@ -19,7 +19,10 @@ select 'page' as page,
         stks.tinh,
         stks.chinhanhphanquyen chinhanhphanquyen,
         stks.ten_dv,
-        stks.vao_so ma_phieu
+        stks.vao_so ma_phieu,
+        stks.vk,
+        stks.nhom_dv_KH_quan_tam,
+        stks.nhom_dv_KH_quan_tam_goc
 from (select * from {{ref('stg_kso_map')}}  stks 
 where loai_ban_ghi= 2 and tong_tien > 0
 and (reason_cancel_booking not in ('tao_booking_bh') 
@@ -27,7 +30,7 @@ and (reason_cancel_booking not in ('tao_booking_bh')
 ) stks
 	left join lateral(
 		select sc."name",sc."group_name" ,sc.group, sc.work_email 
-		from table_team_sale_trans_field sc 
+		from {{ref('kso_team_sale')}} sc 
 		where sc.work_email = stks.work_email 
-		and date(sc.expiration_date) >= date(stks.ngay_den_cua) 
+		and sc.expiration_date >= date(stks.ngay_den_cua) 
 		order by expiration_date limit 1) tts on true

@@ -1,0 +1,49 @@
+brand_etl,thang,ma_chi_tieu,ten_chi_tieu,muc_tieu
+8,2026-09-01,chi_phi_ads,"CHI PHÍ ADS",548000000
+8,2026-09-01,inbox_moi,"Số lượng Inbox mới",8273
+8,2026-09-01,sdt_tho,"Số lương SDT thô",1986
+8,2026-09-01,sdt_verify,"Số lượng SĐT Verify",1767
+8,2026-09-01,bk,"Số lượng Booking tạo",1184
+8,2026-09-01,hl,"Số lượng Lịch hẹn KH (BK date)",900
+8,2026-09-01,dc,"Số lượng khách đến cửa",828
+8,2026-09-01,tc,"Số lượng khách thành công",778
+8,2026-09-01,md_ko_thuoc,"DOANH SỐ MARKETING (k thuốc)",4202031646
+8,2026-09-01,sdt_tho/inbox,"Tỷ lệ SĐT thô/inbox",0.24
+8,2026-09-01,verify/sdt_tho,"Tỷ lệ SĐT Verify/SDT Thô",0.89
+8,2026-09-01,bk/verify,"Tỉ lệ %Booking/SĐT Verify",0.67
+8,2026-09-01,hl/bk,"Tỷ lệ BK date/bk tạo",0.76
+8,2026-09-01,dc/hl,"Tỉ lệ %Đến cửa/lịch hẹn",0.92
+8,2026-09-01,dc/inbox,"Tỉ lệ %Đến cửa/Inbox",0.1001
+8,2026-09-01,tc/dc,"Tỷ lê chốt cơ sở",0.94
+8,2026-09-01,cpi,"CPI (Chi phí/ Inbox)",66240
+8,2026-09-01,cpl_sdt_tho,"CPL (Chi phí/ SĐT Thô)",276000
+8,2026-09-01,cpl_sdt_verify,"CPL (Chi phí/ SĐT Verify)",310112
+8,2026-09-01,cpb,"CPB (Chi phí/Booking)",462854
+8,2026-09-01,cpo,"CPO (Chi phí/KH Đến cửa) leading",503102
+8,2026-09-01,cac,"CAC ( chi phí/ thành công) leading",535215
+8,2026-09-01,dstb/tc,"Doanh số TB/KH thành công",5400000
+8,2026-09-01,roi_ky_vong,"ROI kỳ vọng",0.0991
+8,2026-10-01,chi_phi_ads,"CHI PHÍ ADS",547000000
+8,2026-10-01,inbox_moi,"Số lượng Inbox mới",8349
+8,2026-10-01,sdt_tho,"Số lương SDT thô",2004
+8,2026-10-01,sdt_verify,"Số lượng SĐT Verify",1783
+8,2026-10-01,bk,"Số lượng Booking tạo",1106
+8,2026-10-01,hl,"Số lượng Lịch hẹn KH (BK date)",862
+8,2026-10-01,dc,"Số lượng khách đến cửa",793
+8,2026-10-01,tc,"Số lượng khách thành công",706
+8,2026-10-01,md_ko_thuoc,"DOANH SỐ MARKETING (k thuốc)",3918968703
+8,2026-10-01,sdt_tho/inbox,"Tỷ lệ SĐT thô/inbox",0.24
+8,2026-10-01,verify/sdt_tho,"Tỷ lệ SĐT Verify/SDT Thô",0.89
+8,2026-10-01,bk/verify,"Tỉ lệ %Booking/SĐT Verify",0.62
+8,2026-10-01,hl/bk,"Tỷ lệ BK date/bk tạo",0.78
+8,2026-10-01,dc/hl,"Tỉ lệ %Đến cửa/lịch hẹn",0.92
+8,2026-10-01,dc/inbox,"Tỉ lệ %Đến cửa/Inbox",0.095
+8,2026-10-01,tc/dc,"Tỷ lê chốt cơ sở",0.89
+8,2026-10-01,cpi,"CPI (Chi phí/ Inbox)",65520
+8,2026-10-01,cpl_sdt_tho,"CPL (Chi phí/ SĐT Thô)",273000
+8,2026-10-01,cpl_sdt_verify,"CPL (Chi phí/ SĐT Verify)",306742
+8,2026-10-01,cpb,"CPB (Chi phí/Booking)",494744
+8,2026-10-01,cpo,"CPO (Chi phí/KH Đến cửa) leading",537766
+8,2026-10-01,cac,"CAC ( chi phí/ thành công) leading",604231
+8,2026-10-01,dstb/tc,"Doanh số TB/KH thành công",5550000
+8,2026-10-01,roi_ky_vong,"ROI kỳ vọng",0.1089

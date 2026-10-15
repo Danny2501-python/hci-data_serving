@@ -84,7 +84,26 @@ dòng (~0.05%) liên quan tới các vế điều chuyển trùng timestamp có 
 đó — không ảnh hưởng tới `total`/`payment`/`total_received` (số tiền gốc luôn đúng), chỉ
 ảnh hưởng cột lũy kế/thứ tự hiển thị.
 
-## 3. Cách đối chiếu nhanh khi lệch chỉ vài trăm dòng trên tổng ~800K
+## 3. [2026-09-08, CỐ Ý KHÁC bản gốc] Lọc `is_delete` ở 3 bảng nguồn — bản Python gốc KHÔNG lọc
+
+Phát hiện khi đối chiếu doanh số Kangnam T8/2026 với `report_kpi_bonus_commission`/Tableau (workbook
+"KANGNAM - BỘ CHỈ SỐ KINH DOANH - 2025.twbx", đã verify) — lệch +56.300.000đ, truy ra: 1 phiếu thanh
+toán bị ERP sửa/huỷ, `crm_account_payment_detail` lưu CẢ 2 bản (bản cũ `is_delete=true` — tombstone
+CDC, bản mới thay thế `is_delete=null`), `stag_payment_transfer` cộng dồn cả 2 → trùng doanh số.
+
+Cột `is_delete` có ở `crm_account_payment_detail` (595/104,480 dòng), `crm_account_payment_product_detail`
+(77/26,685), `crm_transfer_payment` (2/2,143 — bảng header, CHƯA xử lý, xem chú thích ở
+`stg_sptr_crm_transfer_payment_line.sql`), `crm_transfer_payment_line` (9/17,175). Đã thêm
+`where coalesce(is_delete, false) = false` vào 3 stg model tương ứng (trừ header
+`crm_transfer_payment`).
+
+**Đây là sai lệch CÓ CHỦ Ý so với bản Python gốc** — đối chiếu 2026-07-25 (mục 1/LOGIC.md) khớp
+TUYỆT ĐỐI 816,719/816,719 dòng với bảng thật, nghĩa là bản gốc **cũng KHÔNG lọc `is_delete`** (bảng
+thật cũng chứa các dòng tombstone này). Nếu đối chiếu lại theo đúng quy trình `knowledge.md` mục 3
+sau ngày 2026-09-08, số dòng sẽ **lệch có chủ đích** (ít hơn bảng thật đúng bằng số dòng
+`is_delete=true` hiện có) — không phải lỗi dịch mới phát sinh.
+
+## 4. Cách đối chiếu nhanh khi lệch chỉ vài trăm dòng trên tổng ~800K
 
 Đừng dừng ở diff tổng (EXCEPT ra bao nhiêu dòng) — pair lại theo khoá `id` (đã xác nhận
 duy nhất) rồi đếm lệch **theo từng cột** (`count(*) filter (where r.col is distinct from
