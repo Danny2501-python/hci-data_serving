@@ -13,3 +13,4 @@ sources:
       - name: hr_group_job
       - name: hr_department
       - name: stag_phongbanphanquyen_id
+      - name: res_users

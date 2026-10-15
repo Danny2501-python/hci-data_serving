@@ -65,7 +65,7 @@ left join {{ ref('stg_sptr_crm_transfer_payment_line') }} ctplt
     on ctpl.crm_transfer_payment_id = ctplt.crm_transfer_payment_id
     and ctpl.to_crm_line_id = ctplt.from_crm_line_id
     and ctplt.brand_etl = ctpl.brand_etl
-where ctpl.brand_etl in (1, 3, 4)
+where ctpl.brand_etl in (1, 2, 3, 4)
     and ctpl.transfer_amount <> 0 and ctp.state = 'done'
     and exists (
         select 1 from {{ ref('int_sptr_recent_crm_scope') }} s

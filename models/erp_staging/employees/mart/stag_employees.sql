@@ -59,7 +59,9 @@ select
     hh_id,
     hh_user_id,
     thv_id,
-    thv_user_id
+    thv_user_id,
+    da_id,
+    da_user_id
 from processed
 
 union all
@@ -109,5 +111,7 @@ select
     -- vào bảng thật sau này) -- toàn bộ 316 dòng id<=0 của bảng thật đều NULL ở 2 cột này, cast NULL literal
     -- để khớp.
     cast(null as int) as thv_id,
-    cast(null as int) as thv_user_id
+    cast(null as int) as thv_user_id,
+    cast(null as int) as da_id,
+    cast(null as int) as da_user_id
 from legacy_seeded

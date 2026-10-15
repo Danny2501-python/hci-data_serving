@@ -39,7 +39,8 @@ dfo as (
         product_id      as pr_product_id,  product_ctg_id  as pr_product_ctg_id,  product_tmpl_id as pr_product_tmpl_id,  smhcsid as pr_smhcsid,
         product_id      as hh_product_id,  product_ctg_id  as hh_product_ctg_id,  product_tmpl_id as hh_product_tmpl_id,  smhcsid as hh_smhcsid,
         product_id      as thv_product_id, product_ctg_id  as thv_product_ctg_id, product_tmpl_id as thv_product_tmpl_id, smhcsid as thv_smhcsid,
-        product_id      as sci_product_id, product_ctg_id  as sci_product_ctg_id, product_tmpl_id as sci_product_tmpl_id, smhcsid as sci_smhcsid
+        product_id      as sci_product_id, product_ctg_id  as sci_product_ctg_id, product_tmpl_id as sci_product_tmpl_id, smhcsid as sci_smhcsid,
+        product_id      as da_product_id,  product_ctg_id  as da_product_ctg_id,  product_tmpl_id as da_product_tmpl_id,  smhcsid as da_smhcsid
     from base
     where product_id <= 31842 and br = 'kn'
 ),
@@ -56,12 +57,13 @@ dfmap2_src as (
         and cvl_iunique = 1
 ),
 -- dfgr_code: 1 dòng "đại diện" mỗi default_code, mang các cột mô tả (kpi_point, category...) vào output,
--- ưu tiên brand_etl nhỏ nhất (kn=1 < pr=3 < hh=4 < sci=7 < thv=8).
+-- ưu tiên brand_etl nhỏ nhất (kn=1 < pr=3 < hh=4 < sci=7 < thv=8); Đông Á (2, thêm 2026-10-14) xếp CUỐI
+-- để không đổi dòng đại diện của các brand cũ.
 -- Python: dfmap2.sort_values('brand_etl').drop_duplicates('default_code', keep='first').
 dfgr_code as (
     select *
     from (
-        select *, row_number() over (partition by default_code order by brand_etl, product_id) as rn
+        select *, row_number() over (partition by default_code order by (brand_etl = 2), brand_etl, product_id) as rn
         from dfmap2_src
     ) t
     where rn = 1
@@ -87,6 +89,10 @@ dfmap2_sci as (
     select default_code, min(product_id) as sci_product_id, min(product_ctg_id) as sci_product_ctg_id, min(product_tmpl_id) as sci_product_tmpl_id, min(smhcsid) as sci_smhcsid
     from dfmap2_src where br = 'sci' group by default_code
 ),
+dfmap2_da as (
+    select default_code, min(product_id) as da_product_id, min(product_ctg_id) as da_product_ctg_id, min(product_tmpl_id) as da_product_tmpl_id, min(smhcsid) as da_smhcsid
+    from dfmap2_src where br = 'da' group by default_code
+),
 dfmerge_code as (
     select
         g.*,
@@ -94,13 +100,15 @@ dfmerge_code as (
         pr.pr_product_id,   pr.pr_product_ctg_id,   pr.pr_product_tmpl_id,   pr.pr_smhcsid,
         hh.hh_product_id,   hh.hh_product_ctg_id,   hh.hh_product_tmpl_id,   hh.hh_smhcsid,
         thv.thv_product_id, thv.thv_product_ctg_id, thv.thv_product_tmpl_id, thv.thv_smhcsid,
-        sci.sci_product_id, sci.sci_product_ctg_id, sci.sci_product_tmpl_id, sci.sci_smhcsid
+        sci.sci_product_id, sci.sci_product_ctg_id, sci.sci_product_tmpl_id, sci.sci_smhcsid,
+        da.da_product_id,   da.da_product_ctg_id,   da.da_product_tmpl_id,   da.da_smhcsid
     from dfgr_code g
     left join dfmap2_kn  kn  on kn.default_code = g.default_code
     left join dfmap2_pr  pr  on pr.default_code = g.default_code
     left join dfmap2_hh  hh  on hh.default_code = g.default_code
     left join dfmap2_thv thv on thv.default_code = g.default_code
     left join dfmap2_sci sci on sci.default_code = g.default_code
+    left join dfmap2_da  da  on da.default_code = g.default_code
 ),
 
 -- dfmap3 (Python): phần còn lại (id mới nhưng đặc thù / default_code null / không ổn định trong 1 brand)
@@ -112,7 +120,8 @@ dfmap3 as (
         case when br = 'pr'  then product_id end as pr_product_id,  case when br = 'pr'  then product_ctg_id end as pr_product_ctg_id,  case when br = 'pr'  then product_tmpl_id end as pr_product_tmpl_id,  case when br = 'pr'  then smhcsid end as pr_smhcsid,
         case when br = 'hh'  then product_id end as hh_product_id,  case when br = 'hh'  then product_ctg_id end as hh_product_ctg_id,  case when br = 'hh'  then product_tmpl_id end as hh_product_tmpl_id,  case when br = 'hh'  then smhcsid end as hh_smhcsid,
         case when br = 'thv' then product_id end as thv_product_id, case when br = 'thv' then product_ctg_id end as thv_product_ctg_id, case when br = 'thv' then product_tmpl_id end as thv_product_tmpl_id, case when br = 'thv' then smhcsid end as thv_smhcsid,
-        case when br = 'sci' then product_id end as sci_product_id, case when br = 'sci' then product_ctg_id end as sci_product_ctg_id, case when br = 'sci' then product_tmpl_id end as sci_product_tmpl_id, case when br = 'sci' then smhcsid end as sci_smhcsid
+        case when br = 'sci' then product_id end as sci_product_id, case when br = 'sci' then product_ctg_id end as sci_product_ctg_id, case when br = 'sci' then product_tmpl_id end as sci_product_tmpl_id, case when br = 'sci' then smhcsid end as sci_smhcsid,
+        case when br = 'da'  then product_id end as da_product_id,  case when br = 'da'  then product_ctg_id end as da_product_ctg_id,  case when br = 'da'  then product_tmpl_id end as da_product_tmpl_id,  case when br = 'da'  then smhcsid end as da_smhcsid
     from base
     where product_id > 31842
         and (is_difn or default_code is null or cvl_iunique <> 1)
@@ -129,7 +138,8 @@ unioned as (
         pr_product_id, pr_product_ctg_id, pr_product_tmpl_id, pr_smhcsid,
         hh_product_id, hh_product_ctg_id, hh_product_tmpl_id, hh_smhcsid,
         thv_product_id, thv_product_ctg_id, thv_product_tmpl_id, thv_smhcsid,
-        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid
+        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid,
+        da_product_id, da_product_ctg_id, da_product_tmpl_id, da_smhcsid
     from dfo
     union all
     select
@@ -142,7 +152,8 @@ unioned as (
         pr_product_id, pr_product_ctg_id, pr_product_tmpl_id, pr_smhcsid,
         hh_product_id, hh_product_ctg_id, hh_product_tmpl_id, hh_smhcsid,
         thv_product_id, thv_product_ctg_id, thv_product_tmpl_id, thv_smhcsid,
-        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid
+        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid,
+        da_product_id, da_product_ctg_id, da_product_tmpl_id, da_smhcsid
     from dfmerge_code
     union all
     select
@@ -155,7 +166,8 @@ unioned as (
         pr_product_id, pr_product_ctg_id, pr_product_tmpl_id, pr_smhcsid,
         hh_product_id, hh_product_ctg_id, hh_product_tmpl_id, hh_smhcsid,
         thv_product_id, thv_product_ctg_id, thv_product_tmpl_id, thv_smhcsid,
-        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid
+        sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid,
+        da_product_id, da_product_ctg_id, da_product_tmpl_id, da_smhcsid
     from dfmap3
 )
 
@@ -175,5 +187,6 @@ select
     pr_product_id, pr_product_ctg_id, pr_product_tmpl_id, pr_smhcsid,
     hh_product_id, hh_product_ctg_id, hh_product_tmpl_id, hh_smhcsid,
     thv_product_id, thv_product_ctg_id, thv_product_tmpl_id, thv_smhcsid,
-    sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid
+    sci_product_id, sci_product_ctg_id, sci_product_tmpl_id, sci_smhcsid,
+    da_product_id, da_product_ctg_id, da_product_tmpl_id, da_smhcsid
 from unioned

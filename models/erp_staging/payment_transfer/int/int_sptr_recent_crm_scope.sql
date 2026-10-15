@@ -14,5 +14,5 @@ with crm_limit as (
 )
 select crm_id, max(payment_date) as payment_date, brand_etl
 from crm_limit
-where coalesce(crm_id, 0) <> 0 and brand_etl in (1, 3, 4)
+where coalesce(crm_id, 0) <> 0 and brand_etl in (1, 2, 3, 4)
 group by crm_id, brand_etl

@@ -3,7 +3,7 @@
 -- Port 1:1 từ public.view_stag_products (view thủ công hiện có trong DB new_product,
 -- không thuộc quản lý của dbt) sang model dbt, chạy SAU KHI mart/stag_products.sql
 -- (bảng stag_products) build xong nhờ ref() bên dưới -- dbt tự xếp thứ tự theo lineage.
--- Giữ nguyên cấu trúc UNION ALL theo brand_etl (0=sci, 1=kn, 3=pr, 4=hh, 8=thv) và các
+-- Giữ nguyên cấu trúc UNION ALL theo brand_etl (0=sci, 1=kn, 2=da, 3=pr, 4=hh, 8=thv — 2=Đông Á thêm 2026-10-14) và các
 -- cột dùng CHUNG cho mọi nhánh (service_id <- smhcsid, product_ctg_id) đúng như view gốc --
 -- KHÔNG đổi sang các cột theo từng brand (pr_smhcsid/hh_smhcsid/.../pr_product_ctg_id/...)
 -- dù bảng stag_products có sẵn các cột đó, để tránh lệch hành vi so với view đang chạy thật.
@@ -163,6 +163,39 @@ with dm_sp as (
     left join {{ ref('stg_stps_product_category') }} pc
         on sp.thv_product_ctg_id = pc.id and pc.brand_etl = 8
     where sp.thv_product_id is not null
+
+    union all
+
+    select
+        sp.smhcsid as service_id,
+        sp.da_product_id as product_id,
+        sp.product_ctg_id,
+        sp.default_code,
+        sp.his_service_type,
+        sp.surgery_type,
+        coalesce(pc.name, sp.product_category) as product_category,
+        pt.name as product,
+        sp.list_price,
+        sp.group_id,
+        sp.kpi_point,
+        sp.kpi_point_num,
+        sp.kpi_first_time,
+        sp.uom_id,
+        sp.uom,
+        sp.qty_service,
+        sp.gr_bh_id,
+        sp.kdtc_product_ctg_id,
+        sp.is_no_kpi,
+        sp.is_main_service,
+        sp.create_date,
+        sp.write_date,
+        2 as brand_etl
+    from {{ ref('stag_products') }} sp
+    left join {{ ref('stg_stps_product_template') }} pt
+        on sp.da_product_tmpl_id = pt.id and pt.brand_etl = 2
+    left join {{ ref('stg_stps_product_category') }} pc
+        on sp.da_product_ctg_id = pc.id and pc.brand_etl = 2
+    where sp.da_product_id is not null
 
 )
 

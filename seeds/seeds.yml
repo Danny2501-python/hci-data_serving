@@ -1,6 +1,21 @@
 version: 2
 
 seeds:
+  - name: seed_rkbc_dong_a_user_map
+    description: >
+      Map thủ công user Đông Á (res_users brand_etl=2) -> employee_code hồ sơ SCI, cho các tư vấn viên
+      không map được qua hr_employee brand 2 lẫn email (login Đông Á khác domain work_email HR). Ưu tiên
+      cao nhất trong int_stem_base (stag_employees.da_user_id). Mỗi da_user_id / employee_code chỉ 1 dòng.
+    config:
+      column_types:
+        da_user_id: integer
+        employee_code: varchar
+        ghi_chu: text
+    columns:
+      - name: da_user_id
+        tests: [unique, not_null]
+      - name: employee_code
+        tests: [unique, not_null]
   - name: stag_product_backfill_sandbox
     description: >
       Backfill thu công cho stag_products: ~9.209 sản phẩm brand EHC (default_code

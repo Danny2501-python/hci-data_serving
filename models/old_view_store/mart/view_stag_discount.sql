@@ -65,7 +65,8 @@
             spt.company_id
            FROM {{ source('ovs_source', 'crm_line') }} cl2
              LEFT JOIN {{ ref('stag_products') }} sp ON sp.product_id = cl2.product_id
-             LEFT JOIN {{ ref('stag_payment_transfer') }} spt ON cl2.id = spt.clineid AND spt.crm_id = cl2.crm_id
+             -- (2026-10-14) TẠM loại brand_etl=2 (Đông Á mới vào stag_payment_transfer) để giữ nguyên output cũ — chờ review model này.
+             LEFT JOIN {{ ref('stag_payment_transfer') }} spt ON cl2.id = spt.clineid AND spt.crm_id = cl2.crm_id AND coalesce(spt.brand_etl, 0) <> 2
              LEFT JOIN ( SELECT wk.booking_id,
                     wk.state,
                     date(wk.date) AS date,
@@ -111,7 +112,7 @@
             spt.company_id
            FROM {{ source('ovs_source', 'crm_line_product') }} clp
              LEFT JOIN {{ ref('stag_products') }} sp ON sp.product_id = clp.product_id
-             LEFT JOIN {{ ref('stag_payment_transfer') }} spt ON clp.id = spt.clineid AND spt.crm_id = clp.booking_id
+             LEFT JOIN {{ ref('stag_payment_transfer') }} spt ON clp.id = spt.clineid AND spt.crm_id = clp.booking_id AND coalesce(spt.brand_etl, 0) <> 2
         )
  SELECT dv.clineid,
     dv.crm_id,

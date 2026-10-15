@@ -44,7 +44,7 @@ fkpi_source as (
     where kpi_point is null
         and product_id is not null
         and coalesce(nullif(trim(product_id_kn), ''), '0') not in ('0', '0.0')
-    order by product_id, default_code, brand_etl
+    order by product_id, (brand_etl = 2), default_code, brand_etl
 ),
 
 -- Điểm kpi_point của từng product_id (lấy dòng đầu tiên theo default_code/brand_etl nếu trùng id)
@@ -53,7 +53,8 @@ kpi_lookup as (
         product_id, kpi_point
     from flagged
     where product_id is not null
-    order by product_id, default_code, brand_etl
+    -- (brand_etl = 2) xếp Đông Á (thêm 2026-10-14) xuống cuối để không đổi dòng được chọn của brand cũ.
+    order by product_id, (brand_etl = 2), default_code, brand_etl
 ),
 
 fkpi_exploded as (

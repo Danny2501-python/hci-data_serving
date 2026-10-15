@@ -24,7 +24,7 @@ select
 from {{ ref('stg_sptr_crm_account_payment_detail') }} capd
 left join {{ ref('stg_sptr_account_payment') }} ap on capd.account_payment_id = ap.id and ap.brand_etl = capd.brand_etl
 left join {{ ref('stg_sptr_crm_line') }} cline on capd.crm_line_id = cline.id and cline.brand_etl = capd.brand_etl
-where capd.brand_etl in (1, 3, 4)
+where capd.brand_etl in (1, 2, 3, 4)
     and ap.state = 'posted' and capd.prepayment_amount <> 0
     and exists (
         select 1 from {{ ref('int_sptr_recent_crm_scope') }} s

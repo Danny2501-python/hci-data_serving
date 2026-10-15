@@ -41,7 +41,9 @@ with_job_lv2 as (
         case when flagged.hh_user_id is null and flagged.is_user_admin then flagged.user_id else flagged.hh_user_id end as hh_user_id_final,
         case when flagged.hh_id is null and flagged.is_user_admin then flagged.id else flagged.hh_id end as hh_id_final,
         case when flagged.thv_user_id is null and flagged.is_user_admin then flagged.user_id else flagged.thv_user_id end as thv_user_id_final,
-        case when flagged.thv_id is null and flagged.is_user_admin then flagged.id else flagged.thv_id end as thv_id_final
+        case when flagged.thv_id is null and flagged.is_user_admin then flagged.id else flagged.thv_id end as thv_id_final,
+        case when flagged.da_user_id is null and flagged.is_user_admin then flagged.user_id else flagged.da_user_id end as da_user_id_final,
+        case when flagged.da_id is null and flagged.is_user_admin then flagged.id else flagged.da_id end as da_id_final
     from flagged
     left join job_lv2_map on job_lv2_map.employee_id = flagged.id
 ),
@@ -66,6 +68,7 @@ select
     kn_id_final as kn_id, kn_user_id_final as kn_user_id,
     pr_id_final as pr_id, pr_user_id_final as pr_user_id,
     hh_id_final as hh_id, hh_user_id_final as hh_user_id,
-    thv_id_final as thv_id, thv_user_id_final as thv_user_id
+    thv_id_final as thv_id, thv_user_id_final as thv_user_id,
+    da_id_final as da_id, da_user_id_final as da_user_id
 from deduped
 where rn = 1

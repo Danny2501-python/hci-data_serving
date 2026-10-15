@@ -37,7 +37,7 @@ select
         else 4
     end as kdtc_product_ctg_id
     , pp.brand_etl
-    , case pp.brand_etl when 1 then 'kn' when 3 then 'pr' when 4 then 'hh' when 8 then 'thv' when 7 then 'sci' end as br
+    , case pp.brand_etl when 1 then 'kn' when 2 then 'da' when 3 then 'pr' when 4 then 'hh' when 8 then 'thv' when 7 then 'sci' end as br
 from {{ ref('stg_stps_product_product') }} pp
 left join {{ ref('stg_stps_sh_medical_health_center_service') }} smhcs
     on smhcs.product_id = pp.id and smhcs.brand_etl = pp.brand_etl
@@ -51,4 +51,4 @@ left join {{ ref('stg_stps_uom_uom') }} uu
     on pt.uom_id = uu.id and uu.brand_etl = pt.brand_etl
 left join pimp
     on (case when pp.brand_etl < 2 then pp.id end) = pimp.product_id
-where pp.brand_etl in (1, 3, 4, 8, 7)
+where pp.brand_etl in (1, 2, 3, 4, 8, 7)

@@ -47,6 +47,43 @@ hethv as (
     from {{ ref('stg_stem_hr_employee') }}
     where brand_etl = 8
     group by employee_code
+),
+heda as (
+    select min(id) as id, min(user_id) as user_id, employee_code
+    from {{ ref('stg_stem_hr_employee') }}
+    where brand_etl = 2
+    group by employee_code
+),
+
+-- Đông Á — dự phòng khi hr_employee brand 2 thiếu employee_code (đa số nhân viên Đông Á không có bản ghi
+-- brand 2, 2026-10-14): map theo email, res_users.login (brand 2) = work_email hồ sơ SCI. KHÔNG map theo
+-- user_id/company_id bỏ qua brand_etl — user_id là id riêng từng DB brand, trùng số là người khác.
+-- Chỉ nhận email duy nhất ở cả 2 phía và user_id chưa được heda dùng, để không fan-out khi join.
+ruda as (
+    select lower(trim(login)) as email, min(id) as user_id
+    from {{ ref('stg_stem_res_users') }}
+    where brand_etl = 2 and login like '%@%'
+    group by lower(trim(login))
+    having count(*) = 1
+),
+he_email_uniq as (
+    select lower(trim(work_email)) as email
+    from he
+    where work_email like '%@%'
+    group by lower(trim(work_email))
+    having count(distinct employee_code) = 1
+),
+-- Map thủ công (seed) — ưu tiên cao nhất; user_id trong seed bị loại khỏi heda/email để không gán 2 người.
+da_seed_map as (
+    select da_user_id, employee_code from {{ ref('seed_rkbc_dong_a_user_map') }}
+),
+
+da_email_map as (
+    select heu.email, ruda.user_id
+    from he_email_uniq heu
+    inner join ruda on ruda.email = heu.email
+    where ruda.user_id not in (select user_id from heda where user_id is not null)
+      and ruda.user_id not in (select da_user_id from da_seed_map)
 )
 
 select
@@ -62,7 +99,13 @@ select
     hekn.id as kn_id, hekn.user_id as kn_user_id,
     hepr.id as pr_id, hepr.user_id as pr_user_id,
     hehh.id as hh_id, hehh.user_id as hh_user_id,
-    hethv.id as thv_id, hethv.user_id as thv_user_id
+    hethv.id as thv_id, hethv.user_id as thv_user_id,
+    heda.id as da_id,
+    coalesce(
+        dsm.da_user_id,
+        case when heda.user_id not in (select da_user_id from da_seed_map) then heda.user_id end,
+        dem.user_id
+    ) as da_user_id
 from he
 inner join {{ ref('stg_stem_m_res_company') }} rc on he.company_id = rc.id and rc.brand_etl = he.brand_etl
 inner join {{ ref('stg_stem_res_brand') }} rb on rc.brand_id = rb.id and rb.brand_etl = rc.brand_etl
@@ -77,4 +120,7 @@ left join hekn on he.employee_code = hekn.employee_code
 left join hepr on he.employee_code = hepr.employee_code
 left join hehh on he.employee_code = hehh.employee_code
 left join hethv on he.employee_code = hethv.employee_code
+left join heda on he.employee_code = heda.employee_code
+left join da_email_map dem on dem.email = lower(trim(he.work_email))
+left join da_seed_map dsm on dsm.employee_code = he.employee_code
 where rc.brand_etl = 7 and rb.brand_etl = 7

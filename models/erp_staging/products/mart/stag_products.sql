@@ -34,7 +34,8 @@ unioned as (
         pr_product_id, hh_product_id, sci_product_id, thv_product_id,
         product_tmpl_id, pr_product_tmpl_id, hh_product_tmpl_id, sci_product_tmpl_id, thv_product_tmpl_id,
         pr_product_ctg_id, hh_product_ctg_id, sci_product_ctg_id, thv_product_ctg_id,
-        pr_smhcsid, hh_smhcsid, sci_smhcsid, thv_smhcsid
+        pr_smhcsid, hh_smhcsid, sci_smhcsid, thv_smhcsid,
+        da_product_id, da_product_tmpl_id, da_product_ctg_id, da_smhcsid
     from combined
     union all
     select
@@ -46,7 +47,10 @@ unioned as (
         pr_product_id, hh_product_id, sci_product_id, thv_product_id,
         product_tmpl_id, pr_product_tmpl_id, hh_product_tmpl_id, sci_product_tmpl_id, thv_product_tmpl_id,
         pr_product_ctg_id, hh_product_ctg_id, sci_product_ctg_id, thv_product_ctg_id,
-        pr_smhcsid, hh_smhcsid, sci_smhcsid, thv_smhcsid
+        pr_smhcsid, hh_smhcsid, sci_smhcsid, thv_smhcsid,
+        -- Seed backfill không có cột Đông Á (brand_etl=2, thêm 2026-10-14).
+        cast(null as int) as da_product_id, cast(null as int) as da_product_tmpl_id,
+        cast(null as int) as da_product_ctg_id, cast(null as int) as da_smhcsid
     from backfill
 )
 
@@ -97,5 +101,9 @@ select
     unioned.pr_smhcsid,
     unioned.hh_smhcsid,
     unioned.sci_smhcsid,
-    unioned.thv_smhcsid
+    unioned.thv_smhcsid,
+    unioned.da_product_id,
+    unioned.da_product_tmpl_id,
+    unioned.da_product_ctg_id,
+    unioned.da_smhcsid
 from unioned
