@@ -1,0 +1,26 @@
+ macros/generate_schema_name.sql                                                       |  20 [32m++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/README.md                                     | 135 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/mart/mart_report_marketing_ad_cost_ph.sql     | 178 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/mart/mart_report_marketing_ad_cost_ph_thu.sql |  65 [32m+++++++++++++++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/mart/schema.yml                               |  27 [32m++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/sources.yml                               |  71 [32m++++++++++++++++++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_crm_base.sql                  |  64 [32m++++++++++++++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_doanh_so_thu.sql              |  44 [32m++++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_fb_cost.sql                   |  27 [32m++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_inbox.sql                     |  22 [32m+++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_trang_thai.sql                |  41 [32m+++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_ty_gia.sql                    |  40 [32m++++++++++++++++++++++++[m
+ models/func_report_marketing_ad_cost_ph/stg/stg_frmacph_vat_tu.sql                    |  64 [32m++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_doanh_thu/README.md                                                  | 104 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_doanh_thu/mart/report_ph_doanh_thu.sql                               |  65 [32m+++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_doanh_thu/mart/report_ph_doanh_thu_chi_phi.sql                       | 110 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_doanh_thu/mart/schema.yml                                            |  69 [32m+++++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_sale_online/README.md                                                |  72 [32m+++++++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_sale_online/mart/report_ph_sale_online.sql                           | 113 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ models/report_ph_sale_online/mart/schema.yml                                          |  27 [32m++++++++++++++++[m
+ models/report_ph_sale_online/stg/stg_phso_map.sql                                     |  60 [32m++++++++++++++++++++++++++++++++++++[m
+ tests/ph/assert_ph_doanh_thu_co_ty_gia.sql                                            |   9 [32m++++++[m
+ tests/ph/assert_ph_doanh_thu_khop_phieu_thu.sql                                       |  29 [32m++++++++++++++++++[m
+ tests/ph/assert_ph_dtcp_khong_thieu_tien.sql                                          |   9 [32m++++++[m
+ tests/ph/assert_ph_dtcp_khop_nguon.sql                                                |  50 [32m++++++++++++++++++++++++++++++[m
+ 25 files changed, 1515 insertions(+)
