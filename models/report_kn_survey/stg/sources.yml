@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: kn_survey
+    # Tất cả bảng nguồn nằm trong database new_product / schema public
+    schema: public
+    tables:
+      # Survey CMS
+      - name: kn_survey_cms_invite
+      - name: kn_survey_cms_invite_line
+      - name: kn_survey_cms_invite_service_rel
+      - name: kn_survey_cms_touchpoint
+      # Danh mục
+      - name: res_partner
+      - name: crm_lead
+      - name: m_res_company
+      - name: sh_medical_health_center
+      - name: sh_medical_physician
+      - name: sh_medical_health_center_service
+      - name: view_stag_employees_user
+      - name: view_stag_products

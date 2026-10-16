@@ -148,6 +148,14 @@ models:
         +materialized: ephemeral
       mart:
         +materialized: table
+    report_kn_survey:
+      +tags: ["report_kn_survey"]
+      stg:
+        +materialized: ephemeral
+      int:
+        +materialized: ephemeral
+      mart:
+        +materialized: table
     report_tong_quan_ds_kn:
       +tags: ["report_tong_quan_ds_kn"]
       stg:
