@@ -24,6 +24,7 @@ Model **không tự tính doanh số** — lấy từ 2 model đã có (không s
 |---|---|
 | `int/*`, `stag/*` | `ephemeral` (không tạo bảng) |
 | `mart/report_hh_thv_ds_kh` | `table` → `public.report_hh_thv_ds_kh` (bảng duy nhất trên DB) |
+| `int/rhtdk_noi_soi_thv` | `table` → `public.rhtdk_noi_soi_thv` (booking THV có dịch vụ nội soi; tách bảng để join vào `rhtdk_booking_dc` không bị chậm) |
 
 `int/rhtdk_thv_target` **không còn được dùng** (target THV theo loại md/ml… đã bỏ, chỉ giữ chỉ tiêu tổng).
 
@@ -161,6 +162,8 @@ nhom_md_ml_baocao`. Bỏ dòng không có ngày tương ứng.
 | `amount_paid` | NULL | NULL | **chỉ dòng Booking ĐC**: `crm_lead.amount_paid` (tiền khách đã trả; > 0 = khách thành công, có thể âm do hoàn) |
 | `nhom_nguon_ty_trong` | **chỉ THV** (HH NULL): Nhà thuốc tách riêng `'Nhà thuốc'`; Dịch vụ gom MD / MGM / CTV / KH cũ / Khác từ `nhom_nguon_ehc` | NULL | NULL |
 | `co_line` | NULL | NULL | **chỉ dòng SĐT** (booking NULL): lead có dịch vụ — HH: có nhóm dịch vụ ở `crm_lead_product_category_rel` (`lead_id`); THV: có dòng `crm_line` (`crm_id`); cùng `brand_etl`. Chỉ đánh dấu, không lọc |
+| `rnk_sdt` | NULL | NULL | **chỉ dòng SĐT thô / SĐT**: thứ tự lần tạo lead của SĐT (1 = lần tạo đầu tiên; toàn lịch sử CRM từng brand, mọi nguồn/trạng thái). Chỉ đánh dấu — lọc `rnk_sdt = 1` ở báo cáo nếu chỉ tính lần đầu |
+| `dc_tc_noi_soi` | NULL | NULL | **chỉ dòng Booking ĐC của THV**: đến cửa thành công (`amount_paid > 0`) có dịch vụ nội soi (EHC THV `servicename` chứa "nội soi"/"gói tầm soát", `soluong > 0`, bỏ nhóm thuốc/vật tư, nối qua `ehc_tb_patientrecord_thv.id_booking`); THV không thỏa = false, HH = NULL |
 
 Target cũ (dòng Target của `rhtdk_hh` + toàn bộ `rhtdk_thv_target`) đã bỏ —
 chỉ giữ chỉ tiêu tổng từ `rhtdk_target`, tránh cộng đôi.
