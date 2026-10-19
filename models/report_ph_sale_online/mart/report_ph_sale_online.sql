@@ -12,6 +12,8 @@
 -- cần đổi nguồn bảng. Thêm 5 cột cuối: trang_thai_du_lieu, ly_do, lead_id,
 -- loai_tien, so_tien_goc (2 cột tiền chỉ có giá trị ở nhánh DS).
 -- Nhánh (bang): Lead_total / BK / HL / DC / TC / DS – cùng ý nghĩa với KN.
+-- [2026-10-13] Thêm 2 cột cuối doanh_so_php, ty_gia_php (chỉ nhánh DS) để Tableau chọn xem
+-- VND (sdt) hoặc PHP (doanh_so_php). Lấy từ stg_frmacph_doanh_so_thu.
 -- Mọi phép đếm/tổng BẮT BUỘC lọc theo `bang` (BK/HL/DC lặp cùng booking) và
 -- trang_thai_du_lieu = 'THAT'.
 -- =============================================================================
@@ -34,25 +36,26 @@ lead_attr AS (
 ),
 rows AS (
     SELECT m.*, 'Lead_total'::text AS bang, m.ngay_tao AS ngay, NULL::text AS ma_phieu,
-           m.sdt::text AS gia_tri, NULL::text AS loai_tien, NULL::numeric AS so_tien_goc
+           m.sdt::text AS gia_tri, NULL::text AS loai_tien, NULL::numeric AS so_tien_goc,
+           NULL::numeric AS doanh_so_php, NULL::numeric AS ty_gia_php
     FROM m
     WHERE m.loai_ban_ghi = 1
       AND m.trang_thai IN ('Booked', 'Tiềm năng', 'Consider', 'Số mới')
 
     UNION ALL
-    SELECT m.*, 'BK', m.ngay_tao, NULL, m.sdt, NULL, NULL
+    SELECT m.*, 'BK', m.ngay_tao, NULL, m.sdt, NULL, NULL, NULL, NULL
     FROM m WHERE m.loai_ban_ghi = 2 AND (m.reason_cancel_booking IS NULL OR m.reason_cancel_booking <> 'tao_booking_bh')
 
     UNION ALL
-    SELECT m.*, 'HL', m.ngay_hl, NULL, m.sdt, NULL, NULL
+    SELECT m.*, 'HL', m.ngay_hl, NULL, m.sdt, NULL, NULL, NULL, NULL
     FROM m WHERE m.loai_ban_ghi = 2 AND (m.reason_cancel_booking IS NULL OR m.reason_cancel_booking <> 'tao_booking_bh')
 
     UNION ALL
-    SELECT m.*, 'DC', m.ngay_den_cua, NULL, m.sdt, NULL, NULL
+    SELECT m.*, 'DC', m.ngay_den_cua, NULL, m.sdt, NULL, NULL, NULL, NULL
     FROM m WHERE m.loai_ban_ghi = 2 AND (m.reason_cancel_booking IS NULL OR m.reason_cancel_booking <> 'tao_booking_bh')
 
     UNION ALL
-    SELECT m.*, 'TC', m.ngay_den_cua, NULL, m.sdt, NULL, NULL
+    SELECT m.*, 'TC', m.ngay_den_cua, NULL, m.sdt, NULL, NULL, NULL, NULL
     FROM m WHERE m.loai_ban_ghi = 2 AND (m.reason_cancel_booking IS NULL OR m.reason_cancel_booking <> 'tao_booking_bh')
       AND m.tong_tien > 0
 
@@ -66,7 +69,8 @@ rows AS (
         la.nguon, coalesce(d.chi_nhanh, la.chi_nhanh), coalesce(ap.company_id, la.chinhanhphanquyen),
         la.tinh, la.work_email, la.nhom_dv, la.ten_dv, la.his_service_type, la.surgery_type, la.tong_tien,
         coalesce(la.trang_thai_du_lieu, 'NGHI_TEST'), coalesce(la.ly_do, 'Phiếu thu không gắn lead'),
-        'DS', d.ngay, ap.name, d.doanh_so::text, d.loai_tien, d.so_tien_goc
+        'DS', d.ngay, ap.name, d.doanh_so::text, d.loai_tien, d.so_tien_goc,
+        d.doanh_so_php, d.ty_gia_php
     FROM {{ ref('stg_frmacph_doanh_so_thu') }} d
     LEFT JOIN {{ source('ph', 'account_payment') }} ap ON ap.id = d.payment_id
     LEFT JOIN lead_attr la ON la.lead_id = d.lead_id
@@ -101,7 +105,9 @@ SELECT
     r.ly_do::text                             AS ly_do,
     r.lead_id::integer                        AS lead_id,
     r.loai_tien::text                         AS loai_tien,
-    r.so_tien_goc::numeric                    AS so_tien_goc
+    r.so_tien_goc::numeric                    AS so_tien_goc,
+    r.doanh_so_php::numeric                   AS doanh_so_php,   -- doanh số quy đổi PHP (chỉ DS)
+    r.ty_gia_php::numeric                     AS ty_gia_php      -- tỷ giá PHP ACB đã dùng (chỉ DS)
 FROM rows r
 LEFT JOIN {{ source('ph', 'crm_lead') }} lc          ON lc.id = r.lead_id
 LEFT JOIN {{ ref('stg_frmacph_pancake') }} pc        ON pc.conversation_id = nullif(lc.pancake_conversation_id, '')

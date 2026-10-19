@@ -106,16 +106,22 @@ source_flag as (
     select
         b.crm_id,
         b.brand_etl,
+        -- (2026-10-13) tên nguồn: stag_sources, thiếu thì bù từ stg_rtds_nguon_bo_sung (nguồn "DG - …") — nhờ vậy
+        -- DG - N - CBNV / Người nhà CBNV / Đối ngoại cũng bị loại như nguồn CBNV/Đối ngoại khác (user chốt).
         (
-            coalesce(ss.source ilike '%cbnv%', false)
-            or coalesce(ss.source ilike '%đối ngoại%', false)
-            or coalesce(ss.source ilike '%thuê phòng mổ%', false)
-            or coalesce(ss.source ilike '%tpm%', false)
+            coalesce(coalesce(ss.source, nb.source) ilike '%cbnv%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%đối ngoại%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%thuê phòng mổ%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%tpm%', false)
         ) as nguon_bi_loai,
         -- (2026-09-26) MD/ML theo nguồn CRM, quy tắc workbook "Bộ chỉ số kinh doanh" (macros/rtds_nhom_md_ml.sql)
-        {{ rtds_nhom_md_ml_khach('b.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
+        {{ rtds_nhom_md_ml_khach('b.source_id', 'coalesce(ss.category_id, nb.category_id)', 'coalesce(ss.source, nb.source)') }} as nhom_md_ml,
+        b.source_id::int as source_id,
+        coalesce(ss.source, nb.source) as nguon,
+        coalesce(ss.newcat_source, nb.newcat_source) as nhom_nguon_khach
     from base b
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
+    left join {{ ref('stg_rtds_nguon_bo_sung') }} nb on nb.old_id = b.source_id and nb.brand_etl = b.brand_etl
 ),
 
 current_hh_thv as (
@@ -128,7 +134,9 @@ current_hh_thv as (
         (b.amount_paid > 0) as da_thanh_cong,
         coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml,
         -- (2026-09-27) mã khách để đếm theo khách hàng; thiếu code_customer → partner_id → crm_id
-        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || b.brand_etl::text as ma_khach
+        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || b.brand_etl::text as ma_khach,
+        -- (2026-10-13) nguồn gốc theo stag_sources (crm_lead.source_id), xem int_rtds_khach_hang_den_cua_thanh_cong.sql
+        sf.source_id, sf.nguon, sf.nhom_nguon_khach
     from base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = b.brand_etl
@@ -165,16 +173,22 @@ old_hongha_base as (
 old_hongha_source_flag as (
     select
         b.crm_id,
+        -- (2026-10-13) tên nguồn: stag_sources, thiếu thì bù từ stg_rtds_nguon_bo_sung (nguồn "DG - …") — nhờ vậy
+        -- DG - N - CBNV / Người nhà CBNV / Đối ngoại cũng bị loại như nguồn CBNV/Đối ngoại khác (user chốt).
         (
-            coalesce(ss.source ilike '%cbnv%', false)
-            or coalesce(ss.source ilike '%đối ngoại%', false)
-            or coalesce(ss.source ilike '%thuê phòng mổ%', false)
-            or coalesce(ss.source ilike '%tpm%', false)
+            coalesce(coalesce(ss.source, nb.source) ilike '%cbnv%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%đối ngoại%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%thuê phòng mổ%', false)
+            or coalesce(coalesce(ss.source, nb.source) ilike '%tpm%', false)
         ) as nguon_bi_loai,
         -- (2026-09-26) MD/ML theo nguồn CRM, quy tắc workbook "Bộ chỉ số kinh doanh" (macros/rtds_nhom_md_ml.sql)
-        {{ rtds_nhom_md_ml_khach('b.source_id', 'ss.category_id', 'ss.source') }} as nhom_md_ml
+        {{ rtds_nhom_md_ml_khach('b.source_id', 'coalesce(ss.category_id, nb.category_id)', 'coalesce(ss.source, nb.source)') }} as nhom_md_ml,
+        b.source_id::int as source_id,
+        coalesce(ss.source, nb.source) as nguon,
+        coalesce(ss.newcat_source, nb.newcat_source) as nhom_nguon_khach
     from old_hongha_base b
     left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = b.source_id
+    left join {{ ref('stg_rtds_nguon_bo_sung') }} nb on nb.old_id = b.source_id and nb.brand_etl = 4
 ),
 
 old_hongha as (
@@ -186,7 +200,9 @@ old_hongha as (
         extract(month from b.arrival_date)::int as thang,
         (b.amount_paid > 0) as da_thanh_cong,
         coalesce(sf.nhom_md_ml, 'ML') as nhom_md_ml,
-        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || 4::text as ma_khach
+        coalesce(nullif(b.code_customer, ''), 'p' || b.partner_id::text, 'crm' || b.crm_id::text) || '_' || 4::text as ma_khach,
+        -- (2026-10-13) nguồn gốc theo stag_sources (crm_lead.source_id), xem int_rtds_khach_hang_den_cua_thanh_cong.sql
+        sf.source_id, sf.nguon, sf.nhom_nguon_khach
     from old_hongha_base b
     left join {{ ref('stg_rtds_m_res_company') }} mrc
         on mrc.id = b.company_id and mrc.brand_etl = 4
@@ -197,6 +213,6 @@ old_hongha as (
       and not coalesce(sf.nguon_bi_loai, false)
 )
 
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach from current_hh_thv
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach, source_id, nguon, nhom_nguon_khach from current_hh_thv
 union all
-select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach from old_hongha
+select crm_id, brand, chi_nhanh, nam, thang, da_thanh_cong, nhom_md_ml, ma_khach, source_id, nguon, nhom_nguon_khach from old_hongha

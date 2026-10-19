@@ -153,27 +153,27 @@ chi_tieu as (
 lead as (
     select 'SĐT'::text as nguon_du_lieu, ngay, booking, contact_name, phone, code_customer, co_line,
            brand_etl, ten_thuong_hieu, source_name, new_source_name, nhom_md_ml_baocao,
-           null::numeric as amount_paid
+           null::numeric as amount_paid, null::boolean as dc_tc_noi_soi, rnk_sdt
     from {{ ref('rhtdk_sdt') }}
     union all
     select 'SĐT thô'::text, ngay, booking, contact_name, phone, code_customer, co_line,
            brand_etl, ten_thuong_hieu, source_name, new_source_name, nhom_md_ml_baocao,
-           null::numeric as amount_paid
+           null::numeric as amount_paid, null::boolean, rnk_sdt
     from {{ ref('rhtdk_sdt_tho') }}
     union all
     select 'Booking tạo'::text, ngay, booking, contact_name, phone, code_customer, null::boolean,
            brand_etl, ten_thuong_hieu, source_name, new_source_name, nhom_md_ml_baocao,
-           null::numeric
+           null::numeric, null::boolean, null::bigint
     from {{ ref('rhtdk_booking_create') }}
     union all
     select 'Booking'::text, ngay, booking, contact_name, phone, code_customer, null::boolean,
            brand_etl, ten_thuong_hieu, source_name, new_source_name, nhom_md_ml_baocao,
-           null::numeric
+           null::numeric, null::boolean, null::bigint
     from {{ ref('rhtdk_booking') }}
     union all
     select 'Booking ĐC'::text, ngay, booking, contact_name, phone, code_customer, null::boolean,
            brand_etl, ten_thuong_hieu, source_name, new_source_name, nhom_md_ml_baocao,
-           amount_paid
+           amount_paid, dc_tc_noi_soi, null::bigint
     from {{ ref('rhtdk_booking_dc') }}
 ),
 
@@ -197,7 +197,9 @@ gop as (
         nhom_md_ml_baocao,
         null::boolean                                as co_line,
         null::numeric                                as amount_paid,
-        null::text                                   as ten_chi_tieu
+        null::text                                   as ten_chi_tieu,
+        null::boolean                                as dc_tc_noi_soi,
+        null::bigint                                 as rnk_sdt
     from combine
 
     union all
@@ -221,7 +223,9 @@ gop as (
         null::text                                   as nhom_md_ml_baocao,
         null::boolean                                as co_line,
         null::numeric                                as amount_paid,
-        null::text                                   as ten_chi_tieu
+        null::text                                   as ten_chi_tieu,
+        null::boolean                                as dc_tc_noi_soi,
+        null::bigint                                 as rnk_sdt
     from chi_tieu
 
     union all
@@ -245,7 +249,9 @@ gop as (
         nhom_md_ml_baocao,
         co_line,
         amount_paid,
-        null::text                                   as ten_chi_tieu
+        null::text                                   as ten_chi_tieu,
+        dc_tc_noi_soi,
+        rnk_sdt
     from lead
 
     union all
@@ -271,7 +277,9 @@ gop as (
         null::text                                   as nhom_md_ml_baocao,
         null::boolean                                as co_line,
         null::numeric                                as amount_paid,
-        ten_chi_tieu
+        ten_chi_tieu,
+        null::boolean                                as dc_tc_noi_soi,
+        null::bigint                                 as rnk_sdt
     from {{ ref('rhtdk_target_sm') }}
 )
 
@@ -328,6 +336,12 @@ select
     -- Chỉ dòng 'Booking ĐC': crm_lead.amount_paid (khách thành công = > 0).
     amount_paid,
     -- Chỉ dòng mục tiêu SM (model_nguon 'target_sm'): tên chỉ số; còn lại NULL.
-    ten_chi_tieu
+    ten_chi_tieu,
+    -- Chỉ dòng 'Booking ĐC' của THV: đến cửa thành công (amount_paid > 0) có
+    -- dùng dịch vụ nội soi (xem rhtdk_booking_dc). HH / dòng khác: NULL.
+    dc_tc_noi_soi,
+    -- Chỉ dòng 'SĐT thô' / 'SĐT': thứ tự lần tạo lead của SĐT (1 = lần đầu
+    -- tiên, toàn lịch sử CRM, mọi nguồn/trạng thái). Chỉ đánh dấu, không lọc.
+    rnk_sdt
 from gop
 where invoicedate >= date '2026-01-01'

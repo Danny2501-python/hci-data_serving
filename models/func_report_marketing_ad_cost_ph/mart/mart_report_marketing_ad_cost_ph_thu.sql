@@ -13,6 +13,10 @@
 -- (Tableau chỉ cần đổi bảng nguồn) + 4 cột tỷ giá ở cuối, chỉ có giá trị với dòng DS:
 -- loai_tien, so_tien_goc, ngay_ty_gia, ty_gia.
 -- Tag riêng 'report_ph_thu' → không chạy kèm khi build tag:report_ph.
+-- [2026-10-13] Thêm 2 cột cuối metric_php, ty_gia_php để Tableau chọn xem VND / PHP:
+--   Cost_fb_cd : chi phí FB (VND) ÷ tỷ giá PHP ACB ngày gần nhất ≤ ngày chạy quảng cáo
+--   DS         : doanh_so_php của stg_frmacph_doanh_so_thu (phiếu PHP = đúng số tiền gốc)
+--   dòng đếm khách / inbox: NULL (số lượng, không đổi tiền). Bảng chính không đổi.
 -- =============================================================================
 WITH crm AS (
     SELECT * FROM {{ ref('stg_frmacph_crm_base') }}
@@ -25,8 +29,18 @@ SELECT m.*,
     NULL::text    AS loai_tien,
     NULL::numeric AS so_tien_goc,
     NULL::date    AS ngay_ty_gia,
-    NULL::numeric AS ty_gia
+    NULL::numeric AS ty_gia,
+    -- chi phí FB quy đổi PHP (giả định chi phí FB là VND – tài khoản QC trên hạ tầng Kangnam)
+    CASE WHEN m.type_data = 'Cost_fb_cd'
+         THEN round(m."Metric"::numeric / nullif(tgp.ty_gia, 0), 2) END AS metric_php,
+    CASE WHEN m.type_data = 'Cost_fb_cd' THEN tgp.ty_gia END         AS ty_gia_php
 FROM {{ ref('mart_report_marketing_ad_cost_ph') }} m
+LEFT JOIN LATERAL (     -- tỷ giá PHP ngày gần nhất ≤ ngày (T7/CN/lễ → ngày trước đó); chỉ dùng cho chi phí
+    SELECT t.ty_gia FROM {{ ref('stg_frmacph_ty_gia') }} t
+    WHERE m.type_data = 'Cost_fb_cd' AND t.loai_tien = 'PHP' AND t.ngay <= m."date"
+    ORDER BY t.ngay DESC
+    LIMIT 1
+) tgp ON TRUE
 WHERE m.type_data <> 'DS'
 
 UNION ALL
@@ -60,7 +74,9 @@ SELECT
     d.loai_tien,
     d.so_tien_goc,
     d.ngay_ty_gia,
-    d.ty_gia
+    d.ty_gia,
+    d.doanh_so_php,                                -- metric_php: doanh số quy đổi PHP
+    d.ty_gia_php
 FROM {{ ref('stg_frmacph_doanh_so_thu') }} d
 LEFT JOIN crm c                                     ON c.lead_id  = d.lead_id
 LEFT JOIN {{ ref('stg_frmacph_trang_thai') }} tt    ON tt.lead_id = d.lead_id

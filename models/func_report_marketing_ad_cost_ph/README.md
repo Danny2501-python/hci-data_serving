@@ -12,6 +12,12 @@ PHP – thấp ~400 lần). Nay cả 2 bảng cùng lấy `stg_frmacph_doanh_so_
 (bản `amount_vnd`) đã xoá. Bản `_thu` chỉ thêm 4 cột cuối: `loai_tien`, `so_tien_goc`,
 `ngay_ty_gia`, `ty_gia` (chỉ có giá trị ở dòng DS). Dashboard dùng bảng nào cũng đúng.
 
+**[2026-10-13]** Bản `_thu` thêm 2 cột cuối để Tableau chọn xem VND / PHP (bảng chính không đổi):
+`metric_php` (Cost_fb_cd = chi phí FB VND ÷ tỷ giá PHP ACB ngày gần nhất ≤ ngày chạy; DS = doanh số
+quy đổi PHP, phiếu PHP = đúng số tiền gốc; dòng đếm khách / inbox để trống) và `ty_gia_php`.
+Giả định chi phí FB là VND (TK quảng cáo trên hạ tầng Kangnam). Tableau:
+`IF [Currency]='PHP' AND [type_data] IN ('Cost_fb_cd','DS') THEN [metric_php] ELSE FLOAT([Metric]) END`.
+
 26 cột đầu **giống hệt** `report_marketing_ad_cost_kn_v2` (tên, thứ tự) → dashboard Tableau của
 Kangnam chỉ cần đổi nguồn bảng. Thêm 4 cột cuối:
 

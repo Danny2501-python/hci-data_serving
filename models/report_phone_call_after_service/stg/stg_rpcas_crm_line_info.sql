@@ -23,7 +23,7 @@ SELECT
 FROM
     {{ source('phone_call_after_service','crm_lead')}} cl
     left join {{ source('phone_call_after_service','crm_stage')}} cs on cl.stage_id = cs.id and cl.brand_etl = cs.brand_etl
-    left join {{ source('phone_call_after_service','stag_sources')}} ss on cl.source_id = ss.old_id and cl.brand_etl = ss.brand_etl
+    left join {{ source('phone_call_after_service','stag_sources')}} ss on cl.source_id = ss.old_id and cl.brand_etl = ss.brand_id
     left join {{ source('phone_call_after_service','crm_line')}} cl2 on cl.id = cl2.crm_id and cl.brand_etl = cl2.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu on cl.create_by = vseu.user_id and cl.brand_etl = vseu.brand_etl
     left join {{ source('phone_call_after_service','view_stag_employees_user')}} vseu2 on cl2.consultants_1 = vseu2.user_id and cl2.brand_etl = vseu2.brand_etl

@@ -120,8 +120,9 @@ luong_bs as (
       and sd.tongbenhnhan > 0
       and sd.servicedatadate >= date '2026-01-01'
     group by 1, 2
-)
+),
 
+dich_vu as (
 select
     'Hồng Hà' as brand,
     'EHC' as nguon_he_thong,
@@ -140,8 +141,17 @@ select
     case when b.nguon_du_lieu = 'Nhà thuốc' then 'Nhà thuốc' else sp.product_category end as nhom_dich_vu,
     case when b.nguon_du_lieu = 'Nhà thuốc' then null else sp.product end as san_pham,
     'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
-    coalesce(ss.source, b.source_ehc) as nguon,
-    coalesce(ss.newcat_source, b.dm_hoahongnguoigioithieu_nguoigioithieuname) as nhom_nguon_khach,
+    -- (2026-10-13, user chốt) Nhà thuốc → nguồn 'Nhà thuốc', nhóm nguồn 'Nhà thuốc' (mọi dòng nhà thuốc).
+    case when b.nguon_du_lieu = 'Nhà thuốc' then 'Nhà thuốc' else coalesce(ss.source, b.source_ehc) end as nguon,
+    -- (2026-10-13, user chốt) Gộp 1 nhóm "Thuê phòng mổ": nguồn CRM 'K - Cho thuê phòng Mổ' (newcat_source
+    -- = 'Khác') và nhóm EHC '[TPM]Thuê phòng mổ' (dòng không nối được sang CRM) đều đưa về '[TPM]Thuê phòng mổ'.
+    case
+        when b.nguon_du_lieu = 'Nhà thuốc' then 'Nhà thuốc'
+        when coalesce(ss.newcat_source, b.dm_hoahongnguoigioithieu_nguoigioithieuname) = '[TPM]Thuê phòng mổ'
+          or coalesce(ss.source, b.source_ehc) ilike '%thuê phòng mổ%'
+            then '[TPM]Thuê phòng mổ'
+        else coalesce(ss.newcat_source, b.dm_hoahongnguoigioithieu_nguoigioithieuname)
+    end as nhom_nguon_khach,
     b.sotienphieu::numeric as so_tien,
     -- (2026-09-26) MD/ML: ưu tiên nguồn ERP (booking có source trong stag_sources → quy tắc workbook
     -- "Bộ chỉ số kinh doanh", macros/rtds_nhom_md_ml.sql); không có → nhóm hoa hồng người giới thiệu
@@ -152,16 +162,38 @@ select
         when b.dm_hoahongnguoigioithieu_nguoigioithieuname ilike '[MD]%'
           or b.dm_hoahongnguoigioithieu_nguoigioithieuname ilike '%marketing digital%'
             then 'MD'
+        -- (2026-10-13, user chốt) nguồn EHC "DG - MD - …" (nhóm [DGMKT], dòng Dr Giang) tính MD
+        when b.source_ehc ilike 'DG - MD -%'
+            then 'MD'
         else 'ML'
     end as nhom_md_ml,
     -- (2026-09-28) Thêm his_service_type (view_stag_products) + source_id (crm_lead) theo yêu cầu user.
     case when b.nguon_du_lieu = 'Nhà thuốc' then null else sp.his_service_type end::text as his_service_type,
-    bridge.source_id::int as source_id
+    bridge.source_id::int as source_id,
+    b.patientrecordid
 from base b
 left join bridge on bridge.ma_booking = b.id_booking
 left join {{ ref('stg_rtds_stag_sources') }} ss on ss.old_id = bridge.source_id
 left join cline_one cl2 on cl2.crm_id = bridge.crm_lead_id and b.nguon_du_lieu = 'Dịch vụ'
 left join {{ ref('stg_rtds_view_stag_products') }} sp on sp.product_id = cl2.product_id and sp.brand_etl = cl2.brand_etl
+),
+
+-- (2026-10-13, user chốt) Nguồn của hồ sơ bệnh án (patientrecordid) = nguồn của dòng doanh số dịch vụ lớn nhất
+-- trong hồ sơ — để 2 nhóm dòng TRỪ bên dưới (túi ngực/mông, lương BS PTTM) KẾ THỪA nguồn của chính ca đó thay vì
+-- để trống (trước đây −45 tỷ 2025-2026 rơi vào nguồn NULL, còn nguồn thuê phòng mổ bị phóng to tương ứng).
+-- Không tìm được (hồ sơ không có dòng dịch vụ có nguồn) → vẫn NULL.
+nguon_ho_so as (
+    select distinct on (patientrecordid) patientrecordid, nguon, nhom_nguon_khach, source_id
+    from dich_vu
+    where patientrecordid is not null and nguon is not null
+      and nhom_dich_vu is distinct from 'Nhà thuốc'
+    order by patientrecordid, so_tien desc
+)
+
+select
+    brand, nguon_he_thong, ma_giao_dich, co_chi_tiet_booking, ngay, nam, thang, ma_khach_hang, ten_khach_hang,
+    ma_booking, nhom_dich_vu, san_pham, chi_nhanh, nguon, nhom_nguon_khach, so_tien, nhom_md_ml, his_service_type, source_id
+from dich_vu
 
 union all
 
@@ -181,14 +213,15 @@ select
     'Vật tư túi ngực/túi mông (loại trừ)' as nhom_dich_vu,
     null::text as san_pham,
     'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
-    null::text as nguon,
-    null::text as nhom_nguon_khach,
+    nhs2.nguon as nguon,
+    nhs2.nhom_nguon_khach as nhom_nguon_khach,
     tnm.so_tien::numeric as so_tien,
     'ML' as nhom_md_ml,  -- dòng trừ không có nguồn → ML (nhóm "Khác" thuộc khối ML)
     null::text as his_service_type,
-    null::int as source_id
+    nhs2.source_id as source_id
 from tui_nguc_mong tnm
 left join pr pr2 on pr2.patientrecordid = tnm.patientrecordid
+left join nguon_ho_so nhs2 on nhs2.patientrecordid = tnm.patientrecordid
 
 union all
 
@@ -207,13 +240,14 @@ select
     'Lương bác sĩ PTTM (loại trừ)' as nhom_dich_vu,
     case lbs.loai_phau when 'dai' then 'Đại phẫu' else 'Tiểu phẫu' end as san_pham,
     'BỆNH VIỆN HỒNG HÀ' as chi_nhanh,
-    null::text as nguon,
-    null::text as nhom_nguon_khach,
+    nhs3.nguon as nguon,
+    nhs3.nhom_nguon_khach as nhom_nguon_khach,
     (case lbs.loai_phau when 'dai' then -2000000 else -500000 end)::numeric as so_tien,
     'ML' as nhom_md_ml,  -- dòng trừ không có nguồn → ML
     null::text as his_service_type,
-    null::int as source_id
+    nhs3.source_id as source_id
 from luong_bs lbs
+left join nguon_ho_so nhs3 on nhs3.patientrecordid = lbs.patientrecordid
 join {{ ref('stg_rtds_ehc_tb_patientrecord') }} pr3
   on pr3.patientrecordid = lbs.patientrecordid
  and pr3.dm_patientrecordstatusid = 1

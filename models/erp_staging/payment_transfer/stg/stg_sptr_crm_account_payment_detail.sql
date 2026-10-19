@@ -6,6 +6,11 @@
 -- KHÔNG lọc is_delete — xem LOGIC.md/knowledge.md, đối chiếu 2026-07-25 khớp tuyệt đối 816,719 dòng
 -- kể cả các dòng is_delete=true) — CỐ Ý khác bản gốc vì đã xác minh đây là lỗi thật, không phải hạn
 -- chế thiết kế.
-select *
-from {{ source('sptr_erp', 'crm_account_payment_detail') }}
-where coalesce(is_delete, false) = false
+-- (2026-10-13) Bỏ thêm dòng chi tiết "ma" của phiếu bị phân bổ lại (ERP xoá cứng dòng cũ, sync không bắt
+-- được) — xem macros/sptr_phieu_phan_bo_lai.sql.
+select d.*
+from {{ source('sptr_erp', 'crm_account_payment_detail') }} d
+left join {{ sptr_phieu_phan_bo_lai() }} pl
+  on pl.brand_etl = d.brand_etl and pl.account_payment_id = d.account_payment_id
+where coalesce(d.is_delete, false) = false
+  and not (pl.account_payment_id is not null and d.create_date < pl.max_create_date - interval '1 minute')

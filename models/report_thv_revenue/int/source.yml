@@ -26,6 +26,8 @@ sources:
       - name: res_country_state
       - name: ehc_tb_invoice_thv
       - name: ehc_tb_patientrecord_thv
+      - name: ehc_tb_servicedata_thv
+      - name: ehc_tb_dm_servicegroup_thv
       - name: ehc_tb_nguoigioithieu_thv
       - name: ehc_tb_invoicemedicine_thv
       - name: ehc_tb_medicinebill_thv

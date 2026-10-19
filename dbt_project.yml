@@ -49,6 +49,7 @@ vars:
   # Dung qua macro rtds_company_id_gop (macros/rtds_company_id_gop.sql).
   rtds_gop_chi_nhanh:
     - {brand_etl: 1, tu_company_id: 12, den_company_id: 4, tu_ngay: '2026-08-01'}  # BV Tham my Kangnam -> BV Kangnam Sai Gon
+    - {brand_etl: 1, tu_company_id: 10, den_company_id: 4, tu_ngay: '2026-10-01'}  # VTM Kangnam Binh Duong -> BV Kangnam Sai Gon (user chot 2026-10-13)
   # Bộ điều kiện "is_kpi_branch" — copy từ Tableau workbook KANGNAM (sheet GB_result, calculated
   # field "is_kpi_branch") — các nguồn (source_id/tên nguồn) KHÔNG tính vào doanh số KPI chi nhánh
   # (nhân viên nội bộ mua dịch vụ, quan hệ đối ngoại, thuê phòng mổ, bác sĩ hợp tác nội bộ). Đã đối
@@ -251,7 +252,7 @@ models:
       stag:
         +materialized: ephemeral
     erp_staging:
-      +tags: ["erp_staging"]
+      +tags: ["erp_staging","rtds"]
       products:
         stg:
           +materialized: ephemeral
