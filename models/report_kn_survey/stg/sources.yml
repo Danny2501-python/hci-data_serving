@@ -13,6 +13,10 @@ sources:
       # Danh mục
       - name: res_partner
       - name: crm_lead
+      - name: crm_case
+      - name: stag_sources
+      - name: utm_source
+      - name: crm_category_source
       - name: m_res_company
       - name: sh_medical_health_center
       - name: sh_medical_physician
