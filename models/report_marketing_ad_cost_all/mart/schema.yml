@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: report_marketing_ad_cost_all
+    description: >
+      Báo cáo marketing tổng hợp nhiều brand (trong nước). Đợt 1: Kangnam + Paris, đọc từ
+      report_marketing_ad_cost_kn_v2 và report_marketing_ad_cost_pr_v2. 26 cột giống kn_v2 + cột brand.
+      Sunwoo / Hồng Hà / Tiêu Hóa Việt map sau. Xem README.md.
+    columns:
+      - name: brand
+        description: "Kangnam / Paris"
+        tests:
+          - not_null:
+              config:
+                tags: ['mkt_all']
+          - accepted_values:
+              values: ['Kangnam', 'Paris']
+              config:
+                tags: ['mkt_all']
+      - name: type_data
+        description: >
+          Loại chỉ số. Chung: Cost_fb_cd, Cost_fb_th, Lead, BKHL, HL, DC, TC, DS, inbox, Google_cd, DealCS.
+          Chỉ Paris (chưa map): BK, tiktok.
+        tests:
+          - not_null:
+              config:
+                tags: ['mkt_all']
