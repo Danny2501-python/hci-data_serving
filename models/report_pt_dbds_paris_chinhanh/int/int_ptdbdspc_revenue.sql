@@ -69,8 +69,8 @@ WITH revenue_union AS (
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_payment_transfer') }} WHERE brand_etl = 3) spt ON spt.clineid = ecl2.id AND ecl2.product_id = spt.product_id 
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'm_res_company') }} WHERE brand_etl = 3) mrc ON spt.company_id = mrc.id
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'res_brand') }} WHERE brand_etl = 3) erb ON erb.id = mrc.brand_id 
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss ON ss.old_id = ecl.source_id
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss2 ON ss2.old_id = ss.id_pr
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss ON ss.old_id = ecl.source_id
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss2 ON ss2.old_id = ss.id_pr
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'dm_convert_case_when') }} WHERE brand_etl = 3) cw ON cw.value_case_when = ecl.reason_out_sold AND cw.column_name = 'reason_out_sold'
     WHERE ecl2.product_id IS NOT NULL)
 
@@ -145,8 +145,8 @@ WITH revenue_union AS (
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_payment_transfer') }} WHERE brand_etl = 3) spt ON spt.clineid = eclp.id AND spt.product_id = eclp.product_id  
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'm_res_company') }} WHERE brand_etl = 3) mrc ON spt.company_id = mrc.id
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'res_brand') }} WHERE brand_etl = 3) erb ON mrc.brand_id = erb.id
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss ON ss.old_id = ecl.source_id
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss2 ON ss2.old_id = ss.id_pr
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss ON ss.old_id = ecl.source_id
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss2 ON ss2.old_id = ss.id_pr
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'dm_convert_case_when') }} WHERE brand_etl = 3) cw ON cw.value_case_when = ecl.reason_out_sold AND cw.column_name = 'reason_out_sold'
     WHERE eclp.stage_line_product IS NOT NULL)
 
@@ -197,8 +197,8 @@ WITH revenue_union AS (
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'res_brand') }} WHERE brand_etl = 3) rb ON rb.id = ap.brand_id 
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'm_res_company') }} WHERE brand_etl = 3) rc ON rc.id = ap.company_id 
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'm_res_company') }} WHERE brand_etl = 3) rc2 ON rc2.id = ap.x_receive_company_id 
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss ON cl.source_id = ss.old_id 
-    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_etl = 3) ss2 ON ss2.old_id = ss.id_pr
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss ON cl.source_id = ss.old_id 
+    LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'stag_sources') }} WHERE brand_id = 3) ss2 ON ss2.old_id = ss.id_pr
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'crm_stage') }} WHERE brand_etl = 3) cs ON cs.id = cl.stage_id
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'crm_type') }} WHERE brand_etl = 3) ct ON ct.id = cl.type_crm_id
     LEFT JOIN (SELECT * FROM {{ source('ptdbdspc_erp', 'dm_convert_case_when') }} WHERE brand_etl = 3) cw ON cw.value_case_when = cl.reason_out_sold AND cw.column_name = 'reason_out_sold'
